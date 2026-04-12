@@ -7,28 +7,19 @@
     "scheme": "matrimonial",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#f43f5e"
-    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.matrimonial.app",
-      "icon": "./assets/icon.png"
+      "bundleIdentifier": "com.matrimonial.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f43f5e"
       },
       "package": "com.matrimonial.app"
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/favicon.png"
+      "output": "static"
     },
     "plugins": ["expo-router"],
     "extra": {
