@@ -37,5 +37,8 @@ ENV NODE_ENV=preview
 ENV PORT=3000
 EXPOSE 3000
 
-WORKDIR /app/apps/server
-CMD ["node", "dist/main.js"]
+# Keep WORKDIR at monorepo root (/app) so relative paths in Start Command
+# overrides (Railway, Render, etc.) resolve correctly whether caller uses
+# 'node dist/main.js' (relative to apps/server) or the full path below.
+WORKDIR /app
+CMD ["node", "/app/apps/server/dist/main.js"]

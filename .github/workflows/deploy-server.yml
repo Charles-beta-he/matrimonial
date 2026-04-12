@@ -30,7 +30,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --no-frozen-lockfile
-      - run: pnpm --filter @matrimonial/server build
+      # Use turbo to respect dependsOn: ^build → builds packages/shared first
+      - run: pnpm turbo run build --filter=@matrimonial/server
 
       - name: Determine image tag
         id: tag

@@ -20,7 +20,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --no-frozen-lockfile
       - name: Export H5
-        run: pnpm --filter @matrimonial/mobile build
+        # turbo cascades packages/shared build first
+        run: pnpm turbo run build --filter=@matrimonial/mobile
       - name: Deploy H5 to CDN
         run: |
           echo "TODO: Configure CDN upload (e.g., aliyun oss cp -r apps/mobile/dist/ oss://matrimonial-h5/)"

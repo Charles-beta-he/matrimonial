@@ -75,8 +75,13 @@ async function bootstrap() {
     res.json({ accepted: events.length });
   });
 
-  // Dev-only file upload receiver — stores files in local filesystem
-  if (env.NODE_ENV !== 'production') {
+  // Dev-only file upload receiver — uses local filesystem which doesn't
+  // work on ephemeral containers (Railway, K8s). Only enable when explicitly
+  // NODE_ENV=development. preview/staging/production use OSS adapter instead.
+  //
+  // Also: Express 5 / path-to-regexp 8 dropped the `:param(*)` syntax, so the
+  // wildcard file-serve route uses a regex instead.
+  if (env.NODE_ENV === 'development') {
     const fs = await import('node:fs/promises');
     const path = await import('node:path');
     const express = require('express');
@@ -94,9 +99,9 @@ async function bootstrap() {
       res.json({ success: true, key });
     });
 
-    // Serve uploaded files
-    expressApp.get('/upload/files/:key(*)', async (req: any, res: any) => {
-      const key = req.params.key;
+    // Serve uploaded files (wildcard via regex — Express 5 compatible)
+    expressApp.get(/^\/upload\/files\/(.+)$/, async (req: any, res: any) => {
+      const key = req.params[0];
       const filePath = path.join(uploadDir, key);
       try {
         const data = await fs.readFile(filePath);
