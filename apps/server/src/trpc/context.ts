@@ -16,7 +16,8 @@ export async function createContext({ req }: { req: Request }): Promise<Context>
   if (token) {
     const payload = await AuthService.verifyToken(token);
     if (payload) {
-      user = { id: payload.sub, role: payload.role ?? 'USER' };
+      const role = payload.role === 'ADMIN' ? 'ADMIN' : 'USER';
+      user = { id: payload.sub, role };
     }
   }
 
