@@ -6,6 +6,7 @@
     "./trpc": "./src/trpc/index.ts"
   },
   "scripts": {
+    "postinstall": "prisma generate || true",
     "build": "nest build",
     "dev": "nest start --watch",
     "lint": "eslint \"src/**/*.ts\"",
