@@ -1,5 +1,7 @@
 name: Build Mobile
 
+# Manual-only — requires EXPO_TOKEN secret to be configured in repo settings.
+# Trigger via: gh workflow run build-mobile.yml -f platform=ios -f profile=preview
 on:
   workflow_dispatch:
     inputs:
@@ -21,11 +23,6 @@ on:
           - development
           - preview
           - production
-
-  push:
-    branches: [main]
-    paths:
-      - 'apps/mobile/**'
 
 jobs:
   eas-build:
