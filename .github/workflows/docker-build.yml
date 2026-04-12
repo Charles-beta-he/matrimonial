@@ -74,11 +74,14 @@ jobs:
             -e CORS_ORIGINS='http://localhost' \
             matrimonial-server:ci-${{ github.sha }}
 
-          # Wait up to 30s for the app to listen
+          # Wait up to 30s for the app to listen.
+          # node:20-slim doesn't ship wget/curl, so use the host's curl
+          # against the published port instead of docker exec.
           for i in $(seq 1 30); do
-            if docker exec matrimonial-server-ci wget -q -O- http://localhost:3000/health 2>/dev/null; then
+            if curl -sf http://localhost:3000/health > /tmp/health-response 2>/dev/null; then
               echo ""
               echo "✅ Container is responding on /health"
+              cat /tmp/health-response
               exit 0
             fi
             sleep 1
