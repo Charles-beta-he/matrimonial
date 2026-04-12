@@ -1,0 +1,95 @@
+name: Docker Build
+
+# Validates that apps/server/Dockerfile builds cleanly.
+# Does NOT push — this catches Dockerfile regressions before Railway does.
+# Same machine target as Railway (linux/amd64).
+
+on:
+  pull_request:
+    paths:
+      - 'apps/server/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.dockerignore'
+      - '.github/workflows/docker-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/server/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.dockerignore'
+      - '.github/workflows/docker-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-server-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-server-
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: matrimonial-server:ci-${{ github.sha }}
+          load: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # Prevent the cache from growing unbounded
+      - name: Move build cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Smoke test — container boots and /health responds
+        run: |
+          # Start container with dummy env (Supabase/Redis fake URLs are OK
+          # because assertRequiredEnv only checks DATABASE_URL is set)
+          docker run -d --name matrimonial-server-ci \
+            -p 3000:3000 \
+            -e NODE_ENV=preview \
+            -e PORT=3000 \
+            -e DATABASE_URL='postgresql://dummy:dummy@127.0.0.1:5432/dummy?sslmode=disable' \
+            -e JWT_SECRET='ci-test-secret-not-real-32bytes-hexhexhexhex' \
+            -e CORS_ORIGINS='http://localhost' \
+            matrimonial-server:ci-${{ github.sha }}
+
+          # Wait up to 30s for the app to listen
+          for i in $(seq 1 30); do
+            if docker exec matrimonial-server-ci wget -q -O- http://localhost:3000/health 2>/dev/null; then
+              echo ""
+              echo "✅ Container is responding on /health"
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "❌ Container failed to respond within 30s"
+          echo "--- docker logs ---"
+          docker logs matrimonial-server-ci
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f matrimonial-server-ci 2>/dev/null || true
