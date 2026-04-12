@@ -13,6 +13,9 @@ export default tseslint.config(
       '**/coverage/**',
       '**/babel.config.js',
       '**/metro.config.js',
+      '**/jest.config.js',
+      '**/jest.config.cjs',
+      '**/vitest.config.ts',
     ],
   },
   {

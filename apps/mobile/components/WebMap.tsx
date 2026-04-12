@@ -15,7 +15,7 @@ export default function WebMap({ latitude, longitude, title }: Props) {
 
   return (
     <View style={{ width: '100%', height: 300 }}>
-      {/* @ts-ignore — img tag works on web via react-native-web */}
+      {/* @ts-expect-error — img tag works on web via react-native-web */}
       <img src={src} alt={title ?? 'map'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     </View>
   );

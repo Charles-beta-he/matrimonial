@@ -35,10 +35,11 @@ export function useGlobalErrorHandler() {
       }));
     };
 
-    // @ts-ignore — ErrorUtils exists in React Native
-    if (typeof ErrorUtils !== 'undefined') {
-      const prev = ErrorUtils.getGlobalHandler();
-      ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+    // ErrorUtils is a React Native runtime global not declared in TS types
+    const RNErrorUtils = (globalThis as { ErrorUtils?: { getGlobalHandler: () => (e: Error, fatal?: boolean) => void; setGlobalHandler: (h: (e: Error, fatal?: boolean) => void) => void } }).ErrorUtils;
+    if (RNErrorUtils) {
+      const prev = RNErrorUtils.getGlobalHandler();
+      RNErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
         console.error(JSON.stringify({
           type: 'fatal_error',
           fatal: isFatal,
@@ -48,6 +49,7 @@ export function useGlobalErrorHandler() {
         prev(error, isFatal);
       });
     }
+    void handler;
 
     return () => {};
   }, []);
