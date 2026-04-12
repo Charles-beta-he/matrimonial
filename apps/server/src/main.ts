@@ -49,7 +49,9 @@ async function bootstrap() {
     try {
       await prisma.$queryRaw`SELECT 1`;
       dbOk = true;
-    } catch {}
+    } catch {
+      // db unreachable → status will report degraded
+    }
 
     res.json({
       status: dbOk ? 'ok' : 'degraded',

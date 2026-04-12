@@ -79,7 +79,9 @@ export const AIAdapter = {
     try {
       const match = response.match(/\{[\s\S]*\}/);
       if (match) return JSON.parse(match[0]);
-    } catch {}
+    } catch {
+      // JSON parse failure → fall back to default score
+    }
     return { score: 7 };
   },
 
