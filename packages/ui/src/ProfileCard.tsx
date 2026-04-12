@@ -51,14 +51,11 @@ export function ProfileCard({ user }: ProfileCardProps) {
           </View>
         )}
 
-        {/* Gradient overlay */}
+        {/* Dark overlay for text readability (RN has no native CSS gradient —
+            use expo-linear-gradient in the consumer app if a true gradient is needed) */}
         <View
           className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-20"
-          style={{
-            background: 'linear-gradient(transparent, rgba(0,0,0,0.6))',
-            // For RN, use a semi-transparent background as fallback
-            backgroundColor: 'rgba(0,0,0,0.35)',
-          }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
         >
           <View className="flex-row items-center">
             <Text className="text-2xl font-bold text-white mr-2">
