@@ -1,10 +1,14 @@
-/** Mask PII before analytics logging */
+/** Mask PII before analytics logging.
+ *  Order matters: longest patterns first so they don't get nibbled by shorter ones.
+ *  ID card (18 chars) → phone (11) → email → WeChat/QQ-style IDs.
+ */
 export function maskPII(text: string): string {
   return text
+    // ID card (must run BEFORE phone, since a phone-like 11-digit substring
+    // sits inside every ID card and would otherwise mask it first)
+    .replace(/\d{17}[\dXx]/g, '****')
     // Phone numbers
     .replace(/1[3-9]\d{9}/g, (m) => `${m.slice(0, 3)}****${m.slice(-4)}`)
-    // ID card
-    .replace(/\d{17}[\dXx]/g, '****')
     // Email
     .replace(/[\w.-]+@[\w.-]+\.\w+/g, '***@***')
     // WeChat/QQ IDs
