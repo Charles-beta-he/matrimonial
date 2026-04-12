@@ -46,8 +46,8 @@ export default function RegisterStep5Tags() {
       duration_ms: Date.now() - mountedAtRef.current,
     });
     // TODO: call api.user.register mutation with all collected data
-    // Mock for demo
-    setAuth('mock-token', {
+    // Mock for demo — setAuth signature: (token, refreshToken, user)
+    setAuth('mock-token', 'mock-refresh', {
       id: 'u1',
       nickname: '新用户',
       gender: 'MALE',
@@ -57,8 +57,6 @@ export default function RegisterStep5Tags() {
       photos: [],
       prompts: [],
       tags: selectedTags,
-      isOnline: true,
-      lastActiveAt: new Date().toISOString(),
       age: 29,
     });
     router.replace('/(tabs)');

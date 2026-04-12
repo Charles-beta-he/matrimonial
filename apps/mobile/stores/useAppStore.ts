@@ -2,12 +2,27 @@ import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
+/**
+ * Permissive shape — accepts whatever the backend returns plus any extra
+ * fields the UI may want to display. Strict typing happens at the boundary
+ * (tRPC inferred types) rather than in the persisted store.
+ */
 interface UserProfile {
   id: string;
-  nickname: string;
-  phone: string;
-  gender: string;
+  nickname?: string;
+  phone?: string;
+  gender?: string;
+  birthday?: string;
+  city?: string;
+  age?: number;
+  height?: number;
+  bio?: string;
+  verificationLevel?: 'L1' | 'L2' | 'L3' | 'L4';
+  photos?: Array<{ id?: string; url: string; isAvatar?: boolean }>;
+  prompts?: unknown[];
+  tags?: string[];
   isNewUser?: boolean;
+  [key: string]: unknown;
 }
 
 interface AppState {
