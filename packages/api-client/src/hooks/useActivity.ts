@@ -1,6 +1,8 @@
 import { api } from '../trpc';
 
-export function useActivities(input?: { category?: string; status?: string }) {
+type ActivityStatus = 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
+
+export function useActivities(input?: { category?: string; status?: ActivityStatus }) {
   return api.activity.list.useQuery(input ?? {});
 }
 
