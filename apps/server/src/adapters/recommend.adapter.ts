@@ -14,7 +14,7 @@ export const RecommendAdapter = {
   async getRecommendations(userId: string, limit: number = 20): Promise<RecommendCandidate[]> {
     try {
       const res = await fetch(`${RECOMMEND_SERVICE_URL}/api/recommend?user_id=${userId}&limit=${limit}`, {
-        signal: AbortSignal.timeout(2000),
+        signal: (AbortSignal as { timeout?: (ms: number) => AbortSignal }).timeout?.(2000),
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
       const data: any = await res.json();
@@ -31,7 +31,7 @@ export const RecommendAdapter = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_a: userA, user_b: userB }),
-        signal: AbortSignal.timeout(1500),
+        signal: (AbortSignal as { timeout?: (ms: number) => AbortSignal }).timeout?.(1500),
       });
       if (!res.ok) return 0.5;
       const data: any = await res.json();

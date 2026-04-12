@@ -134,11 +134,14 @@ export function assertRequiredEnv() {
       process.exit(1);
     }
   }
+  // NOTE: NODE_ENV is widened to string here to allow custom values like 'preview'
+  // beyond TypeScript's built-in 'development' | 'test' | 'production' literal type.
+  const nodeEnv = env.NODE_ENV as string;
   if (
-    (env.NODE_ENV === 'production' || env.NODE_ENV === 'preview') &&
+    (nodeEnv === 'production' || nodeEnv === 'preview') &&
     env.JWT_SECRET === 'dev-secret-change-me'
   ) {
-    console.error('[env] JWT_SECRET must be set in ' + env.NODE_ENV);
+    console.error('[env] JWT_SECRET must be set in ' + nodeEnv);
     process.exit(1);
   }
   if (env.NODE_ENV === 'production' && env.LIVEKIT_API_SECRET === 'secret') {

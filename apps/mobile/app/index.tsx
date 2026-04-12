@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, Platform, View } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { useAppStore } from '../stores/useAppStore';
+
+async function getOnboardingFlag(): Promise<string | null> {
+  if (Platform.OS === 'web') return localStorage.getItem('hasSeenOnboarding');
+  return SecureStore.getItemAsync('hasSeenOnboarding');
+}
 
 export default function Index() {
   const token = useAppStore((s) => s.token);
@@ -10,7 +15,7 @@ export default function Index() {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem('hasSeenOnboarding').then((value) => {
+    getOnboardingFlag().then((value: string | null) => {
       setHasSeenOnboarding(value === 'true');
     });
   }, []);

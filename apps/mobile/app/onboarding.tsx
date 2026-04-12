@@ -10,7 +10,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
+async function setOnboardingFlag(value: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    localStorage.setItem('hasSeenOnboarding', value);
+    return;
+  }
+  await SecureStore.setItemAsync('hasSeenOnboarding', value);
+}
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -66,7 +75,7 @@ export default function OnboardingScreen() {
   };
 
   const completeOnboarding = async () => {
-    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    await setOnboardingFlag('true');
     router.replace('/(auth)/login');
   };
 

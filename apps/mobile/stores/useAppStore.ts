@@ -17,12 +17,17 @@ interface UserProfile {
   age?: number;
   height?: number;
   bio?: string;
+  occupation?: string;
+  hometown?: string;
+  zodiac?: string;
+  mbti?: string;
+  income?: string;
+  avatar?: string;
   verificationLevel?: 'L1' | 'L2' | 'L3' | 'L4';
   photos?: Array<{ id?: string; url: string; isAvatar?: boolean }>;
   prompts?: unknown[];
   tags?: string[];
   isNewUser?: boolean;
-  [key: string]: unknown;
 }
 
 interface AppState {
