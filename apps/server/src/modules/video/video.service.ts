@@ -66,7 +66,7 @@ export const VideoService = {
     const room = activeRooms.get(roomId);
     if (!room) throw new TRPCError({ code: 'NOT_FOUND', message: '房间不存在或已关闭' });
     if (room.participants.length >= room.maxParticipants) {
-      throw new TRPCError({ code: 'RESOURCE_EXHAUSTED', message: '房间已满' });
+      throw new TRPCError({ code: 'PRECONDITION_FAILED', message: '房间已满' });
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });

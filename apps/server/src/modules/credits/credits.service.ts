@@ -46,7 +46,7 @@ export const CreditsService = {
     const current = balance[field];
 
     if (current < amount) {
-      throw new TRPCError({ code: 'FAILED_PRECONDITION', message: `${kind} 余额不足` });
+      throw new TRPCError({ code: 'PRECONDITION_FAILED', message: `${kind} 余额不足` });
     }
 
     await prisma.$transaction([
