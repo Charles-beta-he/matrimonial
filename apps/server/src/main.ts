@@ -164,9 +164,11 @@ async function bootstrap() {
   }));
 
   const port = env.PORT;
-  await app.listen(port);
+  // Bind to 0.0.0.0 so Railway / Docker edge proxies can reach the server.
+  // Default 'localhost' binding only accepts requests from inside the container.
+  await app.listen(port, '0.0.0.0');
   AnalyticsService.startAutoFlush();
-  console.log(`Server running on http://localhost:${port}`);
+  logger.info('server started', { port, env: env.NODE_ENV });
 }
 
 void bootstrap();
