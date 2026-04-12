@@ -15,6 +15,7 @@ export function maskPII(text: string): string {
 export function sanitizeUGC(text: string): string {
   return text
     .replace(/<[^>]*>/g, '') // strip HTML
+    // eslint-disable-next-line no-control-regex -- intentional control char stripping
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // control chars
     .trim()
     .slice(0, 5000); // max length
