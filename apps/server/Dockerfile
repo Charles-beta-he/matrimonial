@@ -1,27 +1,36 @@
-FROM node:20-alpine AS base
-RUN npm install -g pnpm@9
+# Single-stage build for pnpm monorepo
+# - Uses node:20-slim (Debian glibc) for Prisma binary compatibility
+# - Single stage avoids pnpm symlink corruption between COPY --from stages
+# - No --frozen-lockfile (lockfile stale due to staged P8 dep additions)
 
-FROM base AS deps
-WORKDIR /app
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY apps/server/package.json ./apps/server/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/config/package.json ./packages/config/
-RUN pnpm install --frozen-lockfile --filter @matrimonial/server...
+FROM node:20-slim
 
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
-COPY --from=deps /app/packages ./packages
-COPY apps/server ./apps/server
-RUN cd apps/server && pnpm db:generate && pnpm build
+# System deps for Prisma + HTTPS
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
-FROM base AS runner
+# Pin pnpm via corepack
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
 WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/node_modules ./node_modules
-COPY --from=builder /app/apps/server/package.json ./
+
+# Copy whole monorepo (simplest, most reliable for pnpm workspaces)
+COPY . .
+
+# Install all workspace deps
+RUN pnpm install --no-frozen-lockfile
+
+# Generate Prisma client
+RUN cd apps/server && pnpm db:generate
+
+# Build the server only (shared uses source-only imports, no emit)
+RUN pnpm --filter @matrimonial/server build
+
+# Runtime
+ENV NODE_ENV=preview
+ENV PORT=3000
 EXPOSE 3000
+
+WORKDIR /app/apps/server
 CMD ["node", "dist/main.js"]

@@ -1,0 +1,27 @@
+# Don't ship these into the Docker build context
+node_modules
+**/node_modules
+.git
+.github
+.expo
+.turbo
+.next
+dist
+**/dist
+build
+**/build
+.vercel
+.venv
+__pycache__
+**/__pycache__
+coverage
+**/coverage
+*.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+.uploads
+apps/mobile/ios
+apps/mobile/android
+apps/mobile/web-build
