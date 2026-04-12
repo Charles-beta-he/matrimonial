@@ -21,10 +21,15 @@ COPY . .
 # Install all workspace deps
 RUN pnpm install --no-frozen-lockfile
 
+# Build shared package FIRST — server runtime imports compiled CJS from
+# packages/shared/dist, NOT raw .ts files. Without this step the app boots
+# then crashes with ERR_UNSUPPORTED_DIR_IMPORT.
+RUN pnpm --filter @matrimonial/shared build
+
 # Generate Prisma client
 RUN cd apps/server && pnpm db:generate
 
-# Build the server only (shared uses source-only imports, no emit)
+# Build the server
 RUN pnpm --filter @matrimonial/server build
 
 # Runtime
