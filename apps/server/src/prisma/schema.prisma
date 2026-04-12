@@ -1,0 +1,386 @@
+// apps/server/src/prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector, postgis]
+}
+
+// ========== 用户 ==========
+
+model User {
+  id              String            @id @default(cuid())
+  phone           String            @unique
+  nickname        String
+  gender          Gender
+  birthday        DateTime
+  city            String
+  bio             String?
+  height          Int?
+  education       Education?
+  occupation      String?
+  incomeRange     IncomeRange?
+  hometown        String?
+  zodiac          String?
+  mbti            String?
+  location        Unsupported("geometry(Point, 4326)")?
+
+  // 认证
+  verificationLevel VerificationLevel @default(L1)
+  realNameVerified  Boolean           @default(false)
+  faceVerified      Boolean           @default(false)
+  eduVerified       Boolean           @default(false)
+
+  // 会员
+  membership      Membership?
+  membershipExpiry DateTime?
+
+  // 关系
+  photos          Photo[]
+  prompts         UserPrompt[]
+  tags            UserTag[]
+  preferences     Preference?
+  sentLikes       Like[]           @relation("SentLikes")
+  receivedLikes   Like[]           @relation("ReceivedLikes")
+  conversations   ConversationParticipant[]
+  reports         Report[]         @relation("Reporter")
+  reported        Report[]         @relation("Reported")
+  credits          UserCredits?
+  creditTxns       CreditTransaction[]
+
+  // 推荐向量
+  embedding       Unsupported("vector(256)")?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  lastActiveAt    DateTime          @default(now())
+  isOnline        Boolean           @default(false)
+
+  @@index([city, gender, verificationLevel])
+  @@index([lastActiveAt])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  url       String
+  order     Int
+  isAvatar  Boolean  @default(false)
+  auditStatus AuditStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model UserPrompt {
+  id         String @id @default(cuid())
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+  questionId String
+  answerText String?
+  answerAudioUrl String?
+  answerVideoUrl String?
+  order      Int
+
+  @@index([userId])
+}
+
+model UserTag {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  tag    String
+
+  @@index([userId])
+  @@index([tag])
+}
+
+// ========== 择偶偏好 ==========
+
+model Preference {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  ageMin        Int?
+  ageMax        Int?
+  cities        String[] // 期望城市列表
+  heightMin     Int?
+  heightMax     Int?
+  educationMin  Education?
+  acceptLongDistance Boolean @default(false)
+}
+
+// ========== 匹配 ==========
+
+model Like {
+  id          String   @id @default(cuid())
+  fromUserId  String
+  toUserId    String
+  fromUser    User     @relation("SentLikes", fields: [fromUserId], references: [id])
+  toUser      User     @relation("ReceivedLikes", fields: [toUserId], references: [id])
+  type        LikeType @default(NORMAL)
+  promptId    String?  // 针对哪个问答卡片
+  comment     String?  // 破冰评论
+  isMatched   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId, isMatched])
+}
+
+// ========== 会话与消息 ==========
+
+model Conversation {
+  id           String   @id @default(cuid())
+  participants ConversationParticipant[]
+  messages     Message[]
+  lastMessageAt DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  lastReadAt     DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  type           MessageType  @default(TEXT)
+  content        String?
+  mediaUrl       String?
+  isEphemeral    Boolean      @default(false) // 阅后即焚
+  expiresAt      DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// ========== 支付 ==========
+
+model PaymentOrder {
+  id          String        @id @default(cuid())
+  userId      String
+  productType ProductType   // MEMBERSHIP / SUPER_LIKE / BOOST / ...
+  productId   String?
+  amount      Decimal       @db.Decimal(10, 2)
+  status      PaymentStatus @default(PENDING)
+  channel     String        // alipay / wechat
+  tradeNo     String?       @unique
+  createdAt   DateTime      @default(now())
+  paidAt      DateTime?
+
+  @@index([userId, status])
+}
+
+// ========== 举报 ==========
+
+model Report {
+  id           String       @id @default(cuid())
+  reporterId   String
+  reporter     User         @relation("Reporter", fields: [reporterId], references: [id])
+  reportedId   String
+  reported     User         @relation("Reported", fields: [reportedId], references: [id])
+  reason       ReportReason
+  description  String?
+  evidence     String[]     // 截图 URL
+  status       ReportStatus @default(PENDING)
+  handledBy    String?
+  handledAt    DateTime?
+  createdAt    DateTime     @default(now())
+
+  @@index([reportedId, status])
+}
+
+// ========== 线下活动 ==========
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  coverUrl    String
+  category    String   // 露营 / 读书会 / 桌游 / ...
+  location    String
+  startTime   DateTime
+  maxMale     Int
+  maxFemale   Int
+  fee         Decimal  @db.Decimal(10, 2)
+  status      ActivityStatus @default(UPCOMING)
+  signups     ActivitySignup[]
+  createdAt   DateTime @default(now())
+}
+
+model ActivitySignup {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id])
+  userId     String
+  status     SignupStatus @default(PENDING)
+  createdAt  DateTime @default(now())
+
+  @@unique([activityId, userId])
+}
+
+// ========== User Credits (consumable products) ==========
+
+model UserCredits {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  superLikes      Int      @default(0)  // Available super likes
+  loveLetters     Int      @default(0)  // Available love letters
+  videoTickets    Int      @default(0)  // Available video-hall tickets
+  boostUntil      DateTime?              // Timestamp when boost expires (null if not active)
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  kind        CreditKind
+  amount      Int      // Positive for grant, negative for consume
+  reason      String   // e.g., 'payment_order', 'super_like_used', 'admin_grant'
+  orderId     String?  // Link to PaymentOrder if applicable
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model ProfileView {
+  id         String   @id @default(cuid())
+  viewerId   String   // Who viewed
+  viewedId   String   // Who was viewed
+  createdAt  DateTime @default(now())
+
+  @@unique([viewerId, viewedId])  // Dedupe repeat views
+  @@index([viewedId, createdAt])
+}
+
+// ========== 枚举 ==========
+// 注：Prisma 要求枚举成员分行书写；语义与技术方案文档一致
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Education {
+  HIGH_SCHOOL
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  PHD
+}
+
+enum IncomeRange {
+  BELOW_5K
+  K5_10
+  K10_20
+  K20_50
+  ABOVE_50K
+}
+
+enum VerificationLevel {
+  L1
+  L2
+  L3
+  L4
+}
+
+enum Membership {
+  FREE
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum LikeType {
+  NORMAL
+  SUPER
+}
+
+enum MessageType {
+  TEXT
+  VOICE
+  IMAGE
+  VIDEO
+  EPHEMERAL_IMAGE
+  SYSTEM
+}
+
+enum AuditStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  CANCELLED
+}
+
+enum ProductType {
+  MEMBERSHIP
+  SUPER_LIKE
+  BOOST
+  LOVE_LETTER
+  VIDEO_TICKET
+}
+
+enum ReportReason {
+  FAKE_PROFILE
+  HARASSMENT
+  SCAM
+  INAPPROPRIATE_CONTENT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum ActivityStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum SignupStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum CreditKind {
+  SUPER_LIKE
+  LOVE_LETTER
+  VIDEO_TICKET
+  BOOST
+}

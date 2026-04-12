@@ -1,0 +1,56 @@
+name: Build Mobile
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ios
+          - android
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+
+jobs:
+  eas-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: pnpm install --frozen-lockfile
+      - name: Build
+        working-directory: apps/mobile
+        run: |
+          PLATFORM=${{ github.event.inputs.platform || 'all' }}
+          PROFILE=${{ github.event.inputs.profile || 'preview' }}
+          if [ "$PLATFORM" = "all" ]; then
+            eas build --platform all --profile $PROFILE --non-interactive
+          else
+            eas build --platform $PLATFORM --profile $PROFILE --non-interactive
+          fi

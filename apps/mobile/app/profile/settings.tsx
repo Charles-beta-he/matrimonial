@@ -1,0 +1,190 @@
+import { useState } from 'react';
+import { Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useAppStore } from '../../stores/useAppStore';
+import { useSocketStore } from '../../stores/useSocketStore';
+
+interface SettingToggle {
+  key: string;
+  label: string;
+}
+
+const NOTIFICATION_SETTINGS: SettingToggle[] = [
+  { key: 'newMessage', label: '新消息通知' },
+  { key: 'matchSuccess', label: '匹配成功通知' },
+  { key: 'activityReminder', label: '活动提醒' },
+  { key: 'marketing', label: '营销推送' },
+];
+
+export default function SettingsPage() {
+  const router = useRouter();
+  const clearAuth = useAppStore((s) => s.clearAuth);
+
+  const [notifications, setNotifications] = useState<Record<string, boolean>>({
+    newMessage: true,
+    matchSuccess: true,
+    activityReminder: true,
+    marketing: false,
+  });
+
+  const toggleNotification = (key: string) => {
+    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleClearCache = () => {
+    Alert.alert('清除缓存', '缓存已清除');
+  };
+
+  const handleCheckUpdate = () => {
+    Alert.alert('检查更新', '当前已是最新版本 v1.0.0');
+  };
+
+  const handleDeleteAccount = () => {
+    router.push('/profile/delete-account');
+  };
+
+  const handleLogout = () => {
+    Alert.alert('退出登录', '确定要退出登录吗？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '确定',
+        style: 'destructive',
+        onPress: () => {
+          // Disconnect socket before clearing auth so the server sees a clean
+          // disconnect rather than an auth-less reconnect attempt.
+          useSocketStore.getState().disconnect();
+          clearAuth();
+          router.replace('/');
+        },
+      },
+    ]);
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View className="bg-white px-6 py-4 flex-row items-center">
+          <Pressable onPress={() => router.back()} className="mr-4">
+            <Text className="text-lg text-gray-600">&lt;</Text>
+          </Pressable>
+          <Text className="text-lg font-bold text-gray-900">设置</Text>
+        </View>
+
+        {/* 账号安全 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号安全</Text>
+          <View className="bg-white">
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
+              onPress={() => Alert.alert('修改手机号', '功能开发中')}
+            >
+              <Text className="text-base text-gray-900">修改手机号</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={() => Alert.alert('修改密码', '功能开发中')}
+            >
+              <Text className="text-base text-gray-900">修改密码</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* 通知设置 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">通知设置</Text>
+          <View className="bg-white">
+            {NOTIFICATION_SETTINGS.map((item, index) => (
+              <View
+                key={item.key}
+                className={`flex-row items-center justify-between px-6 py-4 ${
+                  index < NOTIFICATION_SETTINGS.length - 1 ? 'border-b border-gray-50' : ''
+                }`}
+              >
+                <Text className="text-base text-gray-900">{item.label}</Text>
+                <Switch
+                  value={notifications[item.key]}
+                  onValueChange={() => toggleNotification(item.key)}
+                  trackColor={{ false: '#d1d5db', true: '#fda4af' }}
+                  thumbColor={notifications[item.key] ? '#f43f5e' : '#f3f4f6'}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 通用 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">通用</Text>
+          <View className="bg-white">
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
+              onPress={handleClearCache}
+            >
+              <Text className="text-base text-gray-900">清除缓存</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={handleCheckUpdate}
+            >
+              <Text className="text-base text-gray-900">检查更新</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* 关于 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">关于</Text>
+          <View className="bg-white">
+            <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50">
+              <Text className="text-base text-gray-900">版本号</Text>
+              <Text className="text-sm text-gray-400">v1.0.0</Text>
+            </View>
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
+              onPress={() => router.push('/legal/terms')}
+            >
+              <Text className="text-base text-gray-900">用户协议</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={() => router.push('/legal/privacy')}
+            >
+              <Text className="text-base text-gray-900">隐私政策</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* 账号 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号</Text>
+          <View className="bg-white">
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
+              onPress={handleDeleteAccount}
+            >
+              <Text className="text-base text-red-500">注销账号</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={handleLogout}
+            >
+              <Text className="text-base text-red-500">退出登录</Text>
+              <Text className="text-gray-300">&gt;</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <View className="h-12" />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

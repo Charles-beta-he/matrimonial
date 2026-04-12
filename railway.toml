@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @matrimonial/shared build && pnpm --filter @matrimonial/server db:generate && pnpm --filter @matrimonial/server build"
+
+[deploy]
+startCommand = "node apps/server/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"

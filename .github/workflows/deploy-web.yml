@@ -1,0 +1,46 @@
+name: Deploy Web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - 'apps/web-admin/**'
+      - 'packages/**'
+
+jobs:
+  deploy-h5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Export H5
+        run: pnpm --filter @matrimonial/mobile build
+      - name: Deploy H5 to CDN
+        run: |
+          echo "TODO: Configure CDN upload (e.g., aliyun oss cp -r apps/mobile/dist/ oss://matrimonial-h5/)"
+
+  deploy-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Deploy Admin to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "TODO: npx vercel --prod --token=$VERCEL_TOKEN --cwd apps/web-admin"

@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "pnpm-9_x"]
+
+[phases.install]
+cmds = ["cd ../.. && pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "cd ../.. && pnpm --filter @matrimonial/shared build",
+  "cd ../.. && pnpm --filter @matrimonial/server db:generate",
+  "cd ../.. && pnpm --filter @matrimonial/server build"
+]
+
+[start]
+cmd = "node apps/server/dist/main.js"

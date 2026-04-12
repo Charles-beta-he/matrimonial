@@ -1,0 +1,180 @@
+# ========== Dependencies ==========
+node_modules
+.pnpm-store
+.pnp.*
+jspm_packages
+bower_components
+
+# ========== Build artifacts ==========
+dist
+build
+out
+.next
+.turbo
+.expo
+.expo-shared
+.vercel
+.netlify
+.serverless
+.cache
+.parcel-cache
+dist-web
+web-build
+*.tsbuildinfo
+
+# ========== Mobile-specific ==========
+# Expo
+.expo/
+.expo-shared/
+ios/Pods
+ios/build
+ios/*.xcworkspace/xcuserdata
+android/.gradle
+android/app/build
+android/build
+android/captures
+android/local.properties
+android/app/release
+android/app/debug
+*.apk
+*.aab
+*.ipa
+
+# Metro
+.metro-health-check*
+metro-cache/
+
+# EAS
+.easignore
+eas-build-*.log
+
+# ========== Python ==========
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.so
+.Python
+*.egg
+*.egg-info
+.venv
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.pdm-python
+.pdm-build
+
+# ========== Testing & coverage ==========
+coverage
+*.lcov
+.nyc_output
+junit.xml
+test-results
+
+# ========== Logs & tmp ==========
+*.log
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.tmp
+*.temp
+.tmp
+tmp/
+
+# ========== Env files ==========
+# Local overrides — never committed
+.env
+.env.local
+.env.*.local
+
+# But DO commit these as templates (non-sensitive placeholders only)
+!.env.example
+!.env.development
+!.env.staging
+!.env.production
+!apps/server/.env.example
+!apps/server/.env.development
+!apps/server/.env.preview
+!apps/server/.env.staging
+!apps/server/.env.production
+!apps/mobile/.env.preview
+
+# ========== Prisma ==========
+prisma/*.db
+prisma/*.db-journal
+*.sqlite
+*.sqlite3
+
+# ========== Uploads & runtime data ==========
+.uploads
+uploads/
+storage/
+public/uploads
+.sessions
+
+# ========== Docker volumes ==========
+pgdata/
+redisdata/
+meilidata/
+
+# ========== IDE / Editor ==========
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings
+*.sublime-workspace
+*.sublime-project
+.history/
+.ionide/
+*.code-workspace
+
+# ========== OS ==========
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ========== Secrets & credentials ==========
+*.pem
+*.key
+*.p12
+*.p8
+*.mobileprovision
+secrets.json
+credentials.json
+service-account.json
+google-services.json
+GoogleService-Info.plist
+*.keystore
+!debug.keystore
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/Runner.xcworkspace/xcuserdata/
+
+# ========== Misc ==========
+*.bak
+*.backup
+*.old
+*.orig
+.eslintcache
+.stylelintcache
+.turbo/
+.pnpm-state.json

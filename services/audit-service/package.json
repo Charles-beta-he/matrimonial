@@ -1,0 +1,12 @@
+{
+  "name": "@matrimonial/audit-service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8010",
+    "build": "node -e \"process.exit(0)\"",
+    "lint": "node -e \"process.exit(0)\"",
+    "type-check": "node -e \"process.exit(0)\"",
+    "test": "node -e \"process.exit(0)\""
+  }
+}

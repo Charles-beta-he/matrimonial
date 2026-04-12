@@ -1,0 +1,174 @@
+import { useEffect, useState } from 'react';
+import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Button, Card } from '@matrimonial/ui';
+import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
+import { usePayment } from '../../hooks/usePayment';
+import { useAnalytics } from '../../hooks/useAnalytics';
+
+const PRODUCT_ID_BY_PLAN: Record<string, string> = {
+  MONTHLY: 'MEMBERSHIP_MONTHLY',
+  QUARTERLY: 'MEMBERSHIP_QUARTERLY',
+  YEARLY: 'MEMBERSHIP_YEARLY',
+};
+
+const FEATURE_COMPARISON = [
+  { feature: '每日喜欢次数', free: '10次', paid: '无限' },
+  { feature: '查看谁喜欢了我', free: '不可用', paid: '可用' },
+  { feature: '高级筛选', free: '基础', paid: '全部' },
+  { feature: '超级喜欢', free: '1次/天', paid: '5次/天' },
+  { feature: '隐身浏览', free: '不可用', paid: '季卡+' },
+  { feature: '已读回执', free: '不可用', paid: '季卡+' },
+  { feature: '优选推荐', free: '不可用', paid: '年卡' },
+  { feature: '专属客服', free: '不可用', paid: '年卡' },
+];
+
+/** Membership screen */
+export default function MembershipScreen() {
+  const router = useRouter();
+  const [selectedPlan, setSelectedPlan] = useState('QUARTERLY');
+  const { pay, processing } = usePayment();
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track('membership_view', {});
+  }, [track]);
+
+  const handleSubscribe = () => {
+    const productId = PRODUCT_ID_BY_PLAN[selectedPlan];
+    if (!productId) return;
+
+    const plan = MEMBERSHIP_PLAN_DETAILS.find((p) => p.plan === selectedPlan);
+    const amount = plan?.price ?? 0;
+
+    const channels: Array<{ text: 'default' | 'cancel'; label: string; channel: 'wechat' | 'alipay' | 'apple_iap' }> = [
+      { text: 'default', label: '微信支付', channel: 'wechat' },
+      { text: 'default', label: '支付宝', channel: 'alipay' },
+    ];
+    if (Platform.OS === 'ios') {
+      channels.push({ text: 'default', label: 'Apple 内购', channel: 'apple_iap' });
+    }
+
+    Alert.alert(
+      '选择支付方式',
+      `开通${plan?.label}`,
+      [
+        ...channels.map((c) => ({
+          text: c.label,
+          onPress: async () => {
+            track('payment_start', { product_type: 'MEMBERSHIP', amount });
+            const result = await pay('MEMBERSHIP', productId, c.channel);
+            if (result) {
+              track('payment_success', {
+                product_type: 'MEMBERSHIP',
+                amount,
+                channel: c.channel,
+              });
+            } else {
+              track('payment_fail', {
+                product_type: 'MEMBERSHIP',
+                reason: 'pay_returned_null',
+              });
+            }
+          },
+        })),
+        { text: '取消', style: 'cancel' as const },
+      ],
+    );
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <View className="flex-row items-center px-4 py-3 bg-white">
+        <Pressable onPress={() => router.back()} className="mr-3">
+          <Text className="text-lg">&lt;</Text>
+        </Pressable>
+        <Text className="text-lg font-semibold text-gray-900">会员中心</Text>
+      </View>
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* Current plan */}
+        <View className="bg-white px-4 py-6 items-center">
+          <Text className="text-4xl mb-2">👑</Text>
+          <Text className="text-base text-gray-500">当前: 免费用户</Text>
+          <Text className="text-sm text-gray-400 mt-1">开通会员，解锁全部功能</Text>
+        </View>
+
+        {/* Plan cards */}
+        <View className="flex-row px-4 mt-4" style={{ gap: 10 }}>
+          {MEMBERSHIP_PLAN_DETAILS.map((plan) => {
+            const isSelected = selectedPlan === plan.plan;
+            return (
+              <Pressable
+                key={plan.plan}
+                className={`flex-1 rounded-2xl border-2 p-3 items-center ${
+                  isSelected ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
+                }`}
+                onPress={() => setSelectedPlan(plan.plan)}
+              >
+                {'badge' in plan && plan.badge && (
+                  <View className="bg-rose-500 rounded-full px-2 py-0.5 mb-2">
+                    <Text className="text-white text-xs font-medium">{plan.badge}</Text>
+                  </View>
+                )}
+                <Text className="text-sm font-semibold text-gray-900 mb-1">{plan.label}</Text>
+                <Text className="text-2xl font-bold text-rose-500">
+                  ¥{plan.price}
+                </Text>
+                <Text className="text-xs text-gray-400 line-through">
+                  ¥{plan.originalPrice}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Features of selected plan */}
+        <View className="bg-white mx-4 mt-4 rounded-2xl p-4">
+          <Text className="text-base font-semibold text-gray-900 mb-3">会员特权</Text>
+          {MEMBERSHIP_PLAN_DETAILS.find((p) => p.plan === selectedPlan)?.features.map(
+            (feature, i) => (
+              <View key={i} className="flex-row items-center mb-2">
+                <Text className="text-rose-500 mr-2">✓</Text>
+                <Text className="text-sm text-gray-700">{feature}</Text>
+              </View>
+            ),
+          )}
+        </View>
+
+        {/* Comparison table */}
+        <View className="bg-white mx-4 mt-4 rounded-2xl p-4">
+          <Text className="text-base font-semibold text-gray-900 mb-3">功能对比</Text>
+          {/* Header */}
+          <View className="flex-row border-b border-gray-100 pb-2 mb-2">
+            <Text className="flex-1 text-xs text-gray-400 font-medium">功能</Text>
+            <Text className="w-16 text-xs text-gray-400 font-medium text-center">免费</Text>
+            <Text className="w-16 text-xs text-rose-500 font-medium text-center">会员</Text>
+          </View>
+          {FEATURE_COMPARISON.map((row) => (
+            <View key={row.feature} className="flex-row py-2 border-b border-gray-50">
+              <Text className="flex-1 text-sm text-gray-700">{row.feature}</Text>
+              <Text className="w-16 text-xs text-gray-400 text-center">{row.free}</Text>
+              <Text className="w-16 text-xs text-rose-500 text-center font-medium">
+                {row.paid}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        {/* CTA */}
+        <View className="px-4 mt-6 mb-8">
+          <Button
+            title={processing ? '支付中...' : '立即开通'}
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={processing}
+            onPress={handleSubscribe}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

@@ -1,0 +1,56 @@
+name: Deploy Server
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'apps/server/**'
+      - 'packages/shared/**'
+      - 'services/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy target'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @matrimonial/server build
+
+      - name: Determine image tag
+        id: tag
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        env:
+          TARGET_ENV: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+        run: |
+          echo "Building for $TARGET_ENV"
+          # TODO: Configure Docker registry credentials in GitHub Secrets
+          # docker build -t matrimonial-server:${{ steps.tag.outputs.tag }} -f apps/server/Dockerfile .
+          # docker push registry.matrimonial.com/server:${{ steps.tag.outputs.tag }}-$TARGET_ENV
+
+      - name: Deploy to Kubernetes
+        env:
+          TARGET_ENV: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+        run: |
+          echo "Deploying to $TARGET_ENV"
+          # TODO: Configure kubectl with kubeconfig secret
+          # kubectl --context=$TARGET_ENV set image deployment/server server=registry.matrimonial.com/server:${{ steps.tag.outputs.tag }}-$TARGET_ENV
+          # kubectl --context=$TARGET_ENV rollout status deployment/server

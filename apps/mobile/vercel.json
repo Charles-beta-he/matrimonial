@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @matrimonial/shared build && cd apps/mobile && pnpm expo export --platform web",
+  "outputDirectory": "dist",
+  "installCommand": "echo 'install handled in buildCommand'",
+  "framework": null,
+  "env": {
+    "EXPO_PUBLIC_ENV": "preview"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
