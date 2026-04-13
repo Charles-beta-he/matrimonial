@@ -16,45 +16,68 @@ interface Config {
 /** Railway-hosted preview backend (server only; chat-service not deployed here) */
 const RAILWAY_API = 'https://matrimonialserver-production.up.railway.app';
 
+/**
+ * Some platforms (Vercel Project Settings) ship example/placeholder values
+ * from a starter template that silently override our real config. Detect
+ * and ignore them so we don't deploy with a dead backend.
+ */
+function sanitizeUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const lower = value.toLowerCase();
+  if (
+    lower.includes('example.com') ||
+    lower.includes('placeholder') ||
+    lower.includes('your-api') ||
+    lower.includes('change-me')
+  ) {
+    return undefined;
+  }
+  return value;
+}
+
+const ENV_API = sanitizeUrl(process.env.EXPO_PUBLIC_API_URL);
+const ENV_CHAT = sanitizeUrl(process.env.EXPO_PUBLIC_CHAT_URL);
+const ENV_MEDIA = sanitizeUrl(process.env.EXPO_PUBLIC_MEDIA_URL);
+
 const ENV_CONFIGS: Record<Environment, Config> = {
   development: {
     env: 'development',
-    apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000',
-    chatUrl: process.env.EXPO_PUBLIC_CHAT_URL ?? 'http://localhost:3002',
-    mediaUrl: process.env.EXPO_PUBLIC_MEDIA_URL ?? 'http://localhost:3003',
+    apiUrl: ENV_API ?? 'http://localhost:3000',
+    chatUrl: ENV_CHAT ?? 'http://localhost:3002',
+    mediaUrl: ENV_MEDIA ?? 'http://localhost:3003',
     amapKey: process.env.EXPO_PUBLIC_AMAP_KEY,
-    analyticsEndpoint: (process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000') + '/analytics/events',
+    analyticsEndpoint: (ENV_API ?? 'http://localhost:3000') + '/analytics/events',
     enableDebugLogs: true,
   },
   preview: {
     env: 'preview',
-    apiUrl: process.env.EXPO_PUBLIC_API_URL ?? RAILWAY_API,
+    apiUrl: ENV_API ?? RAILWAY_API,
     // chat-service not deployed to preview yet — socket will fail gracefully
-    chatUrl: process.env.EXPO_PUBLIC_CHAT_URL ?? RAILWAY_API.replace(/^https?/, 'wss'),
-    mediaUrl: process.env.EXPO_PUBLIC_MEDIA_URL ?? RAILWAY_API,
+    chatUrl: ENV_CHAT ?? RAILWAY_API.replace(/^https?/, 'wss'),
+    mediaUrl: ENV_MEDIA ?? RAILWAY_API,
     amapKey: process.env.EXPO_PUBLIC_AMAP_KEY,
     sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    analyticsEndpoint: (process.env.EXPO_PUBLIC_API_URL ?? RAILWAY_API) + '/analytics/events',
+    analyticsEndpoint: (ENV_API ?? RAILWAY_API) + '/analytics/events',
     enableDebugLogs: true,
   },
   staging: {
     env: 'staging',
-    apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'https://api-staging.matrimonial.example.com',
-    chatUrl: process.env.EXPO_PUBLIC_CHAT_URL ?? 'wss://chat-staging.matrimonial.example.com',
-    mediaUrl: process.env.EXPO_PUBLIC_MEDIA_URL ?? 'wss://media-staging.matrimonial.example.com',
+    apiUrl: ENV_API ?? 'https://api-staging.matrimonial.example.com',
+    chatUrl: ENV_CHAT ?? 'wss://chat-staging.matrimonial.example.com',
+    mediaUrl: ENV_MEDIA ?? 'wss://media-staging.matrimonial.example.com',
     amapKey: process.env.EXPO_PUBLIC_AMAP_KEY,
     sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    analyticsEndpoint: (process.env.EXPO_PUBLIC_API_URL ?? 'https://api-staging.matrimonial.example.com') + '/analytics/events',
+    analyticsEndpoint: (ENV_API ?? 'https://api-staging.matrimonial.example.com') + '/analytics/events',
     enableDebugLogs: true,
   },
   production: {
     env: 'production',
-    apiUrl: process.env.EXPO_PUBLIC_API_URL ?? RAILWAY_API,
-    chatUrl: process.env.EXPO_PUBLIC_CHAT_URL ?? RAILWAY_API.replace(/^https?/, 'wss'),
-    mediaUrl: process.env.EXPO_PUBLIC_MEDIA_URL ?? RAILWAY_API,
+    apiUrl: ENV_API ?? RAILWAY_API,
+    chatUrl: ENV_CHAT ?? RAILWAY_API.replace(/^https?/, 'wss'),
+    mediaUrl: ENV_MEDIA ?? RAILWAY_API,
     amapKey: process.env.EXPO_PUBLIC_AMAP_KEY,
     sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    analyticsEndpoint: (process.env.EXPO_PUBLIC_API_URL ?? RAILWAY_API) + '/analytics/events',
+    analyticsEndpoint: (ENV_API ?? RAILWAY_API) + '/analytics/events',
     enableDebugLogs: false,
   },
 };
