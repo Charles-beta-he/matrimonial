@@ -12,6 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { Ionicons } from '@expo/vector-icons';
+
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
 async function setOnboardingFlag(value: string): Promise<void> {
   if (Platform.OS === 'web') {
@@ -26,26 +29,30 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ONBOARDING_KEY = 'hasSeenOnboarding';
 
 interface OnboardingPage {
-  emoji: string;
+  icon: IoniconName;
+  iconColor: string;
   title: string;
   description: string;
 }
 
 const PAGES: OnboardingPage[] = [
   {
-    emoji: '💕',
+    icon: 'heart',
+    iconColor: '#f43f5e',
     title: '遇见对的人',
     description:
       '基于AI智能匹配算法，从性格、兴趣、价值观等多维度分析，为您精准推荐最合适的另一半。不再盲目寻找，让缘分有迹可循。',
   },
   {
-    emoji: '🛡️',
+    icon: 'shield-checkmark',
+    iconColor: '#3b82f6',
     title: '真实可信',
     description:
       '四级认证体系层层把关——手机验证、实名认证、学历认证、人脸识别，确保每位用户身份真实可靠。告别虚假信息，安心交友。',
   },
   {
-    emoji: '🆘',
+    icon: 'lock-closed',
+    iconColor: '#10b981',
     title: '安全放心',
     description:
       '约会报备功能让亲友随时掌握您的动态，一键SOS紧急求助保障人身安全。平台24小时风控监测，为每一次相遇保驾护航。',
@@ -104,8 +111,11 @@ export default function OnboardingScreen() {
             className="flex-1 items-center justify-center px-10"
           >
             {/* Illustration placeholder */}
-            <View className="w-48 h-48 bg-rose-50 rounded-full items-center justify-center mb-10">
-              <Text style={{ fontSize: 72 }}>{page.emoji}</Text>
+            <View
+              className="w-48 h-48 rounded-full items-center justify-center mb-10"
+              style={{ backgroundColor: page.iconColor + '15' }}
+            >
+              <Ionicons name={page.icon} size={88} color={page.iconColor} />
             </View>
 
             <Text className="text-2xl font-bold text-gray-900 mb-4 text-center">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, Switch, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 interface PrivacySetting {
   key: string;
@@ -58,7 +59,7 @@ export default function PrivacyScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-row items-center px-4 py-3 bg-white">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">隐私设置</Text>
       </View>

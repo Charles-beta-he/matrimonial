@@ -1,66 +1,16 @@
-import { useEffect } from 'react';
-import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Avatar, Badge, EmptyState, ListItem } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Avatar, EmptyState, ListItem } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
+import { formatLastActive } from '@matrimonial/shared';
 import { useSocketStore } from '../../stores/useSocketStore';
+import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
-// Mock data
-const MOCK_MATCHES = [
-  { id: 'm1', nickname: '小雪', photo: 'https://picsum.photos/seed/m1/100/100', isOnline: true },
-  { id: 'm2', nickname: '子墨', photo: 'https://picsum.photos/seed/m2/100/100', isOnline: false },
-  { id: 'm3', nickname: '安安', photo: 'https://picsum.photos/seed/m3/100/100', isOnline: true },
-];
-
-interface ConversationItem {
-  id: string;
-  nickname: string;
-  photo: string;
-  lastMessage: string;
-  time: string;
-  unread: number;
-  isOnline: boolean;
-}
-
-const MOCK_CONVERSATIONS: ConversationItem[] = [
-  {
-    id: 'c1',
-    nickname: '思远',
-    photo: 'https://picsum.photos/seed/c1/100/100',
-    lastMessage: '周末有空一起去看电影吗？',
-    time: '10:32',
-    unread: 2,
-    isOnline: true,
-  },
-  {
-    id: 'c2',
-    nickname: '悦然',
-    photo: 'https://picsum.photos/seed/c2/100/100',
-    lastMessage: '好的，那我们周六见~',
-    time: '昨天',
-    unread: 0,
-    isOnline: false,
-  },
-  {
-    id: 'c3',
-    nickname: '晓晨',
-    photo: 'https://picsum.photos/seed/c3/100/100',
-    lastMessage: '你也喜欢看书吗？最近在看什么？',
-    time: '昨天',
-    unread: 1,
-    isOnline: false,
-  },
-  {
-    id: 'c4',
-    nickname: '佳琪',
-    photo: 'https://picsum.photos/seed/c4/100/100',
-    lastMessage: '哈哈哈 太有意思了',
-    time: '周三',
-    unread: 0,
-    isOnline: true,
-  },
-];
+const FALLBACK_AVATAR = 'https://picsum.photos/seed/avatar/100/100';
 
 /** Messages list */
 export default function MessagesTab() {
@@ -68,36 +18,114 @@ export default function MessagesTab() {
   const isUserOnline = useSocketStore((s) => s.isUserOnline);
   // Subscribe to onlineUsers to trigger re-render when presence updates
   useSocketStore((s) => s.onlineUsers);
+  const currentUser = useAppStore((s) => s.user);
   const { track } = useAnalytics();
+
+  const conversationsQuery = api.chat.list.useQuery(undefined, {
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+  });
+  const matchesQuery = api.match.matches.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
 
   useEffect(() => {
     track('screen_view', { screen_name: 'messages' });
   }, [track]);
 
-  const renderConversation = ({ item }: { item: ConversationItem }) => (
+  // Normalize conversations from server shape
+  const conversations = useMemo(() => {
+    const list = conversationsQuery.data ?? [];
+    return list.map((c: any) => {
+      const other = c.otherUser ?? {};
+      const avatarUrl: string =
+        other?.photos?.[0]?.url ?? other?.avatarUrl ?? FALLBACK_AVATAR;
+      const lastMsg = c.lastMessage;
+      const lastContent: string = lastMsg
+        ? lastMsg.type === 'TEXT'
+          ? (lastMsg.content ?? '')
+          : lastMsg.type === 'IMAGE'
+          ? '[图片]'
+          : lastMsg.type === 'VOICE'
+          ? '[语音]'
+          : lastMsg.type === 'VIDEO'
+          ? '[视频]'
+          : '[消息]'
+        : '打个招呼吧';
+      const lastAt: string = lastMsg?.createdAt ?? c.lastMessageAt ?? '';
+      const isUnread = !!(
+        lastMsg &&
+        (!c.lastReadAt || new Date(lastMsg.createdAt) > new Date(c.lastReadAt))
+      );
+      return {
+        id: c.conversationId,
+        userId: other?.id ?? '',
+        nickname: other?.nickname ?? '未知用户',
+        avatarUrl,
+        isOnline: !!other?.isOnline,
+        lastContent,
+        lastAt,
+        isUnread,
+      };
+    });
+  }, [conversationsQuery.data]);
+
+  // Build "new matches" strip — matched users without a conversation yet
+  const newMatches = useMemo(() => {
+    const matches = matchesQuery.data ?? [];
+    const conversationUserIds = new Set(
+      conversations.map((c) => c.userId).filter(Boolean),
+    );
+    const seen = new Set<string>();
+    const result: Array<{
+      id: string;
+      nickname: string;
+      avatarUrl: string;
+      isOnline: boolean;
+    }> = [];
+    for (const like of matches as any[]) {
+      const other =
+        like.fromUserId === currentUser?.id ? like.toUser : like.fromUser;
+      if (!other || seen.has(other.id)) continue;
+      if (conversationUserIds.has(other.id)) continue;
+      seen.add(other.id);
+      result.push({
+        id: other.id,
+        nickname: other.nickname ?? '匿名',
+        avatarUrl: other.photos?.[0]?.url ?? FALLBACK_AVATAR,
+        isOnline: !!other.isOnline,
+      });
+    }
+    return result;
+  }, [matchesQuery.data, conversations, currentUser?.id]);
+
+  const renderConversation = ({ item }: { item: (typeof conversations)[number] }) => (
     <ListItem
       left={
         <Avatar
-          source={{ uri: item.photo }}
+          source={{ uri: item.avatarUrl }}
           size={50}
-          online={isUserOnline(item.id) || item.isOnline}
+          online={isUserOnline(item.userId) || item.isOnline}
         />
       }
       title={item.nickname}
-      subtitle={item.lastMessage}
+      subtitle={item.lastContent}
       right={
         <View className="items-end">
-          <Text className="text-xs text-gray-400 mb-1">{item.time}</Text>
-          {item.unread > 0 && (
-            <View className="bg-rose-500 rounded-full min-w-[20px] h-5 px-1.5 items-center justify-center">
-              <Text className="text-white text-xs font-medium">{item.unread}</Text>
-            </View>
+          <Text className="text-xs text-gray-400 mb-1">
+            {item.lastAt ? formatLastActive(item.lastAt) : ''}
+          </Text>
+          {item.isUnread && (
+            <View className="bg-rose-500 rounded-full min-w-[10px] h-2.5 px-1" />
           )}
         </View>
       }
       onPress={() => router.push(`/chat/${item.id}`)}
     />
   );
+
+  const isLoading = conversationsQuery.isLoading;
+  const isError = conversationsQuery.isError;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -106,7 +134,7 @@ export default function MessagesTab() {
       </View>
 
       {/* New matches section */}
-      {MOCK_MATCHES.length > 0 && (
+      {newMatches.length > 0 && (
         <View className="mb-4">
           <Text className="text-sm font-medium text-gray-500 px-4 mb-2">新匹配</Text>
           <ScrollView
@@ -114,18 +142,20 @@ export default function MessagesTab() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
           >
-            {MOCK_MATCHES.map((match) => (
+            {newMatches.map((match) => (
               <Pressable
                 key={match.id}
                 className="items-center"
                 onPress={() => router.push(`/discover/${match.id}`)}
               >
                 <Avatar
-                  source={{ uri: match.photo }}
+                  source={{ uri: match.avatarUrl }}
                   size={64}
                   online={isUserOnline(match.id) || match.isOnline}
                 />
-                <Text className="text-xs text-gray-700 mt-1">{match.nickname}</Text>
+                <Text className="text-xs text-gray-700 mt-1" numberOfLines={1}>
+                  {match.nickname}
+                </Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -133,18 +163,43 @@ export default function MessagesTab() {
       )}
 
       {/* Conversation list */}
-      {MOCK_CONVERSATIONS.length > 0 ? (
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#f43f5e" />
+          <Text className="text-sm text-gray-500 mt-2">正在加载...</Text>
+        </View>
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-base text-gray-700 mb-2">加载失败</Text>
+          <Text className="text-sm text-gray-400 mb-4 text-center">
+            网络出了点小问题，请稍后重试
+          </Text>
+          <Pressable
+            onPress={() => conversationsQuery.refetch()}
+            className="bg-rose-500 rounded-full px-6 py-2"
+          >
+            <Text className="text-white font-medium">重试</Text>
+          </Pressable>
+        </View>
+      ) : conversations.length > 0 ? (
         <FlatList
-          data={MOCK_CONVERSATIONS}
+          data={conversations}
           keyExtractor={(item) => item.id}
           renderItem={renderConversation}
           className="flex-1"
+          refreshing={conversationsQuery.isFetching}
+          onRefresh={() => conversationsQuery.refetch()}
         />
       ) : (
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            title="暂无消息"
-            description="快去发现页面找到心仪的人开始聊天吧"
+            icon={<Ionicons name="chatbubbles-outline" size={56} color="#9ca3af" />}
+            title="还没有消息"
+            description="去发现页匹配新朋友吧"
+            action={{
+              label: '去匹配',
+              onPress: () => router.push('/(tabs)'),
+            }}
           />
         </View>
       )}

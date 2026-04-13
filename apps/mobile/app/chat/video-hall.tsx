@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Card } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useVideoRooms,
   useCreateVideoRoom,
@@ -82,7 +83,7 @@ export default function VideoHallScreen() {
       {/* Header */}
       <View className="flex-row items-center px-4 py-3">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">视频相亲大厅</Text>
       </View>
@@ -122,7 +123,7 @@ export default function VideoHallScreen() {
       {activeTab === '1v1' ? (
         <View className="flex-1 items-center justify-center px-8">
           <View className="w-40 h-40 rounded-full bg-rose-100 items-center justify-center mb-6">
-            <Text className="text-6xl">📹</Text>
+            <Ionicons name="videocam-outline" size={72} color="#f43f5e" />
           </View>
           <Text className="text-lg font-semibold text-gray-900 mb-2">1v1 视频快聊</Text>
           <Text className="text-sm text-gray-500 text-center mb-8">
@@ -142,6 +143,20 @@ export default function VideoHallScreen() {
           {roomsQuery.isLoading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color="#f43f5e" />
+              <Text className="text-sm text-gray-500 mt-2">正在加载房间...</Text>
+            </View>
+          ) : roomsQuery.isError ? (
+            <View className="flex-1 items-center justify-center px-8">
+              <Text className="text-base text-gray-700 mb-2">加载失败</Text>
+              <Text className="text-sm text-gray-400 mb-4 text-center">
+                视频大厅暂时不可用，请稍后再试
+              </Text>
+              <Pressable
+                onPress={() => roomsQuery.refetch()}
+                className="bg-rose-500 rounded-full px-6 py-2"
+              >
+                <Text className="text-white font-medium">重试</Text>
+              </Pressable>
             </View>
           ) : (
             <FlatList
@@ -186,7 +201,7 @@ export default function VideoHallScreen() {
             onPress={() => setCreateOpen(true)}
             className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-rose-500 items-center justify-center shadow-lg"
           >
-            <Text className="text-white text-3xl">+</Text>
+            <Ionicons name="add" size={30} color="#ffffff" />
           </Pressable>
         </View>
       )}

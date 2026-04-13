@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
   roomName: string;
@@ -52,7 +53,7 @@ export function VideoCall({ roomName, token, wsUrl, userName, onEnd }: Props) {
         ) : (
           <>
             <View className="w-32 h-32 bg-gray-700 rounded-full items-center justify-center mb-4">
-              <Text className="text-6xl">👤</Text>
+              <Ionicons name="person" size={72} color="#9ca3af" />
             </View>
             <Text className="text-white text-xl font-semibold">{userName}</Text>
             <Text className="text-gray-400 text-sm mt-1">{formatDuration(duration)}</Text>
@@ -63,7 +64,7 @@ export function VideoCall({ roomName, token, wsUrl, userName, onEnd }: Props) {
       {/* Self preview (picture-in-picture) */}
       {connected && (
         <View className="absolute top-12 right-4 w-24 h-32 bg-gray-800 rounded-xl overflow-hidden items-center justify-center border-2 border-white">
-          <Text className="text-3xl">👤</Text>
+          <Ionicons name="person" size={32} color="#9ca3af" />
           {videoOff && (
             <View className="absolute inset-0 bg-black/70 items-center justify-center">
               <Text className="text-white text-xs">摄像头已关闭</Text>
@@ -78,21 +79,21 @@ export function VideoCall({ roomName, token, wsUrl, userName, onEnd }: Props) {
           onPress={() => setMuted(!muted)}
           className={`w-14 h-14 rounded-full items-center justify-center ${muted ? 'bg-white' : 'bg-white/20'}`}
         >
-          <Text className="text-2xl">{muted ? '🔇' : '🔊'}</Text>
+          <Ionicons name={muted ? 'mic-off' : 'mic'} size={26} color={muted ? '#1f2937' : '#ffffff'} />
         </Pressable>
 
         <Pressable
           onPress={onEnd}
           className="w-16 h-16 rounded-full bg-red-500 items-center justify-center"
         >
-          <Text className="text-3xl">📞</Text>
+          <Ionicons name="call" size={30} color="#ffffff" style={{ transform: [{ rotate: '135deg' }] }} />
         </Pressable>
 
         <Pressable
           onPress={() => setVideoOff(!videoOff)}
           className={`w-14 h-14 rounded-full items-center justify-center ${videoOff ? 'bg-white' : 'bg-white/20'}`}
         >
-          <Text className="text-2xl">{videoOff ? '📷' : '🎥'}</Text>
+          <Ionicons name={videoOff ? 'videocam-off' : 'videocam'} size={26} color={videoOff ? '#1f2937' : '#ffffff'} />
         </Pressable>
       </View>
     </View>

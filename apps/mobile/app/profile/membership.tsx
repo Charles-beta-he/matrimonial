@@ -2,10 +2,19 @@ import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Card } from '@matrimonial/ui';
 import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
+import { api } from '@matrimonial/api-client';
 import { usePayment } from '../../hooks/usePayment';
 import { useAnalytics } from '../../hooks/useAnalytics';
+
+const PLAN_LABEL: Record<string, string> = {
+  FREE: '免费用户',
+  MONTHLY: '月卡会员',
+  QUARTERLY: '季卡会员',
+  YEARLY: '年卡会员',
+};
 
 const PRODUCT_ID_BY_PLAN: Record<string, string> = {
   MONTHLY: 'MEMBERSHIP_MONTHLY',
@@ -30,6 +39,10 @@ export default function MembershipScreen() {
   const [selectedPlan, setSelectedPlan] = useState('QUARTERLY');
   const { pay, processing } = usePayment();
   const { track } = useAnalytics();
+  const membershipQuery = api.payment.membershipStatus.useQuery();
+  const utils = api.useUtils();
+  const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
+  const expiresAt = (membershipQuery.data as any)?.expiresAt;
 
   useEffect(() => {
     track('membership_view', {});
@@ -65,6 +78,9 @@ export default function MembershipScreen() {
                 amount,
                 channel: c.channel,
               });
+              setTimeout(() => {
+                utils.payment.membershipStatus.invalidate();
+              }, 1000);
             } else {
               track('payment_fail', {
                 product_type: 'MEMBERSHIP',
@@ -82,7 +98,7 @@ export default function MembershipScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-row items-center px-4 py-3 bg-white">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">会员中心</Text>
       </View>
@@ -90,9 +106,19 @@ export default function MembershipScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Current plan */}
         <View className="bg-white px-4 py-6 items-center">
-          <Text className="text-4xl mb-2">👑</Text>
-          <Text className="text-base text-gray-500">当前: 免费用户</Text>
-          <Text className="text-sm text-gray-400 mt-1">开通会员，解锁全部功能</Text>
+          <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-2">
+            <Ionicons name="diamond" size={32} color="#f59e0b" />
+          </View>
+          <Text className="text-base text-gray-500">
+            当前: {PLAN_LABEL[currentPlan] ?? currentPlan}
+          </Text>
+          {currentPlan !== 'FREE' && expiresAt ? (
+            <Text className="text-sm text-gray-400 mt-1">
+              到期时间: {new Date(expiresAt).toLocaleDateString('zh-CN')}
+            </Text>
+          ) : (
+            <Text className="text-sm text-gray-400 mt-1">开通会员，解锁全部功能</Text>
+          )}
         </View>
 
         {/* Plan cards */}
@@ -129,8 +155,8 @@ export default function MembershipScreen() {
           <Text className="text-base font-semibold text-gray-900 mb-3">会员特权</Text>
           {MEMBERSHIP_PLAN_DETAILS.find((p) => p.plan === selectedPlan)?.features.map(
             (feature, i) => (
-              <View key={i} className="flex-row items-center mb-2">
-                <Text className="text-rose-500 mr-2">✓</Text>
+              <View key={i} className="flex-row items-center mb-2" style={{ gap: 8 }}>
+                <Ionicons name="checkmark-circle" size={16} color="#f43f5e" />
                 <Text className="text-sm text-gray-700">{feature}</Text>
               </View>
             ),

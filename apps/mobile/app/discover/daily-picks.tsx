@@ -1,98 +1,91 @@
-import { FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Pressable } from 'react-native';
 import type { ProfileCardUser } from '@matrimonial/ui';
-import { ProfileCard } from '@matrimonial/ui';
+import { EmptyState, ProfileCard } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { api } from '@matrimonial/api-client';
+import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 
-const MOCK_PICKS: (ProfileCardUser & { id: string })[] = [
-  {
-    id: 'dp1',
-    nickname: '小雪',
-    age: 26,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/dp1/400/600'],
-    verificationLevel: 'L3',
-    tags: ['读书', '旅行', '咖啡控'],
-    prompts: [{ question: '周末最常做的事？', answer: '逛书店然后找家咖啡店坐一下午' }],
-    distance: '3.2km',
-    isOnline: true,
-  },
-  {
-    id: 'dp2',
-    nickname: '子墨',
-    age: 28,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/dp2/400/600'],
-    verificationLevel: 'L2',
-    tags: ['运动', '摄影', '健身达人'],
-    prompts: [{ question: '如果有一个超能力？', answer: '瞬间移动' }],
-    distance: '5.1km',
-    isOnline: false,
-  },
-  {
-    id: 'dp3',
-    nickname: '安安',
-    age: 25,
-    city: '上海',
-    photos: ['https://picsum.photos/seed/dp3/400/600'],
-    verificationLevel: 'L3',
-    tags: ['美食', '音乐', '浪漫主义'],
-    prompts: [{ question: '最想去的地方？', answer: '冰岛，想看极光' }],
-    distance: '1.8km',
-    isOnline: true,
-  },
-  {
-    id: 'dp4',
-    nickname: '思远',
-    age: 30,
-    city: '深圳',
-    photos: ['https://picsum.photos/seed/dp4/400/600'],
-    verificationLevel: 'L4',
-    tags: ['电影', '游戏', '幽默搞笑'],
-    prompts: [{ question: '可以反复看的一部电影？', answer: '《怦然心动》' }],
-    distance: '8km',
-    isOnline: true,
-  },
-  {
-    id: 'dp5',
-    nickname: '悦然',
-    age: 27,
-    city: '杭州',
-    photos: ['https://picsum.photos/seed/dp5/400/600'],
-    verificationLevel: 'L2',
-    tags: ['旅行', '手工', '独立自主'],
-    prompts: [{ question: '你的爱情语言是？', answer: '精心时刻和肯定的言语' }],
-    distance: '4.5km',
-    isOnline: false,
-  },
-];
+type ProfileCardUserWithId = ProfileCardUser & { id: string };
+
+function toProfileCardUser(u: any): ProfileCardUserWithId {
+  const age = u?.birthday ? calculateAge(new Date(u.birthday)) : 25;
+  const photos =
+    Array.isArray(u?.photos) && u.photos.length > 0
+      ? u.photos.map((p: any) => p.url)
+      : [`https://picsum.photos/seed/${u?.id ?? 'x'}/400/600`];
+  const tags = Array.isArray(u?.tags) ? u.tags.map((t: any) => t.tag) : [];
+  const prompts = Array.isArray(u?.prompts)
+    ? u.prompts
+        .map((p: any) => ({
+          question:
+            PROMPT_QUESTIONS.find((q) => q.id === p.questionId)?.text ??
+            p.questionId ??
+            '关于我',
+          answer: p.answerText ?? '',
+        }))
+        .filter((p: any) => p.answer)
+    : [];
+  return {
+    id: u.id,
+    nickname: u.nickname,
+    age,
+    city: u.city ?? '',
+    photos,
+    verificationLevel: u.verificationLevel ?? 'L1',
+    tags,
+    prompts,
+    isOnline: u.isOnline ?? false,
+  };
+}
 
 /** Daily picks screen */
 export default function DailyPicksScreen() {
   const router = useRouter();
+  const { data, isLoading, error, refetch } = api.match.dailyPicks.useQuery();
+
+  const picks: ProfileCardUserWithId[] = (data ?? []).map(toProfileCardUser);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-row items-center px-4 py-3">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">今日精选</Text>
       </View>
 
-      <FlatList
-        data={MOCK_PICKS}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 16, paddingBottom: 24 }}
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/discover/${item.id}`)}>
-            <View style={{ height: 480 }}>
-              <ProfileCard user={item} />
-            </View>
-          </Pressable>
-        )}
-      />
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#f43f5e" />
+        </View>
+      ) : error ? (
+        <View className="flex-1 items-center justify-center">
+          <EmptyState
+            title="加载失败"
+            description="无法获取今日精选"
+            action={{ label: '重试', onPress: () => refetch() }}
+          />
+        </View>
+      ) : picks.length === 0 ? (
+        <View className="flex-1 items-center justify-center">
+          <EmptyState title="暂无精选" description="稍后再来看看" />
+        </View>
+      ) : (
+        <FlatList
+          data={picks}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 16, paddingBottom: 24 }}
+          renderItem={({ item }) => (
+            <Pressable onPress={() => router.push(`/discover/${item.id}`)}>
+              <View style={{ height: 480 }}>
+                <ProfileCard user={item} />
+              </View>
+            </Pressable>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

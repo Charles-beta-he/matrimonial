@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../../stores/useAppStore';
 
 const DELETION_ITEMS = [
@@ -49,7 +50,7 @@ export default function DeleteAccountPage() {
 
     Alert.alert(
       '确认注销',
-      '注销后您的所有数据将在14天后被永久删除，期间您可以登录撤回注销申请。确定要继续吗？',
+      '注销将在14天后生效，期间可登录撤回',
       [
         { text: '取消', style: 'cancel' },
         {
@@ -57,7 +58,7 @@ export default function DeleteAccountPage() {
           style: 'destructive',
           onPress: () => {
             clearAuth();
-            router.replace('/');
+            router.replace('/(auth)/login');
           },
         },
       ]
@@ -72,14 +73,17 @@ export default function DeleteAccountPage() {
         {/* Header */}
         <View className="bg-white px-6 py-4 flex-row items-center">
           <Pressable onPress={() => router.back()} className="mr-4">
-            <Text className="text-lg text-gray-600">&lt;</Text>
+            <Ionicons name="chevron-back" size={24} color="#4b5563" />
           </Pressable>
           <Text className="text-lg font-bold text-gray-900">注销账号</Text>
         </View>
 
         {/* Warning */}
         <View className="mx-6 mt-6 bg-red-50 rounded-xl p-4">
-          <Text className="text-base font-bold text-red-600 mb-2">⚠️ 注销须知</Text>
+          <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
+            <Ionicons name="warning" size={18} color="#dc2626" />
+            <Text className="text-base font-bold text-red-600">注销须知</Text>
+          </View>
           <Text className="text-sm text-red-500 leading-5">
             注销账号是不可恢复的操作。一旦注销成功，以下数据将被永久删除且无法找回。请仔细阅读后再做决定。
           </Text>
@@ -91,7 +95,7 @@ export default function DeleteAccountPage() {
           {DELETION_ITEMS.map((item) => (
             <View key={item} className="flex-row items-center mb-3">
               <View className="w-5 h-5 rounded bg-red-100 items-center justify-center mr-3">
-                <Text className="text-red-500 text-xs">✕</Text>
+                <Ionicons name="close" size={14} color="#ef4444" />
               </View>
               <Text className="text-sm text-gray-700">{item}</Text>
             </View>
@@ -99,9 +103,10 @@ export default function DeleteAccountPage() {
         </View>
 
         {/* Cooling period notice */}
-        <View className="mx-6 mt-4 bg-amber-50 rounded-xl p-4">
-          <Text className="text-sm text-amber-700 leading-5">
-            📌 注销将在14天后生效。在此期间，您可以随时登录账号撤回注销申请。14天冷静期结束后，所有数据将被永久删除。
+        <View className="mx-6 mt-4 bg-amber-50 rounded-xl p-4 flex-row" style={{ gap: 8 }}>
+          <Ionicons name="information-circle" size={18} color="#b45309" />
+          <Text className="flex-1 text-sm text-amber-700 leading-5">
+            注销将在14天后生效。在此期间，您可以随时登录账号撤回注销申请。14天冷静期结束后，所有数据将被永久删除。
           </Text>
         </View>
 

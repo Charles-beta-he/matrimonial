@@ -1,12 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
-import { Avatar, Button, Input, PromptCard, TagSelector } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Avatar, Button, Input, PromptCard, TagSelector, toast } from '@matrimonial/ui';
 import { ALL_TAGS, PROMPT_QUESTIONS, TAG_CATEGORIES } from '@matrimonial/shared';
+import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
+
+const EDUCATION_LABEL_TO_ENUM: Record<string, 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD'> = {
+  '高中': 'HIGH_SCHOOL',
+  '大专': 'ASSOCIATE',
+  '本科': 'BACHELOR',
+  '硕士': 'MASTER',
+  '博士': 'PHD',
+};
+const EDUCATION_ENUM_TO_LABEL: Record<string, string> = {
+  HIGH_SCHOOL: '高中',
+  ASSOCIATE: '大专',
+  BACHELOR: '本科',
+  MASTER: '硕士',
+  PHD: '博士',
+};
 
 const EDUCATION_OPTIONS = ['高中', '大专', '本科', '硕士', '博士'];
 const INCOME_OPTIONS = ['5K以下', '5-10K', '10-20K', '20-50K', '50K以上'];
@@ -22,11 +39,18 @@ const MBTI_OPTIONS = [
 /** Profile edit screen */
 export default function ProfileEditScreen() {
   const router = useRouter();
-  const user = useAppStore((s) => s.user);
+  const storeUser = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => (s as any).setUser);
   const { pickAndUpload, uploading } = useUpload();
+  const meQuery = api.user.me.useQuery();
+  const utils = api.useUtils();
+  const updateMut = api.user.updateProfile.useMutation();
+  const user: any = meQuery.data ?? storeUser;
+
   const [avatarUrl, setAvatarUrl] = useState<string>(
-    (user as any)?.avatar ?? 'https://picsum.photos/seed/me/200/200',
+    (user as any)?.photos?.[0]?.url ??
+      (user as any)?.avatar ??
+      'https://picsum.photos/seed/me/200/200',
   );
 
   const handleChangeAvatar = async () => {
@@ -39,21 +63,74 @@ export default function ProfileEditScreen() {
     }
   };
 
-  const [nickname, setNickname] = useState(user?.nickname ?? '');
-  const [bio, setBio] = useState(user?.bio ?? '');
-  const [height, setHeight] = useState(user?.height?.toString() ?? '');
-  const [education, setEducation] = useState('本科');
-  const [occupation, setOccupation] = useState(user?.occupation ?? '');
-  const [income, setIncome] = useState('10-20K');
-  const [hometown, setHometown] = useState(user?.hometown ?? '');
-  const [zodiac, setZodiac] = useState(user?.zodiac ?? '');
-  const [mbti, setMbti] = useState(user?.mbti ?? '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(user?.tags ?? []);
+  const [nickname, setNickname] = useState<string>((user?.nickname as string | undefined) ?? '');
+  const [bio, setBio] = useState<string>((user?.bio as string | undefined) ?? '');
+  const [height, setHeight] = useState<string>(
+    user?.height != null ? String(user.height) : '',
+  );
+  const [education, setEducation] = useState<string>(
+    user?.education ? (EDUCATION_ENUM_TO_LABEL[user.education] ?? '本科') : '本科',
+  );
+  const [occupation, setOccupation] = useState<string>((user?.occupation as string | undefined) ?? '');
+  const [income, setIncome] = useState<string>('10-20K');
+  const [hometown, setHometown] = useState<string>((user?.hometown as string | undefined) ?? '');
+  const [zodiac, setZodiac] = useState<string>((user?.zodiac as string | undefined) ?? '');
+  const [mbti, setMbti] = useState<string>((user?.mbti as string | undefined) ?? '');
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    Array.isArray(user?.tags)
+      ? user.tags.map((t: any) => (typeof t === 'string' ? t : t?.tag)).filter(Boolean)
+      : [],
+  );
 
-  const handleSave = () => {
-    // TODO: call api.user.updateProfile
-    Alert.alert('保存成功', '你的资料已更新');
-    router.back();
+  // Hydrate fields once user data arrives
+  useEffect(() => {
+    if (!meQuery.data) return;
+    const u: any = meQuery.data;
+    setNickname((prev) => prev || u.nickname || '');
+    setBio((prev) => prev || u.bio || '');
+    setHeight((prev) => prev || (u.height ? String(u.height) : ''));
+    if (u.education) {
+      setEducation(EDUCATION_ENUM_TO_LABEL[u.education] ?? '本科');
+    }
+    setOccupation((prev) => prev || u.occupation || '');
+    setHometown((prev) => prev || u.hometown || '');
+    setZodiac((prev) => prev || u.zodiac || '');
+    setMbti((prev) => prev || u.mbti || '');
+    if (Array.isArray(u.tags) && u.tags.length > 0) {
+      setSelectedTags(
+        u.tags.map((t: any) => (typeof t === 'string' ? t : t?.tag)).filter(Boolean),
+      );
+    }
+    if (u.photos?.[0]?.url) setAvatarUrl(u.photos[0].url);
+  }, [meQuery.data]);
+
+  const handleSave = async () => {
+    const payload: Record<string, any> = {};
+    if (nickname && nickname.length >= 2) payload.nickname = nickname;
+    if (bio !== undefined) payload.bio = bio;
+    if (height) {
+      const h = parseInt(height, 10);
+      if (!Number.isNaN(h)) payload.height = h;
+    }
+    if (occupation) payload.occupation = occupation;
+    if (hometown) payload.hometown = hometown;
+    if (zodiac) payload.zodiac = zodiac;
+    if (mbti) payload.mbti = mbti;
+    if (education && EDUCATION_LABEL_TO_ENUM[education]) {
+      payload.education = EDUCATION_LABEL_TO_ENUM[education];
+    }
+    if (selectedTags.length >= 3 && selectedTags.length <= 5) {
+      payload.tags = selectedTags;
+    }
+
+    try {
+      await updateMut.mutateAsync(payload as any);
+      toast.success('资料已更新');
+      await utils.user.me.invalidate();
+      router.back();
+    } catch (err: any) {
+      toast.error(err?.message ?? '保存失败');
+    }
   };
 
   const handleToggleTag = (tag: string) => {
@@ -67,11 +144,15 @@ export default function ProfileEditScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-white">
         <Pressable onPress={() => router.back()}>
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">编辑资料</Text>
-        <Pressable onPress={handleSave}>
-          <Text className="text-rose-500 font-medium">保存</Text>
+        <Pressable onPress={handleSave} disabled={updateMut.isPending}>
+          {updateMut.isPending ? (
+            <ActivityIndicator size="small" color="#f43f5e" />
+          ) : (
+            <Text className="text-rose-500 font-medium">保存</Text>
+          )}
         </Pressable>
       </View>
 
@@ -84,7 +165,7 @@ export default function ProfileEditScreen() {
               {uploading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text className="text-white text-xs">📷</Text>
+                <Ionicons name="camera" size={14} color="#ffffff" />
               )}
             </View>
           </Pressable>
@@ -235,7 +316,14 @@ export default function ProfileEditScreen() {
 
         {/* Save button */}
         <View className="p-4">
-          <Button title="保存" variant="primary" size="lg" fullWidth onPress={handleSave} />
+          <Button
+            title={updateMut.isPending ? '保存中...' : '保存'}
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={updateMut.isPending}
+            onPress={handleSave}
+          />
         </View>
 
         <View className="h-8" />

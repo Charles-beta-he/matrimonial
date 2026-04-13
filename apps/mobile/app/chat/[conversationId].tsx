@@ -1,47 +1,120 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
 import { useChat } from '../../hooks/useChat';
 import { useAppStore } from '../../stores/useAppStore';
+import { useSocketStore } from '../../stores/useSocketStore';
 import type { ChatMessage } from '../../stores/useChatStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+
+const FALLBACK_AVATAR = 'https://picsum.photos/seed/them/100/100';
 
 /** Chat conversation screen */
 export default function ChatConversationScreen() {
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
   const router = useRouter();
   const currentUser = useAppStore((s) => s.user);
-  const { messages, typingUsers, sendMessage, emitTyping } = useChat(conversationId ?? '');
-  const [inputText, setInputText] = useState('');
-  const listRef = useRef<FlatList<ChatMessage>>(null);
+  const isUserOnline = useSocketStore((s) => s.isUserOnline);
+  useSocketStore((s) => s.onlineUsers);
   const { track } = useAnalytics();
 
-  // Track chat open once per conversation
+  const cid = conversationId ?? '';
+  const { messages: liveMessages, typingUsers, emitTyping } = useChat(cid);
+  const [inputText, setInputText] = useState('');
+  const listRef = useRef<FlatList<ChatMessage>>(null);
+
+  // History from server
+  const historyQuery = api.chat.messages.useQuery(
+    { conversationId: cid, limit: 50 },
+    { enabled: !!cid },
+  );
+
+  // Conversation list (for header info — participant nickname/avatar)
+  const conversationsQuery = api.chat.list.useQuery();
+  const conversationMeta = useMemo(() => {
+    const list = (conversationsQuery.data ?? []) as any[];
+    const found = list.find((c) => c.conversationId === cid);
+    if (!found) return null;
+    const other = found.otherUser ?? {};
+    return {
+      userId: other?.id ?? '',
+      nickname: other?.nickname ?? '聊天',
+      avatarUrl: other?.photos?.[0]?.url ?? FALLBACK_AVATAR,
+      isOnline: !!other?.isOnline,
+    };
+  }, [conversationsQuery.data, cid]);
+
+  // Mutations
+  const sendMessageMutation = api.chat.sendMessage.useMutation({
+    onSuccess: () => {
+      historyQuery.refetch();
+    },
+  });
+  const markReadMutation = api.chat.markRead.useMutation();
+
+  // Track chat open + mark read on mount
   useEffect(() => {
-    if (conversationId) {
-      track('chat_open', { conversation_id: conversationId });
-    }
-  }, [conversationId, track]);
+    if (!cid) return;
+    track('chat_open', { conversation_id: cid });
+    markReadMutation.mutate({ conversationId: cid });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cid]);
+
+  // Merge history + live, dedupe by id
+  const allMessages = useMemo<ChatMessage[]>(() => {
+    const map = new Map<string, ChatMessage>();
+    const historyMessages = (historyQuery.data?.messages ?? []) as any[];
+    historyMessages.forEach((m) => {
+      map.set(m.id, { ...m, status: 'sent' } as ChatMessage);
+    });
+    liveMessages.forEach((m) => {
+      map.set(m.id, m);
+    });
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  }, [historyQuery.data, liveMessages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (messages.length > 0) {
+    if (allMessages.length > 0) {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     }
-  }, [messages.length]);
+  }, [allMessages.length]);
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     const text = inputText.trim();
-    if (!text) return;
-    sendMessage(text);
-    track('chat_message_send', {
-      conversation_id: conversationId ?? '',
-      type: 'text',
-    });
+    if (!text || !cid) return;
     setInputText('');
-  }, [inputText, sendMessage, track, conversationId]);
+    try {
+      await sendMessageMutation.mutateAsync({
+        conversationId: cid,
+        type: 'TEXT',
+        content: text,
+      });
+      track('chat_message_send', {
+        conversation_id: cid,
+        type: 'text',
+      });
+    } catch (e: any) {
+      Alert.alert('发送失败', e?.message ?? '请重试');
+      setInputText(text);
+    }
+  }, [inputText, cid, sendMessageMutation, track]);
 
   const handleChangeText = useCallback(
     (text: string) => {
@@ -57,7 +130,7 @@ export default function ChatConversationScreen() {
   const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isMe = item.senderId === currentUser?.id;
     const timestamp = formatTime(item.createdAt);
-    const prev = messages[index - 1];
+    const prev = allMessages[index - 1];
     const showTime = index === 0 || (prev && formatTime(prev.createdAt) !== timestamp);
 
     return (
@@ -68,9 +141,13 @@ export default function ChatConversationScreen() {
         <View className={`flex-row ${isMe ? 'justify-end' : 'justify-start'}`}>
           {!isMe && (
             <Avatar
-              source={{ uri: 'https://picsum.photos/seed/them/100/100' }}
+              source={{ uri: conversationMeta?.avatarUrl ?? FALLBACK_AVATAR }}
               size={36}
-              online
+              online={
+                conversationMeta
+                  ? isUserOnline(conversationMeta.userId) || conversationMeta.isOnline
+                  : false
+              }
             />
           )}
           <View
@@ -95,21 +172,29 @@ export default function ChatConversationScreen() {
     );
   };
 
+  const showOnline = conversationMeta
+    ? isUserOnline(conversationMeta.userId) || conversationMeta.isOnline
+    : false;
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Avatar
-          source={{ uri: 'https://picsum.photos/seed/them/100/100' }}
+          source={{ uri: conversationMeta?.avatarUrl ?? FALLBACK_AVATAR }}
           size={36}
-          online
+          online={showOnline}
         />
         <View className="ml-3">
-          <Text className="text-base font-semibold text-gray-900">思远</Text>
-          <Text className="text-xs text-green-500">在线</Text>
+          <Text className="text-base font-semibold text-gray-900">
+            {conversationMeta?.nickname ?? '聊天'}
+          </Text>
+          <Text className={`text-xs ${showOnline ? 'text-green-500' : 'text-gray-400'}`}>
+            {showOnline ? '在线' : '离线'}
+          </Text>
         </View>
       </View>
 
@@ -119,15 +204,38 @@ export default function ChatConversationScreen() {
         keyboardVerticalOffset={0}
       >
         {/* Message list */}
-        <FlatList
-          ref={listRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={{ paddingVertical: 12 }}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
-        />
+        {historyQuery.isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#f43f5e" />
+            <Text className="text-sm text-gray-500 mt-2">正在加载消息...</Text>
+          </View>
+        ) : historyQuery.isError ? (
+          <View className="flex-1 items-center justify-center px-8">
+            <Text className="text-base text-gray-700 mb-2">加载失败</Text>
+            <Pressable
+              onPress={() => historyQuery.refetch()}
+              className="bg-rose-500 rounded-full px-6 py-2 mt-2"
+            >
+              <Text className="text-white font-medium">重试</Text>
+            </Pressable>
+          </View>
+        ) : allMessages.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-8">
+            <Ionicons name="chatbubbles-outline" size={48} color="#9ca3af" />
+            <Text className="text-base text-gray-700 mt-2">还没有消息</Text>
+            <Text className="text-sm text-gray-400 mt-1">发送第一条消息打个招呼吧</Text>
+          </View>
+        ) : (
+          <FlatList
+            ref={listRef}
+            data={allMessages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerStyle={{ paddingVertical: 12 }}
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+          />
+        )}
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
@@ -139,7 +247,7 @@ export default function ChatConversationScreen() {
         {/* Input bar */}
         <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
           <Pressable className="w-10 h-10 items-center justify-center">
-            <Text className="text-lg">🎤</Text>
+            <Ionicons name="mic-outline" size={22} color="#6b7280" />
           </Pressable>
           <View className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 min-h-[40px] justify-center">
             <TextInput
@@ -153,14 +261,15 @@ export default function ChatConversationScreen() {
             />
           </View>
           <Pressable className="w-10 h-10 items-center justify-center">
-            <Text className="text-lg">📷</Text>
+            <Ionicons name="camera-outline" size={22} color="#6b7280" />
           </Pressable>
           {inputText.trim() ? (
             <Pressable
               className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
               onPress={handleSend}
+              disabled={sendMessageMutation.isPending}
             >
-              <Text className="text-white font-bold text-sm">↑</Text>
+              <Ionicons name="arrow-up" size={18} color="#ffffff" />
             </Pressable>
           ) : null}
         </View>

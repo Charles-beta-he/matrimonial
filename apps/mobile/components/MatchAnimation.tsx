@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@matrimonial/ui';
 import { Button } from '@matrimonial/ui';
 import { useIcebreakers } from '@matrimonial/api-client';
@@ -89,9 +90,10 @@ export function MatchAnimation({
       {/* AI Icebreaker suggestions */}
       {matchedUserId && (
         <View className="w-full px-8 mb-6">
-          <Text className="text-white/90 text-sm font-semibold mb-3 text-center">
-            ✨ AI 破冰建议
-          </Text>
+          <View className="flex-row items-center justify-center mb-3" style={{ gap: 6 }}>
+            <Ionicons name="sparkles" size={14} color="#fde68a" />
+            <Text className="text-white/90 text-sm font-semibold">AI 破冰建议</Text>
+          </View>
           {icebreakersLoading ? (
             <Text className="text-white/60 text-xs text-center">正在生成建议…</Text>
           ) : (
