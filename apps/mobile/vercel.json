@@ -5,7 +5,10 @@
   "installCommand": "echo 'install handled in buildCommand'",
   "framework": null,
   "env": {
-    "EXPO_PUBLIC_ENV": "preview"
+    "EXPO_PUBLIC_ENV": "preview",
+    "EXPO_PUBLIC_API_URL": "https://matrimonialserver-production.up.railway.app",
+    "EXPO_PUBLIC_CHAT_URL": "wss://matrimonialserver-production.up.railway.app",
+    "EXPO_PUBLIC_MEDIA_URL": "https://matrimonialserver-production.up.railway.app"
   },
   "rewrites": [
     {
