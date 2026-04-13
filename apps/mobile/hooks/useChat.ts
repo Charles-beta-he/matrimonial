@@ -3,13 +3,24 @@ import { useSocketStore } from '../stores/useSocketStore';
 import { useChatStore, type ChatMessage } from '../stores/useChatStore';
 import { useAppStore } from '../stores/useAppStore';
 
+// Stable empty-fallback references.
+// Zustand's selector is called every render with useSyncExternalStore;
+// returning `?? []` or `?? new Set()` inside the selector creates a new
+// reference every tick, which React detects as a state change and
+// triggers an infinite re-render loop. Keep the selector pure (possibly
+// returning undefined) and resolve the fallback outside.
+const EMPTY_MESSAGES: readonly ChatMessage[] = Object.freeze([]);
+const EMPTY_TYPING: ReadonlySet<string> = new Set();
+
 export function useChat(conversationId: string) {
   const socket = useSocketStore((s) => s.socket);
   const addMessage = useChatStore((s) => s.addMessage);
   const updateMessageStatus = useChatStore((s) => s.updateMessageStatus);
   const setTyping = useChatStore((s) => s.setTyping);
-  const messages = useChatStore((s) => s.messagesByConversation[conversationId] ?? []);
-  const typingUsers = useChatStore((s) => s.typingUsers[conversationId] ?? new Set<string>());
+  const messagesRaw = useChatStore((s) => s.messagesByConversation[conversationId]);
+  const typingRaw = useChatStore((s) => s.typingUsers[conversationId]);
+  const messages = (messagesRaw ?? EMPTY_MESSAGES) as ChatMessage[];
+  const typingUsers = typingRaw ?? EMPTY_TYPING;
   const currentUser = useAppStore((s) => s.user);
 
   // Join conversation room on mount

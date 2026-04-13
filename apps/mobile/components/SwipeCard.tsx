@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   interpolate,
@@ -80,8 +80,7 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false }: S
   if (isNext) {
     return (
       <Animated.View
-        className="absolute inset-0"
-        style={[{ zIndex: 0 }, cardStyle]}
+        style={[StyleSheet.absoluteFillObject, { zIndex: 0 }, cardStyle]}
       >
         <ProfileCard user={user} />
       </Animated.View>
@@ -90,7 +89,7 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false }: S
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Animated.View className="absolute inset-0" style={[{ zIndex: 1 }, cardStyle]}>
+      <Animated.View style={[StyleSheet.absoluteFillObject, { zIndex: 1 }, cardStyle]}>
         <ProfileCard user={user} />
 
         {/* LIKE overlay */}
