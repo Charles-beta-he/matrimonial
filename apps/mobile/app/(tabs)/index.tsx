@@ -1,92 +1,98 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Dimensions, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+
+/** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
+function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
+  const color = opts.color ?? '#000';
+  if (Platform.OS === 'web') {
+    // Convert hex to rgba
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return { boxShadow: `${opts.x ?? 0}px ${opts.y}px ${opts.blur}px rgba(${r},${g},${b},${opts.opacity})` };
+  }
+  return {
+    shadowColor: color,
+    shadowOffset: { width: opts.x ?? 0, height: opts.y },
+    shadowOpacity: opts.opacity,
+    shadowRadius: opts.blur / 2,
+    elevation: opts.elevation ?? 2,
+  };
+}
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
 import type { ProfileCardUser } from '@matrimonial/ui';
-import { Card } from '@matrimonial/ui';
+import { EmptyState } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
+import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { SwipeCard } from '../../components/SwipeCard';
 import { MatchAnimation } from '../../components/MatchAnimation';
 import { useMatchStore } from '../../stores/useMatchStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+type ProfileCardUserWithId = ProfileCardUser & { id: string };
 
-// Mock users for demo
-const MOCK_USERS: ProfileCardUser[] = [
-  {
-    nickname: '小雪',
-    age: 26,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/u1/400/600'],
-    verificationLevel: 'L3',
-    tags: ['读书', '旅行', '咖啡控'],
-    prompts: [{ question: '周末最常做的事？', answer: '逛书店然后找家咖啡店坐一下午' }],
-    distance: '3.2km',
-    isOnline: true,
-  },
-  {
-    nickname: '子墨',
-    age: 28,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/u2/400/600'],
-    verificationLevel: 'L2',
-    tags: ['运动', '摄影', '健身达人'],
-    prompts: [{ question: '如果有一个超能力？', answer: '瞬间移动，可以随时去世界各地' }],
-    distance: '5.1km',
-    isOnline: false,
-  },
-  {
-    nickname: '安安',
-    age: 25,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/u3/400/600'],
-    verificationLevel: 'L3',
-    tags: ['美食', '音乐', '浪漫主义'],
-    prompts: [{ question: '最想去的地方？', answer: '冰岛，想看极光' }],
-    distance: '1.8km',
-    isOnline: true,
-  },
-  {
-    nickname: '思远',
-    age: 30,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/u4/400/600'],
-    verificationLevel: 'L4',
-    tags: ['电影', '游戏', '幽默搞笑'],
-    prompts: [{ question: '可以反复看的一部电影？', answer: '《怦然心动》' }],
-    distance: '8km',
-    isOnline: true,
-  },
-  {
-    nickname: '悦然',
-    age: 27,
-    city: '北京',
-    photos: ['https://picsum.photos/seed/u5/400/600'],
-    verificationLevel: 'L2',
-    tags: ['旅行', '手工', '独立自主'],
-    prompts: [{ question: '你的爱情语言是？', answer: '精心时刻和肯定的言语' }],
-    distance: '4.5km',
-    isOnline: false,
-  },
-];
-
-const DAILY_PICKS = MOCK_USERS.slice(0, 5);
-
-const mockUserId = (u: ProfileCardUser) => `mock_${u.nickname}`;
+function toProfileCardUser(u: any): ProfileCardUserWithId {
+  const age = u?.birthday ? calculateAge(new Date(u.birthday)) : 25;
+  const photos =
+    Array.isArray(u?.photos) && u.photos.length > 0
+      ? u.photos.map((p: any) => p.url)
+      : [`https://picsum.photos/seed/${u?.id ?? 'x'}/400/600`];
+  const tags = Array.isArray(u?.tags) ? u.tags.map((t: any) => t.tag) : [];
+  const prompts = Array.isArray(u?.prompts)
+    ? u.prompts
+        .map((p: any) => ({
+          question:
+            PROMPT_QUESTIONS.find((q) => q.id === p.questionId)?.text ??
+            p.questionId ??
+            '关于我',
+          answer: p.answerText ?? '',
+        }))
+        .filter((p: any) => p.answer)
+    : [];
+  return {
+    id: u.id,
+    nickname: u.nickname,
+    age,
+    city: u.city ?? '',
+    photos,
+    verificationLevel: u.verificationLevel ?? 'L1',
+    tags,
+    prompts,
+    isOnline: u.isOnline ?? false,
+  };
+}
 
 /** Discover / Recommend page */
 export default function DiscoverTab() {
   const router = useRouter();
-  const { currentIndex, nextCard, showMatchAnimation, matchedUser, setMatchAnimation } =
-    useMatchStore();
+  const { showMatchAnimation, matchedUser, setMatchAnimation } = useMatchStore();
   const { track } = useAnalytics();
 
+  const [localIndex, setLocalIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<{ name: string; photo: string } | null>(null);
   const cardShownAtRef = useRef<number>(Date.now());
 
-  const currentUser = MOCK_USERS[currentIndex % MOCK_USERS.length];
-  const nextUser = MOCK_USERS[(currentIndex + 1) % MOCK_USERS.length];
+  const recommendationsQuery = api.match.recommendations.useQuery();
+  const dailyPicksQuery = api.match.dailyPicks.useQuery();
+
+  const likeMutation = api.match.like.useMutation();
+  const skipMutation = api.match.skip.useMutation();
+
+  const recommendations: ProfileCardUserWithId[] = useMemo(
+    () => (recommendationsQuery.data ?? []).map(toProfileCardUser),
+    [recommendationsQuery.data],
+  );
+  const dailyPicks: ProfileCardUserWithId[] = useMemo(
+    () => (dailyPicksQuery.data ?? []).map(toProfileCardUser),
+    [dailyPicksQuery.data],
+  );
+
+  const currentUser = recommendations[localIndex];
+  const nextUser = recommendations[localIndex + 1];
 
   // Screen view tracking
   useEffect(() => {
@@ -95,34 +101,57 @@ export default function DiscoverTab() {
 
   // Track card_view whenever the current card changes
   useEffect(() => {
+    if (!currentUser) return;
     cardShownAtRef.current = Date.now();
     track('card_view', {
-      target_user_id: mockUserId(currentUser),
-      position: currentIndex,
+      target_user_id: currentUser.id,
+      position: localIndex,
     });
-  }, [currentIndex, currentUser, track]);
+  }, [localIndex, currentUser, track]);
 
   const handleSwipeRight = useCallback(() => {
-    const user = MOCK_USERS[currentIndex % MOCK_USERS.length];
-    const targetId = mockUserId(user);
-    track('card_like', { target_user_id: targetId, type: 'normal' });
-    // Simulate a ~30% match rate for demo
-    if (Math.random() < 0.3) {
-      setMatchInfo({ name: user.nickname, photo: user.photos[0] ?? '' });
-      setMatchAnimation(true, { id: targetId, nickname: user.nickname, photo: user.photos[0] });
-      track('match_success', { target_user_id: targetId });
-    }
-    nextCard();
-  }, [currentIndex, nextCard, setMatchAnimation, track]);
+    const user = recommendations[localIndex];
+    if (!user) return;
+    track('card_like', { target_user_id: user.id, type: 'normal' });
+    likeMutation.mutate(
+      { toUserId: user.id, type: 'NORMAL' },
+      {
+        onSuccess: (res) => {
+          if (res?.isMatched) {
+            setMatchInfo({ name: user.nickname, photo: user.photos[0] ?? '' });
+            setMatchAnimation(true, {
+              id: user.id,
+              nickname: user.nickname,
+              photo: user.photos[0],
+            });
+            track('match_success', { target_user_id: user.id });
+          }
+        },
+      },
+    );
+    setLocalIndex((i) => i + 1);
+  }, [recommendations, localIndex, likeMutation, setMatchAnimation, track]);
 
   const handleSwipeLeft = useCallback(() => {
-    const user = MOCK_USERS[currentIndex % MOCK_USERS.length];
+    const user = recommendations[localIndex];
+    if (!user) return;
     track('card_skip', {
-      target_user_id: mockUserId(user),
+      target_user_id: user.id,
       view_duration_ms: Date.now() - cardShownAtRef.current,
     });
-    nextCard();
-  }, [currentIndex, nextCard, track]);
+    skipMutation.mutate({ toUserId: user.id });
+    setLocalIndex((i) => i + 1);
+  }, [recommendations, localIndex, skipMutation, track]);
+
+  const handleRefresh = useCallback(() => {
+    setLocalIndex(0);
+    recommendationsQuery.refetch();
+    dailyPicksQuery.refetch();
+  }, [recommendationsQuery, dailyPicksQuery]);
+
+  const isLoading = recommendationsQuery.isLoading;
+  const hasError = !!recommendationsQuery.error;
+  const isEmpty = !isLoading && !hasError && (recommendations.length === 0 || localIndex >= recommendations.length);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -130,8 +159,12 @@ export default function DiscoverTab() {
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 py-3">
           <Text className="text-2xl font-bold text-gray-900">发现</Text>
-          <Pressable className="w-10 h-10 bg-white rounded-full items-center justify-center shadow-sm">
-            <Text className="text-lg">⚙️</Text>
+          <Pressable
+            className="w-10 h-10 bg-white rounded-full items-center justify-center"
+            style={shadowStyle({ y: 1, blur: 3, opacity: 0.06, elevation: 1 })}
+            onPress={() => router.push('/profile/settings')}
+          >
+            <Ionicons name="options-outline" size={20} color="#4b5563" />
           </Pressable>
         </View>
 
@@ -142,68 +175,166 @@ export default function DiscoverTab() {
             onPress={() => router.push('/discover/daily-picks')}
           >
             <Text className="text-base font-semibold text-gray-900">今日精选</Text>
-            <Text className="text-sm text-rose-500">查看全部 &gt;</Text>
+            <View className="flex-row items-center" style={{ gap: 2 }}>
+              <Text className="text-sm text-rose-500">查看全部</Text>
+              <Ionicons name="chevron-forward" size={14} color="#f43f5e" />
+            </View>
           </Pressable>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
           >
-            {DAILY_PICKS.map((user, i) => (
-              <Card
-                key={i}
-                className="w-20"
-                onPress={() => router.push(`/discover/${user.nickname}`)}
-              >
-                <View className="w-20 h-24 bg-gray-200 rounded-xl items-center justify-center">
-                  <Text className="text-2xl">👤</Text>
-                </View>
-                <Text className="text-xs text-center text-gray-700 mt-1 pb-1">
-                  {user.nickname}
-                </Text>
-              </Card>
-            ))}
+            {dailyPicksQuery.isLoading ? (
+              <Text className="text-xs text-gray-400 px-2 py-6">加载中…</Text>
+            ) : dailyPicks.length === 0 ? (
+              <Text className="text-xs text-gray-400 px-2 py-6">暂无精选</Text>
+            ) : (
+              dailyPicks.map((user) => (
+                <Pressable
+                  key={user.id}
+                  className="w-20 items-center"
+                  onPress={() => router.push(`/discover/${user.id}`)}
+                >
+                  <View className="w-20 h-24 rounded-2xl overflow-hidden bg-gray-200 relative">
+                    {user.photos?.[0] ? (
+                      <Image
+                        source={{ uri: user.photos[0] }}
+                        style={{ width: '100%', height: '100%' }}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="w-full h-full items-center justify-center">
+                        <Ionicons name="person" size={32} color="#9ca3af" />
+                      </View>
+                    )}
+                    {user.isOnline && (
+                      <View className="absolute bottom-1 right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
+                    )}
+                  </View>
+                  <Text className="text-xs text-center text-gray-800 mt-1.5 font-medium" numberOfLines={1}>
+                    {user.nickname}
+                  </Text>
+                </Pressable>
+              ))
+            )}
           </ScrollView>
         </View>
 
-        {/* Main card area */}
-        <View className="flex-1 px-4 pb-2">
-          <View className="flex-1 relative">
-            {/* Next card (behind) */}
-            <SwipeCard user={nextUser} isNext />
-            {/* Current card */}
-            <SwipeCard
-              user={currentUser}
-              onSwipeLeft={handleSwipeLeft}
-              onSwipeRight={handleSwipeRight}
-            />
+        {/* Error banner */}
+        {hasError && (
+          <Pressable
+            onPress={() => recommendationsQuery.refetch()}
+            className="mx-4 mb-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
+          >
+            <Text className="text-red-600 text-sm text-center">加载失败，点击重试</Text>
+          </Pressable>
+        )}
+
+        {/* Main card area — hardcoded dimensions because flex-1 + absolute
+            inset-0 doesn't cascade reliably through SwipeCard on RN Web */}
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingBottom: 8,
+            alignItems: 'center',
+            flex: 1,
+          }}
+        >
+          <View
+            style={{
+              position: 'relative',
+              width: 340,
+              height: 480,
+            }}
+          >
+            {isLoading ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator size="large" color="#f43f5e" />
+                <Text className="text-gray-500 mt-3">正在加载推荐...</Text>
+              </View>
+            ) : isEmpty ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <EmptyState
+                  title="暂无新推荐"
+                  description="稍后再来看看"
+                  action={{ label: '刷新', onPress: handleRefresh }}
+                />
+              </View>
+            ) : (
+              <>
+                {nextUser && <SwipeCard user={nextUser} isNext />}
+                {currentUser && (
+                  <SwipeCard
+                    key={currentUser.id}
+                    user={currentUser}
+                    onSwipeLeft={handleSwipeLeft}
+                    onSwipeRight={handleSwipeRight}
+                  />
+                )}
+              </>
+            )}
           </View>
         </View>
 
         {/* Bottom action bar */}
-        <View className="flex-row items-center justify-center pb-4 pt-2" style={{ gap: 24 }}>
-          <Pressable
-            className="w-14 h-14 rounded-full bg-white shadow-md items-center justify-center border border-gray-200"
-            onPress={handleSwipeLeft}
+        {!isLoading && !isEmpty && (
+          <View
+            className="flex-row items-center justify-center pb-6 pt-3"
+            style={{ gap: 20 }}
           >
-            <Text className="text-2xl">👈</Text>
-          </Pressable>
-          <Pressable
-            className="w-16 h-16 rounded-full bg-rose-500 shadow-lg items-center justify-center"
-            onPress={handleSwipeRight}
-          >
-            <Text className="text-3xl">❤️</Text>
-          </Pressable>
-          <Pressable
-            className="w-14 h-14 rounded-full bg-white shadow-md items-center justify-center border border-gray-200"
-            onPress={() => {
-              // Super like
-              handleSwipeRight();
-            }}
-          >
-            <Text className="text-2xl">⭐</Text>
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={handleSwipeLeft}
+              style={({ pressed }) => ({
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#ffffff',
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
+                opacity: pressed ? 0.85 : 1,
+                transform: [{ scale: pressed ? 0.96 : 1 }],
+              })}
+            >
+              <Ionicons name="close" size={28} color="#ef4444" />
+            </Pressable>
+
+            <Pressable
+              onPress={handleSwipeRight}
+              style={({ pressed }) => ({
+                width: 68,
+                height: 68,
+                borderRadius: 34,
+                backgroundColor: '#f43f5e',
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...shadowStyle({ color: '#f43f5e', y: 6, blur: 12, opacity: 0.35, elevation: 6 }),
+                opacity: pressed ? 0.9 : 1,
+                transform: [{ scale: pressed ? 0.96 : 1 }],
+              })}
+            >
+              <Ionicons name="heart" size={32} color="#ffffff" />
+            </Pressable>
+
+            <Pressable
+              onPress={handleSwipeRight}
+              style={({ pressed }) => ({
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#ffffff',
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
+                opacity: pressed ? 0.85 : 1,
+                transform: [{ scale: pressed ? 0.96 : 1 }],
+              })}
+            >
+              <Ionicons name="star" size={26} color="#f59e0b" />
+            </Pressable>
+          </View>
+        )}
 
         {/* Match animation overlay */}
         {showMatchAnimation && matchInfo && (

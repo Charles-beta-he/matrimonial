@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, Input } from '@matrimonial/ui';
 
 /** Safety tools screen */
@@ -13,7 +14,7 @@ export default function SafetyScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-row items-center px-4 py-3 bg-white">
         <Pressable onPress={() => router.back()} className="mr-3">
-          <Text className="text-lg">&lt;</Text>
+          <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">安全工具</Text>
       </View>
@@ -21,8 +22,8 @@ export default function SafetyScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Emergency contact */}
         <View className="bg-white mt-2 p-4">
-          <View className="flex-row items-center mb-3">
-            <Text className="text-lg mr-2">📞</Text>
+          <View className="flex-row items-center mb-3" style={{ gap: 8 }}>
+            <Ionicons name="call" size={18} color="#3b82f6" />
             <Text className="text-base font-semibold text-gray-900">紧急联系人</Text>
           </View>
           <Text className="text-sm text-gray-500 mb-3">
@@ -47,8 +48,8 @@ export default function SafetyScreen() {
 
         {/* Date check-in */}
         <Card className="mx-4 mt-4 p-4">
-          <View className="flex-row items-center mb-2">
-            <Text className="text-lg mr-2">📍</Text>
+          <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
+            <Ionicons name="location" size={18} color="#f59e0b" />
             <Text className="text-base font-semibold text-gray-900">约会报备</Text>
           </View>
           <Text className="text-sm text-gray-500 mb-2">
@@ -66,13 +67,12 @@ export default function SafetyScreen() {
             遇到紧急情况时按下此按钮，系统将向紧急联系人发送你的位置信息
           </Text>
           <Pressable
-            className="w-32 h-32 rounded-full bg-red-500 items-center justify-center shadow-lg"
-            style={{
-              shadowColor: '#ef4444',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-            }}
+            className="w-32 h-32 rounded-full bg-red-500 items-center justify-center"
+            style={
+              Platform.OS === 'web'
+                ? { boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
+                : { shadowColor: '#ef4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }
+            }
             onPress={() =>
               Alert.alert(
                 '紧急求助',
@@ -82,7 +82,11 @@ export default function SafetyScreen() {
                   {
                     text: '确定',
                     style: 'destructive',
-                    onPress: () => Alert.alert('已发送', '求助信息已发送给紧急联系人'),
+                    onPress: () =>
+                      Alert.alert(
+                        '已发送',
+                        '功能开发中，正式环境将发送给紧急联系人',
+                      ),
                   },
                 ],
               )
@@ -94,8 +98,8 @@ export default function SafetyScreen() {
 
         {/* Post-date feedback */}
         <Card className="mx-4 mt-6 p-4 mb-8">
-          <View className="flex-row items-center mb-2">
-            <Text className="text-lg mr-2">💬</Text>
+          <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
+            <Ionicons name="chatbubbles" size={18} color="#10b981" />
             <Text className="text-base font-semibold text-gray-900">约后反馈</Text>
           </View>
           <Text className="text-sm text-gray-500">

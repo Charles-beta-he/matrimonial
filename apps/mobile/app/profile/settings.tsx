@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
 
@@ -20,6 +22,7 @@ const NOTIFICATION_SETTINGS: SettingToggle[] = [
 export default function SettingsPage() {
   const router = useRouter();
   const clearAuth = useAppStore((s) => s.clearAuth);
+  const logoutMut = api.auth.logout.useMutation();
 
   const [notifications, setNotifications] = useState<Record<string, boolean>>({
     newMessage: true,
@@ -44,20 +47,30 @@ export default function SettingsPage() {
     router.push('/profile/delete-account');
   };
 
+  const performLogout = async () => {
+    try {
+      await logoutMut.mutateAsync();
+    } catch {
+      // ignore network failures on logout
+    }
+    // Disconnect socket before clearing auth so the server sees a clean
+    // disconnect rather than an auth-less reconnect attempt.
+    useSocketStore.getState().disconnect();
+    clearAuth();
+    router.replace('/(auth)/login');
+  };
+
   const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      const g = globalThis as unknown as { confirm?: (msg: string) => boolean };
+      if (g.confirm?.('确定要退出登录吗？')) {
+        void performLogout();
+      }
+      return;
+    }
     Alert.alert('退出登录', '确定要退出登录吗？', [
       { text: '取消', style: 'cancel' },
-      {
-        text: '确定',
-        style: 'destructive',
-        onPress: () => {
-          // Disconnect socket before clearing auth so the server sees a clean
-          // disconnect rather than an auth-less reconnect attempt.
-          useSocketStore.getState().disconnect();
-          clearAuth();
-          router.replace('/');
-        },
-      },
+      { text: '确定', style: 'destructive', onPress: performLogout },
     ]);
   };
 
@@ -67,7 +80,7 @@ export default function SettingsPage() {
         {/* Header */}
         <View className="bg-white px-6 py-4 flex-row items-center">
           <Pressable onPress={() => router.back()} className="mr-4">
-            <Text className="text-lg text-gray-600">&lt;</Text>
+            <Ionicons name="chevron-back" size={24} color="#4b5563" />
           </Pressable>
           <Text className="text-lg font-bold text-gray-900">设置</Text>
         </View>
@@ -81,14 +94,14 @@ export default function SettingsPage() {
               onPress={() => Alert.alert('修改手机号', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改手机号</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
             <Pressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => Alert.alert('修改密码', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改密码</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
           </View>
         </View>
@@ -125,14 +138,14 @@ export default function SettingsPage() {
               onPress={handleClearCache}
             >
               <Text className="text-base text-gray-900">清除缓存</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
             <Pressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleCheckUpdate}
             >
               <Text className="text-base text-gray-900">检查更新</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
           </View>
         </View>
@@ -150,14 +163,14 @@ export default function SettingsPage() {
               onPress={() => router.push('/legal/terms')}
             >
               <Text className="text-base text-gray-900">用户协议</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
             <Pressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => router.push('/legal/privacy')}
             >
               <Text className="text-base text-gray-900">隐私政策</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
           </View>
         </View>
@@ -171,14 +184,14 @@ export default function SettingsPage() {
               onPress={handleDeleteAccount}
             >
               <Text className="text-base text-red-500">注销账号</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
             <Pressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleLogout}
             >
               <Text className="text-base text-red-500">退出登录</Text>
-              <Text className="text-gray-300">&gt;</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
           </View>
         </View>

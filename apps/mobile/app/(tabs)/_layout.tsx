@@ -1,42 +1,72 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const ICONS: Record<string, { focused: IoniconName; unfocused: IoniconName }> = {
+  index: { focused: 'flame', unfocused: 'flame-outline' },
+  explore: { focused: 'compass', unfocused: 'compass-outline' },
+  messages: { focused: 'chatbubbles', unfocused: 'chatbubbles-outline' },
+  profile: { focused: 'person', unfocused: 'person-outline' },
+};
+
+const LABELS: Record<string, string> = {
+  index: '发现',
+  explore: '探索',
+  messages: '消息',
+  profile: '我的',
+};
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8);
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
         tabBarActiveTintColor: '#f43f5e',
+        tabBarInactiveTintColor: '#9ca3af',
         headerShown: false,
-      }}
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopColor: '#f3f4f6',
+          height: 64 + bottomInset,
+          paddingBottom: bottomInset + 6,
+          paddingTop: 8,
+        },
+        title: LABELS[route.name] ?? route.name,
+        tabBarLabel: ({ color }) => (
+          <Text
+            style={{
+              color,
+              fontSize: 11,
+              fontWeight: '600',
+              lineHeight: 14,
+              marginTop: 4,
+              textAlign: 'center',
+            }}
+          >
+            {LABELS[route.name] ?? route.name}
+          </Text>
+        ),
+        tabBarIcon: ({ color, focused, size }) => {
+          const set = ICONS[route.name];
+          if (!set) return null;
+          return (
+            <Ionicons
+              name={focused ? set.focused : set.unfocused}
+              size={size ?? 24}
+              color={color}
+            />
+          );
+        },
+      })}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: '发现',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>💝</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: '探索',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🔍</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="messages"
-        options={{
-          title: '消息',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>💬</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: '我的',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text>,
-        }}
-      />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="explore" />
+      <Tabs.Screen name="messages" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }

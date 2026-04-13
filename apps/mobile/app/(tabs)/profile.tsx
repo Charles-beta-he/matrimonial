@@ -1,45 +1,99 @@
 import { useEffect } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Avatar, Badge, ListItem } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Avatar, Badge, ListItem, toast } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
+import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
-const MENU_ITEMS = [
-  { title: '认证中心', icon: '🛡️', route: '/profile/verification' },
-  { title: '会员中心', icon: '👑', route: '/profile/membership' },
-  { title: '隐私设置', icon: '🔒', route: '/profile/privacy' },
-  { title: '安全工具', icon: '🆘', route: '/profile/safety' },
-  { title: '设置', icon: '⚙️', route: '/profile/settings' },
-] as const;
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+interface MenuItem {
+  title: string;
+  icon: IoniconName;
+  iconColor: string;
+  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings';
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: '#3b82f6', route: '/profile/verification' },
+  { title: '会员中心', icon: 'diamond-outline',          iconColor: '#f59e0b', route: '/profile/membership' },
+  { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: '#6b7280', route: '/profile/privacy' },
+  { title: '安全工具', icon: 'shield-outline',           iconColor: '#ef4444', route: '/profile/safety' },
+  { title: '设置',     icon: 'settings-outline',         iconColor: '#64748b', route: '/profile/settings' },
+];
 
 /** My profile tab */
 export default function ProfileTab() {
   const router = useRouter();
-  const user = useAppStore((s) => s.user);
+  const storeUser = useAppStore((s) => s.user);
   const clearAuth = useAppStore((s) => s.clearAuth);
   const { track, clearUser } = useAnalytics();
+
+  const meQuery = api.user.me.useQuery(undefined, {
+    staleTime: 30_000,
+  });
+  const likedMeQuery = api.match.likedMe.useQuery();
+  const matchesQuery = api.match.matches.useQuery();
+  const visitorsQuery = api.user.visitors.useQuery({ limit: 100 });
+  const logoutMut = api.auth.logout.useMutation();
+
+  const user = (meQuery.data as any) ?? storeUser;
 
   useEffect(() => {
     track('screen_view', { screen_name: 'my_profile' });
   }, [track]);
 
+  const avatarUrl =
+    user?.photos?.[0]?.url ??
+    (user as any)?.avatar ??
+    'https://picsum.photos/seed/me/200/200';
+
+  const age =
+    typeof user?.age === 'number'
+      ? user.age
+      : user?.birthday
+        ? calculateAge(new Date(user.birthday))
+        : null;
+
+  const verificationLevel = user?.verificationLevel ?? null;
+
+  const performLogout = async () => {
+    track('auth_logout', {});
+    try {
+      await logoutMut.mutateAsync();
+    } catch {
+      // ignore network failure on logout
+    }
+    clearUser();
+    clearAuth();
+    router.replace('/(auth)/login');
+  };
+
   const handleLogout = () => {
+    // Alert.alert's 3-button pattern is unreliable on react-native-web
+    // (destructive button onPress often doesn't fire). Fall back to window.confirm.
+    if (Platform.OS === 'web') {
+      const g = globalThis as unknown as { confirm?: (msg: string) => boolean };
+      if (g.confirm?.('确定要退出登录吗？')) {
+        void performLogout();
+      }
+      return;
+    }
     Alert.alert('退出登录', '确定要退出登录吗？', [
       { text: '取消', style: 'cancel' },
-      {
-        text: '确定',
-        style: 'destructive',
-        onPress: () => {
-          track('auth_logout', {});
-          clearUser();
-          clearAuth();
-          router.replace('/');
-        },
-      },
+      { text: '确定', style: 'destructive', onPress: performLogout },
     ]);
   };
+
+  const stats = [
+    { label: '获赞', value: likedMeQuery.data?.length ?? 0 },
+    { label: '匹配', value: matchesQuery.data?.length ?? 0 },
+    { label: '来访', value: visitorsQuery.data?.length ?? 0 },
+  ];
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -47,10 +101,10 @@ export default function ProfileTab() {
         {/* Header profile area */}
         <View className="bg-white px-6 pt-6 pb-6 items-center">
           <Avatar
-            source={{ uri: user?.photos?.[0]?.url ?? 'https://picsum.photos/seed/me/200/200' }}
+            source={{ uri: avatarUrl }}
             size={80}
-            verified={!!user?.verificationLevel}
-            verificationLevel={user?.verificationLevel ?? 'L1'}
+            verified={!!verificationLevel}
+            verificationLevel={verificationLevel ?? 'L1'}
             online
           />
           <Text className="text-xl font-bold text-gray-900 mt-3">
@@ -58,13 +112,13 @@ export default function ProfileTab() {
           </Text>
           <View className="flex-row items-center mt-1" style={{ gap: 6 }}>
             <Text className="text-sm text-gray-500">
-              {user?.age ?? 28}岁 · {user?.city ?? '北京'}
+              {age ?? '--'}岁 · {user?.city ?? '--'}
             </Text>
-            {user?.verificationLevel && (
+            {verificationLevel && (
               <Badge
-                label={user.verificationLevel}
+                label={verificationLevel}
                 variant="verification"
-                level={user.verificationLevel}
+                level={verificationLevel}
               />
             )}
           </View>
@@ -79,11 +133,7 @@ export default function ProfileTab() {
 
         {/* Stats row */}
         <View className="bg-white mt-2 flex-row py-4">
-          {[
-            { label: '获赞', value: 128 },
-            { label: '匹配', value: 36 },
-            { label: '来访', value: 256 },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <View key={stat.label} className="flex-1 items-center">
               {i > 0 && (
                 <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
@@ -99,14 +149,17 @@ export default function ProfileTab() {
           {MENU_ITEMS.map((item) => (
             <ListItem
               key={item.title}
-              left={<Text className="text-lg">{item.icon}</Text>}
-              title={item.title}
-              right={<Text className="text-gray-300">&gt;</Text>}
-              onPress={
-                item.route
-                  ? () => router.push(item.route as any)
-                  : () => Alert.alert('设置', '功能开发中')
+              left={
+                <View
+                  className="w-9 h-9 rounded-xl items-center justify-center"
+                  style={{ backgroundColor: item.iconColor + '15' }}
+                >
+                  <Ionicons name={item.icon} size={20} color={item.iconColor} />
+                </View>
               }
+              title={item.title}
+              right={<Ionicons name="chevron-forward" size={18} color="#d1d5db" />}
+              onPress={() => router.push(item.route as any)}
             />
           ))}
         </View>
@@ -114,7 +167,11 @@ export default function ProfileTab() {
         {/* Logout */}
         <View className="mt-2 bg-white">
           <ListItem
-            left={<Text className="text-lg">🚪</Text>}
+            left={
+              <View className="w-9 h-9 rounded-xl items-center justify-center" style={{ backgroundColor: '#fef2f2' }}>
+                <Ionicons name="log-out-outline" size={20} color="#ef4444" />
+              </View>
+            }
             title="退出登录"
             showDivider={false}
             onPress={handleLogout}
