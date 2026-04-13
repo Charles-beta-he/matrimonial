@@ -9,7 +9,7 @@
   },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!_expo|assets|favicon).*)",
       "destination": "/index.html"
     }
   ]
