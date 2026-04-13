@@ -2,7 +2,9 @@ import { useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Button, toast } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
 import { useUpload } from '../../../hooks/useUpload';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
@@ -28,8 +30,33 @@ export default function RegisterStep3Photos() {
   const { pickAndUpload, uploading } = useUpload();
   const mountedAtRef = useRef(Date.now());
   const { track } = useAnalytics();
+  const utils = api.useUtils();
+  const updatePhotosMut = api.user.updatePhotos.useMutation();
 
   const photoCount = photos.filter(Boolean).length;
+
+  const handleNext = async () => {
+    if (photoCount < 2) return;
+    const payload = photos
+      .map((url, i) => ({ url, order: i }))
+      .filter((p): p is { url: string; order: number } => !!p.url)
+      .map((p, normalizedIdx) => ({
+        url: p.url,
+        order: normalizedIdx,
+        isAvatar: normalizedIdx === 0,
+      }));
+    try {
+      await updatePhotosMut.mutateAsync({ photos: payload });
+      await utils.user.me.invalidate();
+      track('register_step_complete', {
+        step: 3,
+        duration_ms: Date.now() - mountedAtRef.current,
+      });
+      router.push('/(auth)/register/step4-preferences');
+    } catch (e: any) {
+      toast.error(e?.message ?? '保存照片失败');
+    }
+  };
 
   const handleAddPhoto = async (index: number) => {
     if (uploading) return;
@@ -68,7 +95,7 @@ export default function RegisterStep3Photos() {
               onPress={() => handleRemovePhoto(index)}
               className="absolute top-2 right-2 bg-black/60 rounded-full w-6 h-6 items-center justify-center"
             >
-              <Text className="text-white text-xs">×</Text>
+              <Ionicons name="close" size={14} color="#ffffff" />
             </Pressable>
           </View>
         ) : isActive ? (
@@ -78,7 +105,12 @@ export default function RegisterStep3Photos() {
           </View>
         ) : (
           <View className={`w-full h-full border-2 border-dashed border-gray-300 items-center justify-center bg-gray-50 ${radius}`}>
-            <Text className={`${plus} text-gray-300 mb-1`}>+</Text>
+            <Ionicons
+              name="add"
+              size={variant === 'main' ? 32 : 24}
+              color="#d1d5db"
+              style={{ marginBottom: 2 }}
+            />
             {variant === 'main' ? <Text className="text-xs text-gray-400">主照片</Text> : null}
           </View>
         )}
@@ -125,18 +157,12 @@ export default function RegisterStep3Photos() {
         </Text>
 
         <Button
-          title="下一步"
+          title={updatePhotosMut.isPending ? '保存中...' : '下一步'}
           variant="primary"
           size="lg"
           fullWidth
-          disabled={photoCount < 2 || uploading}
-          onPress={() => {
-            track('register_step_complete', {
-              step: 3,
-              duration_ms: Date.now() - mountedAtRef.current,
-            });
-            router.push('/(auth)/register/step4-preferences');
-          }}
+          disabled={photoCount < 2 || uploading || updatePhotosMut.isPending}
+          onPress={handleNext}
         />
 
         <View className="h-8" />

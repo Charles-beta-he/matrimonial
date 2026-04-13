@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Button, Input, toast } from '@matrimonial/ui';
 import type { Gender } from '@matrimonial/shared';
+import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
@@ -27,8 +29,39 @@ export default function RegisterStep2BasicInfo() {
   const [city, setCity] = useState('');
   const mountedAtRef = useRef(Date.now());
   const { track } = useAnalytics();
+  const utils = api.useUtils();
+  const updateMut = api.user.updateProfile.useMutation();
 
-  const isValid = nickname && gender && birthday && city;
+  const isValid =
+    nickname.length >= 2 &&
+    gender !== null &&
+    /^\d{4}-\d{2}-\d{2}$/.test(birthday) &&
+    city.length > 0;
+
+  const handleNext = async () => {
+    if (!isValid) return;
+    const birthdayDate = new Date(`${birthday}T00:00:00.000Z`);
+    if (Number.isNaN(birthdayDate.getTime())) {
+      toast.error('生日格式不正确，请使用 YYYY-MM-DD');
+      return;
+    }
+    try {
+      await updateMut.mutateAsync({
+        nickname,
+        gender: gender as 'MALE' | 'FEMALE',
+        birthday: birthdayDate,
+        city,
+      });
+      await utils.user.me.invalidate();
+      track('register_step_complete', {
+        step: 2,
+        duration_ms: Date.now() - mountedAtRef.current,
+      });
+      router.push('/(auth)/register/step3-photos');
+    } catch (e: any) {
+      toast.error(e?.message ?? '保存失败，请重试');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -62,7 +95,12 @@ export default function RegisterStep2BasicInfo() {
               }`}
               onPress={() => setGender('MALE')}
             >
-              <Text className="text-3xl mb-1">👨</Text>
+              <Ionicons
+                name="male"
+                size={28}
+                color={gender === 'MALE' ? '#f43f5e' : '#6b7280'}
+                style={{ marginBottom: 4 }}
+              />
               <Text
                 className={`text-base font-medium ${
                   gender === 'MALE' ? 'text-rose-500' : 'text-gray-600'
@@ -77,7 +115,12 @@ export default function RegisterStep2BasicInfo() {
               }`}
               onPress={() => setGender('FEMALE')}
             >
-              <Text className="text-3xl mb-1">👩</Text>
+              <Ionicons
+                name="female"
+                size={28}
+                color={gender === 'FEMALE' ? '#f43f5e' : '#6b7280'}
+                style={{ marginBottom: 4 }}
+              />
               <Text
                 className={`text-base font-medium ${
                   gender === 'FEMALE' ? 'text-rose-500' : 'text-gray-600'
@@ -110,18 +153,12 @@ export default function RegisterStep2BasicInfo() {
           </View>
 
           <Button
-            title="下一步"
+            title={updateMut.isPending ? '保存中...' : '下一步'}
             variant="primary"
             size="lg"
             fullWidth
-            disabled={!isValid}
-            onPress={() => {
-              track('register_step_complete', {
-                step: 2,
-                duration_ms: Date.now() - mountedAtRef.current,
-              });
-              router.push('/(auth)/register/step3-photos');
-            }}
+            disabled={!isValid || updateMut.isPending}
+            onPress={handleNext}
           />
 
           <View className="h-8" />

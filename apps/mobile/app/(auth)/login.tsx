@@ -3,6 +3,7 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, View } from 're
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button, Input } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -70,7 +71,12 @@ export default function LoginScreen() {
           });
           setUserId(data.user.id);
           track('auth_verify_success', { is_new_user: !!data.isNewUser });
-          router.replace('/(tabs)');
+          // 新用户必须走注册引导完善资料后才进主页
+          if (data.isNewUser) {
+            router.replace('/(auth)/register/step2-basic-info');
+          } else {
+            router.replace('/(tabs)');
+          }
         },
         onError: (err) => {
           track('auth_verify_fail', { reason: err.message ?? 'unknown' });
@@ -89,7 +95,7 @@ export default function LoginScreen() {
         <View className="flex-1 px-6 pt-16">
           {/* Logo */}
           <View className="items-center mb-12">
-            <Text className="text-4xl mb-2">💝</Text>
+            <Ionicons name="heart" size={48} color="#f43f5e" style={{ marginBottom: 8 }} />
             <Text className="text-2xl font-bold text-rose-500">缘分</Text>
             <Text className="text-sm text-gray-400 mt-1">遇见对的人</Text>
           </View>

@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@matrimonial/ui';
+import { Button, Input, toast } from '@matrimonial/ui';
+import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
@@ -26,6 +27,8 @@ const EDUCATION_OPTIONS = [
   { value: 'PHD', label: '博士' },
 ] as const;
 
+type EducationMin = 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD';
+
 export default function RegisterStep4Preferences() {
   const router = useRouter();
   const [ageMin, setAgeMin] = useState('22');
@@ -33,10 +36,41 @@ export default function RegisterStep4Preferences() {
   const [heightMin, setHeightMin] = useState('155');
   const [heightMax, setHeightMax] = useState('185');
   const [cityPref, setCityPref] = useState('');
-  const [educationMin, setEducationMin] = useState('BACHELOR');
+  const [educationMin, setEducationMin] = useState<EducationMin>('BACHELOR');
   const [acceptLongDistance, setAcceptLongDistance] = useState(false);
   const mountedAtRef = useRef(Date.now());
   const { track } = useAnalytics();
+  const updatePreferencesMut = api.user.updatePreferences.useMutation();
+
+  const parseIntOrUndef = (s: string): number | undefined => {
+    const n = parseInt(s, 10);
+    return Number.isFinite(n) ? n : undefined;
+  };
+
+  const handleNext = async () => {
+    const cities = cityPref
+      .split(/[,，、\s]+/)
+      .map((c) => c.trim())
+      .filter(Boolean);
+    try {
+      await updatePreferencesMut.mutateAsync({
+        ageMin: parseIntOrUndef(ageMin),
+        ageMax: parseIntOrUndef(ageMax),
+        heightMin: parseIntOrUndef(heightMin),
+        heightMax: parseIntOrUndef(heightMax),
+        cities: cities.length > 0 ? cities : undefined,
+        educationMin,
+        acceptLongDistance,
+      });
+      track('register_step_complete', {
+        step: 4,
+        duration_ms: Date.now() - mountedAtRef.current,
+      });
+      router.push('/(auth)/register/step5-tags');
+    } catch (e: any) {
+      toast.error(e?.message ?? '保存偏好失败');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -119,17 +153,12 @@ export default function RegisterStep4Preferences() {
         </View>
 
         <Button
-          title="下一步"
+          title={updatePreferencesMut.isPending ? '保存中...' : '下一步'}
           variant="primary"
           size="lg"
           fullWidth
-          onPress={() => {
-            track('register_step_complete', {
-              step: 4,
-              duration_ms: Date.now() - mountedAtRef.current,
-            });
-            router.push('/(auth)/register/step5-tags');
-          }}
+          disabled={updatePreferencesMut.isPending}
+          onPress={handleNext}
         />
 
         <View className="h-8" />

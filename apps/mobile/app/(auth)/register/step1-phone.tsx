@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@matrimonial/ui';
+import { Button, Input, toast } from '@matrimonial/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { api } from '@matrimonial/api-client';
+import { useAppStore } from '../../../stores/useAppStore';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
 function Checkbox({
@@ -19,7 +22,7 @@ function Checkbox({
         checked ? 'bg-rose-500 border-rose-500' : 'border-gray-300 bg-white'
       }`}
     >
-      {checked && <Text className="text-white text-xs font-bold">✓</Text>}
+      {checked && <Ionicons name="checkmark" size={14} color="#ffffff" />}
     </Pressable>
   );
 }
@@ -39,13 +42,17 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 
 export default function RegisterStep1Phone() {
   const router = useRouter();
+  const setAuth = useAppStore((s) => s.setAuth);
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedAtRef = useRef(Date.now());
-  const { track } = useAnalytics();
+  const { track, setUserId } = useAnalytics();
+
+  const sendCodeMutation = api.auth.sendCode.useMutation();
+  const verifyCodeMutation = api.auth.verifyCode.useMutation();
 
   useEffect(() => {
     return () => {
@@ -53,8 +60,7 @@ export default function RegisterStep1Phone() {
     };
   }, []);
 
-  const handleSendCode = useCallback(() => {
-    if (!phone || countdown > 0) return;
+  const startCountdown = () => {
     setCountdown(60);
     timerRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -65,7 +71,66 @@ export default function RegisterStep1Phone() {
         return prev - 1;
       });
     }, 1000);
-  }, [phone, countdown]);
+  };
+
+  const handleSendCode = useCallback(() => {
+    if (!phone || countdown > 0) return;
+    sendCodeMutation.mutate(
+      { phone },
+      {
+        onSuccess: () => {
+          track('auth_send_code', {
+            phone_masked: phone.slice(0, 3) + '****' + phone.slice(-4),
+          });
+          startCountdown();
+          toast.success('验证码已发送');
+        },
+        onError: (err: any) => {
+          toast.error(err?.message ?? '验证码发送失败');
+        },
+      },
+    );
+  }, [phone, countdown, sendCodeMutation, track]);
+
+  const handleNext = () => {
+    if (!phone || !code || !agreed) return;
+    verifyCodeMutation.mutate(
+      { phone, code },
+      {
+        onSuccess: (data: any) => {
+          setAuth(data.accessToken, data.refreshToken, {
+            id: data.user.id,
+            nickname: data.user.nickname,
+            phone: data.user.phone,
+            gender: data.user.gender,
+            isNewUser: data.isNewUser,
+          });
+          setUserId(data.user.id);
+          track('register_step_complete', {
+            step: 1,
+            duration_ms: Date.now() - mountedAtRef.current,
+            is_new_user: !!data.isNewUser,
+          });
+          if (data.isNewUser) {
+            router.replace('/(auth)/register/step2-basic-info');
+          } else {
+            // Existing account — 平滑登录，跳到主页
+            const message = '该手机号已注册，已为您登录';
+            if (Platform.OS === 'web') {
+              toast.info(message);
+            } else {
+              Alert.alert('提示', message);
+            }
+            router.replace('/(tabs)');
+          }
+        },
+        onError: (err: any) => {
+          toast.error(err?.message ?? '验证码错误或已过期');
+          track('auth_verify_fail', { reason: err?.message ?? 'unknown' });
+        },
+      },
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -97,13 +162,20 @@ export default function RegisterStep1Phone() {
               onChangeText={setCode}
               maxLength={6}
               rightIcon={
-                <Pressable onPress={handleSendCode} disabled={countdown > 0 || !phone}>
+                <Pressable
+                  onPress={handleSendCode}
+                  disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
+                >
                   <Text
                     className={`text-sm font-medium ${
                       countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
                     }`}
                   >
-                    {countdown > 0 ? `${countdown}s` : '发送验证码'}
+                    {countdown > 0
+                      ? `${countdown}s`
+                      : sendCodeMutation.isPending
+                        ? '发送中...'
+                        : '发送验证码'}
                   </Text>
                 </Pressable>
               }
@@ -132,18 +204,12 @@ export default function RegisterStep1Phone() {
           </View>
 
           <Button
-            title="下一步"
+            title={verifyCodeMutation.isPending ? '验证中...' : '下一步'}
             variant="primary"
             size="lg"
             fullWidth
-            disabled={!phone || !code || !agreed}
-            onPress={() => {
-              track('register_step_complete', {
-                step: 1,
-                duration_ms: Date.now() - mountedAtRef.current,
-              });
-              router.push('/(auth)/register/step2-basic-info');
-            }}
+            disabled={!phone || !code || !agreed || verifyCodeMutation.isPending}
+            onPress={handleNext}
           />
         </View>
       </KeyboardAvoidingView>
