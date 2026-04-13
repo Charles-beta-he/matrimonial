@@ -11,6 +11,7 @@
     "db:migrate": "turbo db:migrate",
     "db:seed": "pnpm --filter @matrimonial/server db:seed",
     "setup": "bash scripts/dev-setup.sh",
+    "dev:cloud": "bash scripts/dev-cloud.sh",
     "clean": "turbo clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\" --ignore-path .gitignore"
   },
