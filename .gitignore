@@ -178,3 +178,14 @@ ios/Runner.xcworkspace/xcuserdata/
 .stylelintcache
 .turbo/
 .pnpm-state.json
+
+# ========== Local QA artifacts ==========
+# Playwright MCP browser snapshots / console logs
+.playwright-mcp/
+# Root-level QA screenshots (use apps/*/screenshots/ for tracked ones)
+/qa-*.png
+/discover-*.png
+/explore*.png
+/messages.png
+/profile*.png
+/polished-*.png
