@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 export const updateProfileSchema = z.object({
   nickname: z.string().min(2, '昵称至少2个字符').max(20, '昵称最多20个字符').optional(),
+  gender: z.enum(['MALE', 'FEMALE']).optional(),
+  birthday: z.coerce.date().optional(),
+  city: z.string().min(1).max(50, '城市名最多50个字符').optional(),
   bio: z.string().max(500, '简介最多500个字符').optional(),
   height: z.number().int().min(140).max(220).optional(),
   education: z
