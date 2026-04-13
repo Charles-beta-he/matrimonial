@@ -61,12 +61,17 @@ export function Avatar({
             minHeight: 14,
           }}
         >
-          <Text
-            className="text-white font-bold"
-            style={{ fontSize: Math.max(size * 0.18, 8) }}
-          >
-            {"✓"}
-          </Text>
+          <View
+            style={{
+              width: Math.max(size * 0.12, 6),
+              height: Math.max(size * 0.2, 10),
+              borderRightWidth: 2,
+              borderBottomWidth: 2,
+              borderColor: '#ffffff',
+              transform: [{ rotate: '45deg' }],
+              marginTop: -2,
+            }}
+          />
         </View>
       )}
     </View>

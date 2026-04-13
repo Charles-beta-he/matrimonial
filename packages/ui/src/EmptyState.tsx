@@ -19,7 +19,20 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
       {icon ? (
         <View className="mb-4">{icon}</View>
       ) : (
-        <Text className="text-4xl mb-4">{"📭"}</Text>
+        <View
+          className="mb-4 items-center justify-center rounded-full"
+          style={{ width: 64, height: 64, backgroundColor: '#f3f4f6' }}
+        >
+          <View
+            style={{
+              width: 28,
+              height: 22,
+              borderWidth: 2,
+              borderColor: '#9ca3af',
+              borderRadius: 4,
+            }}
+          />
+        </View>
       )}
 
       <Text className="text-lg font-semibold text-gray-900 mb-2">{title}</Text>

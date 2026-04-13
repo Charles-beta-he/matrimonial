@@ -32,7 +32,20 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <View className="flex-1 items-center justify-center p-8 bg-white">
-          <Text className="text-4xl mb-4">😵</Text>
+          <View
+            className="items-center justify-center rounded-full mb-4"
+            style={{ width: 64, height: 64, backgroundColor: '#fee2e2' }}
+          >
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                borderWidth: 3,
+                borderColor: '#ef4444',
+                borderRadius: 14,
+              }}
+            />
+          </View>
           <Text className="text-lg font-semibold text-gray-900 mb-2">出了点问题</Text>
           <Text className="text-sm text-gray-500 text-center mb-6">
             {this.state.error?.message ?? '页面加载失败，请重试'}

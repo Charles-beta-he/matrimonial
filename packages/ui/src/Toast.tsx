@@ -29,11 +29,11 @@ const COLORS: Record<ToastType, string> = {
   info: 'bg-blue-500',
   warning: 'bg-amber-500',
 };
-const ICONS: Record<ToastType, string> = {
-  success: '✓',
-  error: '✕',
-  info: 'ℹ',
-  warning: '⚠',
+const DOT_COLORS: Record<ToastType, string> = {
+  success: '#bbf7d0',
+  error: '#fecaca',
+  info: '#bfdbfe',
+  warning: '#fde68a',
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -64,7 +64,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         >
           {messages.map(msg => (
             <View key={msg.id} className={`${COLORS[msg.type]} rounded-xl px-4 py-3 flex-row items-center mb-2`}>
-              <Text className="text-white text-lg mr-2">{ICONS[msg.type]}</Text>
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: DOT_COLORS[msg.type],
+                  marginRight: 10,
+                }}
+              />
               <Text className="text-white flex-1">{msg.message}</Text>
             </View>
           ))}

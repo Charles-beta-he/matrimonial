@@ -36,7 +36,28 @@ export function Modal({
               onPress={onClose}
               className="absolute top-4 right-4 z-10 w-8 h-8 items-center justify-center"
             >
-              <Text className="text-gray-400 text-xl">{"✕"}</Text>
+              <View style={{ width: 16, height: 16, position: 'relative' }}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    width: 16,
+                    height: 2,
+                    backgroundColor: '#9ca3af',
+                    top: 7,
+                    transform: [{ rotate: '45deg' }],
+                  }}
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    width: 16,
+                    height: 2,
+                    backgroundColor: '#9ca3af',
+                    top: 7,
+                    transform: [{ rotate: '-45deg' }],
+                  }}
+                />
+              </View>
             </Pressable>
           )}
 

@@ -18,6 +18,10 @@ const shadowStyle = Platform.select({
   android: {
     elevation: 2,
   },
+  // RN-web 18+ prefers boxShadow over shadow* props
+  web: {
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  },
   default: {},
 });
 
