@@ -10,9 +10,21 @@ const REFRESH_TOKEN_TTL = '30d';
 // In-memory verification code store (use Redis in production)
 const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
 
+// Bypass list: specific phones always accept a fixed code regardless of NODE_ENV.
+// Used for the seeded default ADMIN account so operators can log into the
+// admin console before a real SMS gateway is wired up.
+const BYPASS_PHONES: Record<string, string> = {
+  '13800000001': '123456',
+};
+
 export const AuthService = {
   /** Generate a 6-digit verification code. In dev mode, always returns '123456' */
   async sendVerificationCode(phone: string): Promise<{ success: boolean }> {
+    if (BYPASS_PHONES[phone]) {
+      // No SMS dispatch, no store write — verifyCode short-circuits below.
+      return { success: true };
+    }
+
     const code = env.NODE_ENV === 'production'
       ? String(Math.floor(100000 + Math.random() * 900000))
       : '123456';
@@ -29,6 +41,9 @@ export const AuthService = {
 
   /** Verify the code. Returns true if valid */
   verifyCode(phone: string, code: string): boolean {
+    const bypassCode = BYPASS_PHONES[phone];
+    if (bypassCode) return code === bypassCode;
+
     const stored = verificationCodes.get(phone);
     if (!stored) return false;
     if (Date.now() > stored.expiresAt) {
@@ -98,7 +113,7 @@ export const AuthService = {
       data: { lastActiveAt: new Date(), isOnline: true },
     });
 
-    const accessToken = await this.signAccessToken(user.id);
+    const accessToken = await this.signAccessToken(user.id, user.role);
     const refreshToken = await this.signRefreshToken(user.id);
 
     return { accessToken, refreshToken, user, isNewUser };
