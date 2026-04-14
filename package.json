@@ -28,5 +28,10 @@
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-server-dom-webpack": "19.0.0"
+    }
   }
 }
