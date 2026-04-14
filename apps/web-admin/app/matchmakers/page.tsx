@@ -1,32 +1,49 @@
 'use client';
 
-const MOCK_MATCHMAKERS = [
-  { id: 'M001', name: '王红娘', activeClients: 24, totalMatches: 156, successRate: 0.32, rating: 4.8, status: '在线' },
-  { id: 'M002', name: '李月老', activeClients: 18, totalMatches: 98, successRate: 0.28, rating: 4.6, status: '在线' },
-  { id: 'M003', name: '张媒人', activeClients: 31, totalMatches: 210, successRate: 0.35, rating: 4.9, status: '离线' },
-  { id: 'M004', name: '陈红线', activeClients: 15, totalMatches: 67, successRate: 0.22, rating: 4.3, status: '在线' },
-  { id: 'M005', name: '刘牵缘', activeClients: 22, totalMatches: 134, successRate: 0.30, rating: 4.7, status: '离线' },
-  { id: 'M006', name: '赵鹊桥', activeClients: 28, totalMatches: 189, successRate: 0.33, rating: 4.8, status: '在线' },
-];
-
-const PERFORMANCE_METRICS = [
-  { label: '活跃红娘数', value: '42' },
-  { label: '本月新增配对', value: '567' },
-  { label: '平均成功率', value: '29.8%' },
-  { label: '平均评分', value: '4.6' },
-];
+import { trpc } from '../../lib/trpc';
 
 export default function MatchmakersPage() {
+  const statsQuery = trpc.admin.matchmakerStats.useQuery();
+  const listQuery = trpc.admin.matchmakers.useQuery({ page: 1, pageSize: 20 });
+
+  const metrics = [
+    {
+      label: '活跃红娘数',
+      value: statsQuery.data ? String(statsQuery.data.activeCount) : '—',
+    },
+    {
+      label: '本月新增配对',
+      value: statsQuery.data ? String(statsQuery.data.monthlyMatches) : '—',
+    },
+    {
+      label: '平均成功率',
+      value: statsQuery.data
+        ? `${(statsQuery.data.avgSuccessRate * 100).toFixed(1)}%`
+        : '—',
+    },
+    {
+      label: '平均评分',
+      value: statsQuery.data ? statsQuery.data.avgRating.toFixed(1) : '—',
+    },
+  ];
+
+  const matchmakers = listQuery.data?.items ?? [];
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">红娘管理</h1>
 
       {/* Performance overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {PERFORMANCE_METRICS.map((metric) => (
-          <div key={metric.label} className="bg-white rounded-xl border border-gray-200 p-4">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="bg-white rounded-xl border border-gray-200 p-4"
+          >
             <p className="text-sm text-gray-500">{metric.label}</p>
-            <p className="text-xl font-bold mt-1">{metric.value}</p>
+            <p className="text-xl font-bold mt-1">
+              {statsQuery.isLoading ? '...' : metric.value}
+            </p>
           </div>
         ))}
       </div>
@@ -47,10 +64,33 @@ export default function MatchmakersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {MOCK_MATCHMAKERS.map((mm) => (
+            {listQuery.isLoading && (
+              <tr>
+                <td colSpan={8} className="px-6 py-10 text-center text-gray-400">
+                  加载中...
+                </td>
+              </tr>
+            )}
+            {listQuery.isError && (
+              <tr>
+                <td colSpan={8} className="px-6 py-10 text-center text-red-500">
+                  加载失败：{listQuery.error.message}
+                </td>
+              </tr>
+            )}
+            {!listQuery.isLoading && !listQuery.isError && matchmakers.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-6 py-10 text-center text-gray-400">
+                  暂无红娘
+                </td>
+              </tr>
+            )}
+            {matchmakers.map((mm) => (
               <tr key={mm.id} className="hover:bg-gray-50">
-                <td className="px-6 py-3 font-mono text-xs">{mm.id}</td>
-                <td className="px-6 py-3 font-medium">{mm.name}</td>
+                <td className="px-6 py-3 font-mono text-xs">{mm.id.slice(0, 8)}</td>
+                <td className="px-6 py-3 font-medium">
+                  {mm.user?.nickname ?? '—'}
+                </td>
                 <td className="px-6 py-3">{mm.activeClients}</td>
                 <td className="px-6 py-3">{mm.totalMatches}</td>
                 <td className="px-6 py-3">
@@ -61,22 +101,38 @@ export default function MatchmakersPage() {
                         style={{ width: `${mm.successRate * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs text-gray-600">{(mm.successRate * 100).toFixed(0)}%</span>
+                    <span className="text-xs text-gray-600">
+                      {(mm.successRate * 100).toFixed(0)}%
+                    </span>
                   </div>
                 </td>
                 <td className="px-6 py-3">
-                  <span className="text-amber-500 font-medium">{mm.rating}</span>
+                  <span className="text-amber-500 font-medium">
+                    {mm.rating.toFixed(1)}
+                  </span>
                 </td>
                 <td className="px-6 py-3">
-                  <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
-                    mm.status === '在线' ? 'bg-green-500' : 'bg-gray-300'
-                  }`} />
-                  <span className="text-xs">{mm.status}</span>
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
+                      mm.isOnline ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                  />
+                  <span className="text-xs">{mm.isOnline ? '在线' : '离线'}</span>
                 </td>
                 <td className="px-6 py-3">
                   <div className="flex gap-2">
-                    <button className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100">详情</button>
-                    <button className="text-xs px-2 py-1 rounded bg-gray-50 text-gray-700 hover:bg-gray-100">编辑</button>
+                    <button
+                      disabled
+                      className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 opacity-50 cursor-not-allowed"
+                    >
+                      详情
+                    </button>
+                    <button
+                      disabled
+                      className="text-xs px-2 py-1 rounded bg-gray-50 text-gray-700 opacity-50 cursor-not-allowed"
+                    >
+                      编辑
+                    </button>
                   </div>
                 </td>
               </tr>

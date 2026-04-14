@@ -104,6 +104,58 @@ pnpm --filter mobile android      # Run on Android emulator
 pnpm --filter mobile web          # Run as H5 in browser
 ```
 
+## 运营管理后台
+
+运营管理后台位于 `apps/web-admin`（Next.js 15 + tRPC），端口 `3001`。所有页面（仪表盘 / 用户 / 审核 / 活动 / 红娘 / 推送）均通过 `adminRouter` 从真实后端读取数据。
+
+### 启动
+
+```bash
+# 1. 确保后端和数据库已就绪
+pnpm --filter @matrimonial/server db:migrate   # 应用最新 schema（包含 admin_ops 迁移）
+pnpm --filter @matrimonial/server db:seed      # 种入默认 ADMIN 用户和运营数据
+pnpm --filter @matrimonial/server dev
+
+# 2. 启动 web-admin
+cp apps/web-admin/.env.example apps/web-admin/.env.local   # 如需自定义 API URL
+pnpm --filter @matrimonial/web-admin dev
+```
+
+访问 http://localhost:3001，未登录会重定向到 `/login`。
+
+### 默认管理员账号
+
+Seed 脚本会写入一个 `role = ADMIN` 的用户：
+
+| 字段 | 值 |
+|------|----|
+| 手机号 | `13800000001` |
+| 昵称   | `管理员` |
+| 验证码 | `123456`（开发环境硬编码，见 `apps/server/src/modules/auth/auth.service.ts`） |
+
+生产环境请在 `auth.service.ts` 中启用真实短信通道，并手动将某位用户的 `role` 字段改为 `ADMIN`。
+
+### Seed 内容概览
+
+`pnpm --filter @matrimonial/server db:seed` 幂等写入：
+
+- 1 个 ADMIN 用户 + 10 个普通用户（其中 2 个 `BANNED`）
+- 6 张 `PENDING` 审核照片
+- 4 条 `PENDING` 文本审核（消息/简介/昵称）
+- 5 条 `PENDING / REVIEWING` 举报
+- 6 个红娘（`MATCHMAKER` 角色用户 + `Matchmaker` 业务记录）
+- 6 个活动（`UPCOMING / ONGOING / COMPLETED` 混合）
+- 5 条历史推送（`PushCampaign`，含 delivered/opened 统计）
+
+### 功能一览
+
+- **数据仪表盘**：DAU、新增、付费、审核队列
+- **用户管理**：搜索 / 封禁 / 解封
+- **内容审核**：照片、文本、举报三个 PENDING 队列
+- **活动管理**：创建 / 上下架 / 报名情况
+- **红娘管理**：业绩、在线状态
+- **推送管理**：创建 / 立即发送 / 历史送达率
+
 ## Authentication (dev mode)
 
 1. Go to the login screen

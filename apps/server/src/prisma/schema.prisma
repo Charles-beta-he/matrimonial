@@ -52,6 +52,14 @@ model User {
   reported        Report[]         @relation("Reported")
   credits          UserCredits?
   creditTxns       CreditTransaction[]
+  matchmaker      Matchmaker?
+  textAuditItems  TextAuditItem[]
+
+  // 运营状态
+  role            UserRole          @default(USER)
+  status          UserStatus        @default(ACTIVE)
+  bannedAt        DateTime?
+  banReason       String?
 
   // 推荐向量
   embedding       Unsupported("vector(256)")?
@@ -63,6 +71,52 @@ model User {
 
   @@index([city, gender, verificationLevel])
   @@index([lastActiveAt])
+  @@index([status])
+  @@index([role])
+}
+
+// ========== 运营：红娘 / 文本审核 / 推送 ==========
+
+model Matchmaker {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  activeClients Int      @default(0)
+  totalMatches  Int      @default(0)
+  successRate   Float    @default(0)
+  rating        Float    @default(0)
+  isOnline      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TextAuditItem {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  text       String
+  context    TextAuditContext
+  status     AuditStatus       @default(PENDING)
+  handledBy  String?
+  handledAt  DateTime?
+  createdAt  DateTime          @default(now())
+
+  @@index([status, createdAt])
+}
+
+model PushCampaign {
+  id          String        @id @default(cuid())
+  title       String
+  body        String
+  audience    PushAudience
+  scheduleAt  DateTime?
+  sentAt      DateTime?
+  delivered   Int           @default(0)
+  opened      Int           @default(0)
+  createdBy   String
+  createdAt   DateTime      @default(now())
+
+  @@index([createdAt])
 }
 
 model Photo {
@@ -383,4 +437,32 @@ enum CreditKind {
   LOVE_LETTER
   VIDEO_TICKET
   BOOST
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MATCHMAKER
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  DELETED
+}
+
+enum TextAuditContext {
+  MESSAGE
+  BIO
+  NICKNAME
+}
+
+enum PushAudience {
+  ALL
+  ACTIVE
+  INACTIVE
+  MALE
+  FEMALE
+  VERIFIED
+  PREMIUM
 }

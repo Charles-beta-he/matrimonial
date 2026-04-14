@@ -236,6 +236,347 @@ export const adminRouter = router({
       }
     }),
 
+  /** Ban a user */
+  banUser: adminProcedure
+    .input(z.object({ userId: z.string(), reason: z.string().min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: { id: input.userId },
+        data: {
+          status: 'BANNED',
+          bannedAt: new Date(),
+          banReason: input.reason,
+        },
+      });
+    }),
+
+  /** Unban a user */
+  unbanUser: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: { id: input.userId },
+        data: { status: 'ACTIVE', bannedAt: null, banReason: null },
+      });
+    }),
+
+  /** Pending text audit items */
+  pendingTextAudits: adminProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.textAuditItem.findMany({
+      where: { status: 'PENDING' },
+      include: { user: { select: { id: true, nickname: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+  }),
+
+  /** Approve a text audit item */
+  approveText: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.textAuditItem.update({
+        where: { id: input.id },
+        data: {
+          status: 'APPROVED',
+          handledBy: ctx.user.id,
+          handledAt: new Date(),
+        },
+      });
+    }),
+
+  /** Reject a text audit item */
+  rejectText: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.textAuditItem.update({
+        where: { id: input.id },
+        data: {
+          status: 'REJECTED',
+          handledBy: ctx.user.id,
+          handledAt: new Date(),
+        },
+      });
+    }),
+
+  /** Matchmaker list */
+  matchmakers: adminProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const [items, total] = await Promise.all([
+        ctx.prisma.matchmaker.findMany({
+          include: {
+            user: { select: { id: true, nickname: true, city: true } },
+          },
+          orderBy: { totalMatches: 'desc' },
+          skip: (input.page - 1) * input.pageSize,
+          take: input.pageSize,
+        }),
+        ctx.prisma.matchmaker.count(),
+      ]);
+      return {
+        items,
+        total,
+        page: input.page,
+        pageSize: input.pageSize,
+        totalPages: Math.ceil(total / input.pageSize),
+      };
+    }),
+
+  /** Matchmaker aggregated stats */
+  matchmakerStats: adminProcedure.query(async ({ ctx }) => {
+    const [activeCount, agg] = await Promise.all([
+      ctx.prisma.matchmaker.count({ where: { isOnline: true } }),
+      ctx.prisma.matchmaker.aggregate({
+        _sum: { totalMatches: true },
+        _avg: { successRate: true, rating: true },
+      }),
+    ]);
+    return {
+      activeCount,
+      monthlyMatches: agg._sum.totalMatches ?? 0,
+      avgSuccessRate: agg._avg.successRate ?? 0,
+      avgRating: agg._avg.rating ?? 0,
+    };
+  }),
+
+  /** Create activity (admin) */
+  createActivity: adminProcedure
+    .input(
+      z.object({
+        title: z.string().min(1),
+        category: z.string().min(1),
+        startTime: z.coerce.date(),
+        location: z.string().min(1),
+        description: z.string().default(''),
+        coverUrl: z.string().default(''),
+        maxParticipants: z.number().int().min(2),
+        fee: z.number().min(0).default(0),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const half = Math.floor(input.maxParticipants / 2);
+      return ctx.prisma.activity.create({
+        data: {
+          title: input.title,
+          description: input.description,
+          coverUrl: input.coverUrl,
+          category: input.category,
+          location: input.location,
+          startTime: input.startTime,
+          maxMale: half,
+          maxFemale: input.maxParticipants - half,
+          fee: input.fee,
+        },
+      });
+    }),
+
+  /** Update activity (admin) */
+  updateActivity: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().optional(),
+        category: z.string().optional(),
+        startTime: z.coerce.date().optional(),
+        location: z.string().optional(),
+        description: z.string().optional(),
+        coverUrl: z.string().optional(),
+        fee: z.number().min(0).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, ...rest } = input;
+      return ctx.prisma.activity.update({ where: { id }, data: rest });
+    }),
+
+  /** Cancel activity */
+  cancelActivity: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.activity.update({
+        where: { id: input.id },
+        data: { status: 'CANCELLED' },
+      });
+    }),
+
+  /** List push campaigns */
+  listPushCampaigns: adminProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const [items, total] = await Promise.all([
+        ctx.prisma.pushCampaign.findMany({
+          orderBy: { createdAt: 'desc' },
+          skip: (input.page - 1) * input.pageSize,
+          take: input.pageSize,
+        }),
+        ctx.prisma.pushCampaign.count(),
+      ]);
+      return { items, total, page: input.page, pageSize: input.pageSize };
+    }),
+
+  /** Create push campaign */
+  createPushCampaign: adminProcedure
+    .input(
+      z.object({
+        title: z.string().min(1),
+        body: z.string().min(1),
+        audience: z.enum([
+          'ALL',
+          'ACTIVE',
+          'INACTIVE',
+          'MALE',
+          'FEMALE',
+          'VERIFIED',
+          'PREMIUM',
+        ]),
+        scheduleAt: z.coerce.date().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.pushCampaign.create({
+        data: {
+          title: input.title,
+          body: input.body,
+          audience: input.audience,
+          scheduleAt: input.scheduleAt ?? null,
+          createdBy: ctx.user.id,
+        },
+      });
+    }),
+
+  /** Send a push campaign (computes audience size; real FCM/APNs dispatch TODO) */
+  sendPushCampaign: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const campaign = await ctx.prisma.pushCampaign.findUnique({
+        where: { id: input.id },
+      });
+      if (!campaign) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Campaign not found' });
+      }
+
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      const where: Record<string, unknown> = { status: 'ACTIVE' };
+      switch (campaign.audience) {
+        case 'ALL':
+          break;
+        case 'ACTIVE':
+          where.lastActiveAt = { gte: weekAgo };
+          break;
+        case 'INACTIVE':
+          where.lastActiveAt = { lt: thirtyDaysAgo };
+          break;
+        case 'MALE':
+          where.gender = 'MALE';
+          break;
+        case 'FEMALE':
+          where.gender = 'FEMALE';
+          break;
+        case 'VERIFIED':
+          where.verificationLevel = { in: ['L3', 'L4'] };
+          break;
+        case 'PREMIUM':
+          where.membership = { in: ['MONTHLY', 'QUARTERLY', 'YEARLY'] };
+          break;
+      }
+      const recipientCount = await ctx.prisma.user.count({ where });
+
+      // TODO: integrate real FCM/APNs dispatcher; for now we only mark delivered count.
+      return ctx.prisma.pushCampaign.update({
+        where: { id: input.id },
+        data: {
+          sentAt: new Date(),
+          delivered: recipientCount,
+          opened: 0,
+        },
+      });
+    }),
+
+  /** Recent admin-facing activity stream */
+  recentActivity: adminProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(100).default(20) }))
+    .query(async ({ input, ctx }) => {
+      const take = input.limit;
+      const [newUsers, bannedUsers, handledPhotos, handledReports] =
+        await Promise.all([
+          ctx.prisma.user.findMany({
+            orderBy: { createdAt: 'desc' },
+            take,
+            select: { id: true, nickname: true, createdAt: true },
+          }),
+          ctx.prisma.user.findMany({
+            where: { status: 'BANNED', bannedAt: { not: null } },
+            orderBy: { bannedAt: 'desc' },
+            take,
+            select: { id: true, nickname: true, bannedAt: true, banReason: true },
+          }),
+          ctx.prisma.photo.findMany({
+            where: { auditStatus: { in: ['APPROVED', 'REJECTED'] } },
+            orderBy: { createdAt: 'desc' },
+            take,
+            select: { id: true, userId: true, auditStatus: true, createdAt: true },
+          }),
+          ctx.prisma.report.findMany({
+            where: { handledAt: { not: null } },
+            orderBy: { handledAt: 'desc' },
+            take,
+            select: { id: true, status: true, handledAt: true, reportedId: true },
+          }),
+        ]);
+
+      type Entry = { time: Date; action: string; detail: string };
+      const entries: Entry[] = [
+        ...newUsers.map<Entry>((u) => ({
+          time: u.createdAt,
+          action: '新用户注册',
+          detail: `用户 ${u.nickname} (${u.id.slice(-6)}) 完成注册`,
+        })),
+        ...bannedUsers
+          .filter((u): u is typeof u & { bannedAt: Date } => !!u.bannedAt)
+          .map<Entry>((u) => ({
+            time: u.bannedAt,
+            action: '用户封禁',
+            detail: `用户 ${u.nickname} 被封禁 — ${u.banReason ?? '违规'}`,
+          })),
+        ...handledPhotos.map<Entry>((p) => ({
+          time: p.createdAt,
+          action: '照片审核',
+          detail: `照片 ${p.id.slice(-6)} ${
+            p.auditStatus === 'APPROVED' ? '已通过' : '已拒绝'
+          }`,
+        })),
+        ...handledReports
+          .filter((r): r is typeof r & { handledAt: Date } => !!r.handledAt)
+          .map<Entry>((r) => ({
+            time: r.handledAt,
+            action: '举报处理',
+            detail: `举报 ${r.id.slice(-6)} ${
+              r.status === 'RESOLVED' ? '已处理' : '已驳回'
+            }`,
+          })),
+      ];
+
+      return entries
+        .sort((a, b) => b.time.getTime() - a.time.getTime())
+        .slice(0, take)
+        .map((e) => ({
+          time: e.time.toISOString(),
+          action: e.action,
+          detail: e.detail,
+        }));
+    }),
+
   /** Dashboard statistics */
   stats: adminProcedure.query(async ({ ctx }) => {
     const now = new Date();

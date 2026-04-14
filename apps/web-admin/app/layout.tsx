@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -56,7 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </div>
             </header>
             <div className="p-8">
-              {children as never}
+              <Providers>{children as never}</Providers>
             </div>
           </main>
         </div>
