@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Text, View, type ImageProps } from 'react-native';
+import { Image, View, type ImageProps } from 'react-native';
 
 export type VerificationLevel = 'L1' | 'L2' | 'L3' | 'L4';
 

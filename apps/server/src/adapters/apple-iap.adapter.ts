@@ -47,7 +47,8 @@ export const AppleIapAdapter = {
       }),
     });
 
-    const result = await response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await response.json()) as any;
 
     logger.info('apple verifyReceipt response', {
       status: result.status,

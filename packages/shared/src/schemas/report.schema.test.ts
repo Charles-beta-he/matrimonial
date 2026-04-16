@@ -65,6 +65,7 @@ describe('createReportSchema', () => {
   });
 
   it('rejects missing reportedId', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { reportedId: _omit, ...rest } = validBase;
     expect(createReportSchema.safeParse(rest).success).toBe(false);
   });

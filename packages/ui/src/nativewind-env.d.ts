@@ -37,6 +37,7 @@ declare module 'react-native' {
   interface SwitchProps {
     className?: string;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface FlatListProps<ItemT> {
     className?: string;
   }
