@@ -3,6 +3,7 @@ import { logger } from '../lib/logger';
 
 export interface SmsAdapter {
   sendVerificationCode(phone: string, code: string): Promise<void>;
+  sendMessage(phone: string, message: string): Promise<void>;
 }
 
 const maskPhone = (phone: string) =>
@@ -11,6 +12,9 @@ const maskPhone = (phone: string) =>
 const mockAdapter: SmsAdapter = {
   async sendVerificationCode(phone, code) {
     logger.info('mock sms', { phone: maskPhone(phone), code });
+  },
+  async sendMessage(phone, message) {
+    logger.info('mock sms message', { phone: maskPhone(phone), message });
   },
 };
 
@@ -30,6 +34,10 @@ const aliyunAdapter: SmsAdapter = {
     void env.ALIYUN_SMS_TEMPLATE_CODE;
     void code;
     logger.info('aliyun sms stub — SDK not installed', { phone: maskPhone(phone) });
+  },
+  async sendMessage(phone, message) {
+    // TODO: implement via Aliyun SMS template for generic messages
+    logger.info('aliyun sms message stub', { phone: maskPhone(phone), message });
   },
 };
 

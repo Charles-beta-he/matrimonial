@@ -70,6 +70,9 @@ export const env = {
   ALIPAY_PUBLIC_KEY: process.env.ALIPAY_PUBLIC_KEY,
   ALIPAY_NOTIFY_URL: process.env.ALIPAY_NOTIFY_URL,
 
+  // Apple IAP
+  APPLE_SHARED_SECRET: process.env.APPLE_SHARED_SECRET,
+
   // JPush
   JPUSH_APP_KEY: process.env.JPUSH_APP_KEY,
   JPUSH_MASTER_SECRET: process.env.JPUSH_MASTER_SECRET,
@@ -101,7 +104,8 @@ export function isConfigured(
     | 'alipay'
     | 'jpush'
     | 'claude'
-    | 'livekit',
+    | 'livekit'
+    | 'apple_iap',
 ): boolean {
   switch (service) {
     case 'sms':
@@ -122,6 +126,8 @@ export function isConfigured(
       return !!env.ANTHROPIC_API_KEY;
     case 'livekit':
       return !!(env.LIVEKIT_API_KEY && env.LIVEKIT_API_SECRET);
+    case 'apple_iap':
+      return !!env.APPLE_SHARED_SECRET;
   }
 }
 

@@ -11,7 +11,10 @@ import { reportRouter } from './routers/report.router';
 import { uploadRouter } from './routers/upload.router';
 import { userRouter } from './routers/user.router';
 import { verificationRouter } from './routers/verification.router';
+import { safetyRouter } from './routers/safety.router';
 import { videoRouter } from './routers/video.router';
+import { checkinRouter } from './routers/checkin.router';
+import { inviteRouter } from './routers/invite.router';
 
 export const appRouter = router({
   auth: authRouter,
@@ -26,7 +29,10 @@ export const appRouter = router({
   admin: adminRouter,
   upload: uploadRouter,
   ai: aiRouter,
+  safety: safetyRouter,
   video: videoRouter,
+  checkin: checkinRouter,
+  invite: inviteRouter,
 });
 
 export type AppRouter = typeof appRouter;

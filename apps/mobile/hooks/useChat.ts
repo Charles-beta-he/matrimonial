@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useChatStore, type ChatMessage } from '../stores/useChatStore';
 import { useAppStore } from '../stores/useAppStore';
@@ -12,6 +12,13 @@ import { useAppStore } from '../stores/useAppStore';
 const EMPTY_MESSAGES: readonly ChatMessage[] = Object.freeze([]);
 const EMPTY_TYPING: ReadonlySet<string> = new Set();
 
+export interface ReadReceipt {
+  conversationId: string;
+  readBy: string;
+  lastReadMessageId: string;
+  readAt: string;
+}
+
 export function useChat(conversationId: string) {
   const socket = useSocketStore((s) => s.socket);
   const addMessage = useChatStore((s) => s.addMessage);
@@ -22,6 +29,9 @@ export function useChat(conversationId: string) {
   const messages = (messagesRaw ?? EMPTY_MESSAGES) as ChatMessage[];
   const typingUsers = typingRaw ?? EMPTY_TYPING;
   const currentUser = useAppStore((s) => s.user);
+
+  // Track the other participant's last read timestamp
+  const [otherReadAt, setOtherReadAt] = useState<string | null>(null);
 
   // Join conversation room on mount
   useEffect(() => {
@@ -47,10 +57,17 @@ export function useChat(conversationId: string) {
       if (cId === conversationId) setTyping(conversationId, userId, false);
     };
 
+    const onReadReceipt = (data: ReadReceipt) => {
+      if (data.conversationId === conversationId && data.readBy !== currentUser?.id) {
+        setOtherReadAt(data.readAt);
+      }
+    };
+
     socket.on('message:new', onNewMessage);
     socket.on('message:sent', onMessageSent);
     socket.on('typing:start', onTypingStart);
     socket.on('typing:stop', onTypingStop);
+    socket.on('message:read_receipt', onReadReceipt);
 
     return () => {
       socket.emit('conversation:leave', { conversationId });
@@ -58,8 +75,9 @@ export function useChat(conversationId: string) {
       socket.off('message:sent', onMessageSent);
       socket.off('typing:start', onTypingStart);
       socket.off('typing:stop', onTypingStop);
+      socket.off('message:read_receipt', onReadReceipt);
     };
-  }, [socket, conversationId, addMessage, updateMessageStatus, setTyping]);
+  }, [socket, conversationId, addMessage, updateMessageStatus, setTyping, currentUser?.id]);
 
   const sendMessage = useCallback(
     (content: string, type: ChatMessage['type'] = 'TEXT', mediaUrl?: string) => {
@@ -118,5 +136,6 @@ export function useChat(conversationId: string) {
     sendMessage,
     emitTyping,
     markAsRead,
+    otherReadAt,
   };
 }

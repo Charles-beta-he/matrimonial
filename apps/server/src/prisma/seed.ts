@@ -323,7 +323,238 @@ async function main() {
   }
   console.log('  ✓ 5 PushCampaigns');
 
+  // ---------- 9. Cold-start seed users (60 realistic profiles) ----------
+  await seedColdStartUsers();
+
   console.log('Seed completed!');
+}
+
+// ==================== Cold-start seed data ====================
+
+const SEED_CITIES = ['北京', '上海', '深圳', '广州', '杭州', '成都', '南京', '武汉', '重庆', '西安'];
+
+const SEED_MALE_NAMES = [
+  '李明', '王浩', '张伟', '刘洋', '陈晨', '杨帆', '赵磊', '黄海', '周杰', '吴鑫',
+  '徐强', '孙宇', '马超', '朱鹏', '胡彬', '郭锋', '林涛', '何昊', '罗文', '高峰',
+  '宋杰', '唐宁', '许辉', '邓凯', '韩宇', '曹伟', '彭飞', '潘磊', '冯岩', '蒋波',
+];
+const SEED_FEMALE_NAMES = [
+  '王雪', '李婷', '张静', '刘晓', '陈思', '杨薇', '赵欣', '黄丽', '周倩', '吴琪',
+  '徐慧', '孙雨', '马瑶', '朱萌', '胡悦', '郭颖', '林芳', '何婉', '罗梦', '高雅',
+  '宋佳', '唐韵', '许珊', '邓楠', '韩冰', '曹文', '彭秀', '潘月', '冯娜', '蒋雯',
+];
+
+const SEED_TAGS = [
+  '户外控', '美食家', '电影迷', '旅行达人', '健身爱好者', '阅读', '音乐', '摄影',
+  '烹饪', '瑜伽', '游戏', '宠物控', '咖啡控', '茶道', '书法', '绘画', '舞蹈', '钢琴',
+];
+
+const SEED_MBTI = [
+  'INFJ', 'INFP', 'INTJ', 'INTP', 'ISFJ', 'ISFP', 'ISTJ', 'ISTP',
+  'ENFJ', 'ENFP', 'ENTJ', 'ENTP', 'ESFJ', 'ESFP', 'ESTJ', 'ESTP',
+];
+
+const SEED_ZODIAC = [
+  '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座',
+  '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座',
+];
+
+const SEED_BIOS_MALE = [
+  '阳光开朗，热爱生活，周末喜欢去爬山',
+  '程序员一枚，但不无趣，会做饭会弹吉他',
+  '金融从业者，稳重靠谱，寻找温柔的你',
+  '建筑师，对设计和美学有执着追求',
+  '创业中，忙碌但懂得经营感情',
+  '医生一枚，工作虽忙但会给你满满的安全感',
+  '喜欢摄影和旅行，用镜头记录生活的美好',
+  '运动达人，篮球游泳样样来，也会陪你逛街',
+  '文艺青年，周末爱泡书店和咖啡馆',
+  '海归回来，开放包容，寻找三观一致的伴侣',
+  '国企稳定工作，性格温和，家庭观念强',
+  '热爱烹饪，朋友都说我做的菜比餐厅好吃',
+  '音乐是我的灵魂，吉他钢琴都略通一二',
+  '养了一只金毛，它比我还受欢迎',
+  '喜欢户外徒步，也能安静陪你看一下午书',
+];
+
+const SEED_BIOS_FEMALE = [
+  '温柔似水，外表安静内心丰富',
+  '设计师，热爱美的事物，周末爱逛展',
+  '教师一枚，性格开朗，喜欢旅行和美食',
+  '心理学专业，善于倾听，温暖治愈系',
+  '爱笑的女生运气不会太差，希望遇到有趣的灵魂',
+  '独立但不强势，会撒娇也会讲道理',
+  '喜欢瑜伽和冥想，追求内心的平静',
+  '吃货一枚，人生理想是吃遍全世界',
+  '文艺女青年，喜欢写手账记录生活',
+  '护士姐姐，外表柔弱内心坚强',
+  '舞蹈专业，热爱生活中的每一个节拍',
+  '财务工作者，理性与感性并存',
+  '喜欢养花种草，在城市里营造小花园',
+  '周末喜欢去露营，享受大自然的宁静',
+  '爱猫人士，家里有两只小可爱等你来撸',
+];
+
+const SEED_OCCUPATIONS_MALE = [
+  '软件工程师', '金融分析师', '建筑师', '医生', '产品经理',
+  '律师', '设计师', '教师', '创业者', '公务员',
+];
+const SEED_OCCUPATIONS_FEMALE = [
+  'UI设计师', '会计师', '护士', '教师', '市场营销',
+  '心理咨询师', '翻译', '编辑', '人力资源', '运营经理',
+];
+
+const SEED_PROMPTS: Record<string, string[]> = {
+  ideal_weekend: [
+    '睡到自然醒，去市集买菜做一顿丰盛的brunch',
+    '约上朋友去郊外露营，晚上围着篝火聊天',
+    '泡一壶好茶，窝在沙发上看一下午的书',
+    '去新开的展览逛逛，再找家小店吃晚饭',
+    '早起跑步，下午看电影，晚上和朋友聚餐',
+  ],
+  first_date: [
+    '安静的咖啡馆，聊聊彼此的故事',
+    '一起去看一场展览或音乐会',
+    '找个公园散步，自然不做作',
+    '去一家有特色的餐厅，边吃边聊',
+    '周末去爬山，在运动中了解彼此',
+  ],
+  life_goal: [
+    '找到一个相互理解、共同成长的伴侣',
+    '事业有成的同时，也有温暖的家',
+    '看遍世界的风景，体验不同的文化',
+    '做自己热爱的事，和喜欢的人在一起',
+    '成为更好的自己，给身边的人带来温暖',
+  ],
+  love_language: [
+    '陪伴，安安静静待在一起就很好',
+    '言语肯定，经常说我爱你和鼓励的话',
+    '肢体接触，牵手拥抱是日常',
+    '精心准备的小惊喜和仪式感',
+    '为对方做力所能及的事情',
+  ],
+  deal_breaker: [
+    '不诚实，信任是一切的基础',
+    '没有上进心，生活需要共同进步',
+    '不尊重家人和朋友',
+    '情绪不稳定，动不动就冷暴力',
+    '三观不合，尤其是金钱观',
+  ],
+};
+const SEED_PROMPT_IDS = Object.keys(SEED_PROMPTS);
+
+function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function shuffleSlice<T>(arr: T[], count: number): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, count);
+}
+
+function randomBday(minAge: number, maxAge: number): Date {
+  const yr = new Date().getFullYear();
+  const age = minAge + Math.floor(Math.random() * (maxAge - minAge));
+  return new Date(yr - age, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+}
+
+async function seedColdStartUsers() {
+  console.log('  Seeding 60 cold-start users...');
+
+  for (let i = 0; i < 60; i++) {
+    const isMale = i < 30;
+    const name = isMale ? SEED_MALE_NAMES[i] : SEED_FEMALE_NAMES[i - 30];
+    const phone = `138${String(10000000 + i).padStart(8, '0')}`;
+    const city = pick(SEED_CITIES);
+
+    // Upsert to stay idempotent
+    const user = await prisma.user.upsert({
+      where: { phone },
+      update: { nickname: name },
+      create: {
+        phone,
+        nickname: name,
+        gender: isMale ? 'MALE' : 'FEMALE',
+        birthday: randomBday(23, 35),
+        city,
+        bio: pick(isMale ? SEED_BIOS_MALE : SEED_BIOS_FEMALE),
+        height: isMale ? 170 + Math.floor(Math.random() * 15) : 158 + Math.floor(Math.random() * 12),
+        education: pick(['BACHELOR', 'MASTER', 'PHD', 'ASSOCIATE'] as const),
+        occupation: pick(isMale ? SEED_OCCUPATIONS_MALE : SEED_OCCUPATIONS_FEMALE),
+        incomeRange: pick(['K5_10', 'K10_20', 'K20_50'] as const),
+        hometown: pick(SEED_CITIES),
+        zodiac: pick(SEED_ZODIAC),
+        mbti: pick(SEED_MBTI),
+        verificationLevel: pick(['L2', 'L3', 'L3', 'L4'] as const),
+        realNameVerified: true,
+        faceVerified: Math.random() > 0.3,
+        lastActiveAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+        isOnline: Math.random() > 0.7,
+      },
+    });
+
+    // Photos (3-5) — skip if already exist
+    const existingPhotos = await prisma.photo.count({ where: { userId: user.id } });
+    if (existingPhotos === 0) {
+      const photoCount = 3 + Math.floor(Math.random() * 3);
+      for (let p = 0; p < photoCount; p++) {
+        await prisma.photo.create({
+          data: {
+            userId: user.id,
+            url: `https://picsum.photos/seed/${user.id}-${p}/400/600`,
+            order: p,
+            isAvatar: p === 0,
+            auditStatus: 'APPROVED',
+          },
+        });
+      }
+    }
+
+    // Tags (3-5)
+    const existingTags = await prisma.userTag.count({ where: { userId: user.id } });
+    if (existingTags === 0) {
+      const selectedTags = shuffleSlice(SEED_TAGS, 3 + Math.floor(Math.random() * 3));
+      for (const tag of selectedTags) {
+        await prisma.userTag.create({ data: { userId: user.id, tag } }).catch(() => {});
+      }
+    }
+
+    // Prompts (2-3)
+    const existingPrompts = await prisma.userPrompt.count({ where: { userId: user.id } });
+    if (existingPrompts === 0) {
+      const promptIds = shuffleSlice(SEED_PROMPT_IDS, 2 + Math.floor(Math.random() * 2));
+      for (let p = 0; p < promptIds.length; p++) {
+        const qId = promptIds[p];
+        await prisma.userPrompt.create({
+          data: {
+            userId: user.id,
+            questionId: qId,
+            answerText: pick(SEED_PROMPTS[qId]),
+            order: p,
+          },
+        });
+      }
+    }
+
+    // Preference
+    await prisma.preference.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: {
+        userId: user.id,
+        ageMin: 22,
+        ageMax: 38,
+        cities: [city, pick(SEED_CITIES)],
+        heightMin: isMale ? 155 : 170,
+        heightMax: isMale ? 175 : 190,
+      },
+    });
+
+    if (i % 10 === 9) console.log(`    ... ${i + 1}/60`);
+  }
+  console.log('  ✓ 60 cold-start seed users');
 }
 
 main()

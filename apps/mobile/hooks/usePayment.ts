@@ -33,7 +33,9 @@ export function usePayment() {
           // TODO: Call react-native-alipay with orderString
           toast.info('支付宝支付（模拟成功）');
         } else if (channel === 'apple_iap') {
-          // TODO: Trigger StoreKit purchase, then call verifyApplePay
+          // TODO: Trigger StoreKit purchase via expo-in-app-purchases or react-native-iap,
+          // then call api.payment.verifyApplePay.mutateAsync({ orderId, receiptData })
+          // Server-side verification is implemented — see apple-iap.adapter.ts
           toast.info('Apple 内购（模拟成功）');
         }
 
