@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, Text, TextInput, View, type TextInputProps } from 'react-native';
 
 export interface InputProps {
   label?: string;
@@ -48,6 +48,8 @@ export const Input = React.forwardRef<TextInput, InputProps>(
           <TextInput
             ref={ref}
             className="flex-1 text-base text-gray-900"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            style={Platform.OS === 'web' ? ({ outline: 'none' } as any) : undefined}
             placeholder={placeholder}
             placeholderTextColor="#9ca3af"
             value={value}
