@@ -1,6 +1,4 @@
 
--- CreateExtension
-CREATE EXTENSION IF NOT EXISTS "pgvector";
 
 -- CreateEnum
 CREATE TYPE "DateCheckinStatus" AS ENUM ('ACTIVE', 'SAFE', 'SOS_TRIGGERED', 'EXPIRED');
