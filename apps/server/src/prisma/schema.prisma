@@ -80,6 +80,12 @@ model User {
   // 安全
   dateCheckins    DateCheckin[]
 
+  // 圈子 & 搭子
+  circleMembers   CircleMember[]
+  circlePosts     CirclePost[]   @relation("CirclePostAuthor")
+  buddyPosts      BuddyPost[]    @relation("BuddyPostAuthor")
+  buddyApplies    BuddyApply[]   @relation("BuddyApplyUser")
+
   // 隐私设置
   privacyBlurPhotos      Boolean  @default(false)
   privacyIncognito       Boolean  @default(false)
@@ -569,4 +575,82 @@ model FeedbackSignal {
   createdAt    DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+// ========== 兴趣圈子 ==========
+
+model Circle {
+  id          String         @id @default(cuid())
+  name        String
+  description String
+  category    String
+  coverUrl    String?
+  memberCount Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  members     CircleMember[]
+  posts       CirclePost[]
+
+  @@index([category])
+}
+
+model CircleMember {
+  id        String   @id @default(cuid())
+  circleId  String
+  userId    String
+  createdAt DateTime @default(now())
+  circle    Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([circleId, userId])
+  @@index([userId])
+}
+
+model CirclePost {
+  id        String   @id @default(cuid())
+  circleId  String
+  authorId  String
+  content   String
+  imageUrls String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  circle    Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  author    User     @relation("CirclePostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([circleId, createdAt])
+}
+
+// ========== 搭子广场 ==========
+
+model BuddyPost {
+  id          String       @id @default(cuid())
+  authorId    String
+  type        String       // meal | sports | travel | movies | study | other
+  title       String
+  description String
+  location    String?
+  scheduledAt DateTime?
+  maxPeople   Int          @default(2)
+  status      String       @default("OPEN")  // OPEN | FULL | CLOSED
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  author      User         @relation("BuddyPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  applies     BuddyApply[]
+
+  @@index([status, createdAt])
+  @@index([authorId])
+}
+
+model BuddyApply {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  message   String?
+  status    String    @default("PENDING")  // PENDING | ACCEPTED | REJECTED
+  createdAt DateTime  @default(now())
+  post      BuddyPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation("BuddyApplyUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
 }
