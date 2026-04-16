@@ -12,6 +12,7 @@ import { AlipayAdapter } from './adapters/alipay.adapter';
 import { PaymentService } from './modules/payment/payment.service';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
+import { startRecallJob } from './jobs/recall.job';
 
 async function bootstrap() {
   assertRequiredEnv();
@@ -173,7 +174,9 @@ async function bootstrap() {
   // Default 'localhost' binding only accepts requests from inside the container.
   await app.listen(port, '0.0.0.0');
   AnalyticsService.startAutoFlush();
+  startRecallJob();
   logger.info('server started', { port, env: env.NODE_ENV });
 }
 
 void bootstrap();
+
