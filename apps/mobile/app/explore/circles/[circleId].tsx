@@ -247,7 +247,7 @@ export default function CircleDetailScreen() {
           source={
             item.author?.avatar
               ? { uri: item.author.avatar }
-              : require('../../../assets/default-avatar.png')
+              : { uri: `https://picsum.photos/seed/${item.author?.id ?? 'anon'}/100/100` }
           }
           size={36}
         />
