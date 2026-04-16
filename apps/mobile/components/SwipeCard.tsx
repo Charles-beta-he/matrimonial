@@ -20,9 +20,10 @@ interface SwipeCardProps {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
   isNext?: boolean;
+  recommendReason?: string;
 }
 
-export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false }: SwipeCardProps) {
+export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, recommendReason }: SwipeCardProps) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
@@ -91,6 +92,25 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false }: S
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[StyleSheet.absoluteFillObject, { zIndex: 1 }, cardStyle]}>
         <ProfileCard user={user} />
+
+        {/* Recommend reason pill */}
+        {recommendReason ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: 12,
+              alignSelf: 'center',
+              backgroundColor: 'rgba(0,0,0,0.45)',
+              borderRadius: 20,
+              paddingHorizontal: 12,
+              paddingVertical: 5,
+            }}
+          >
+            <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '500' }}>
+              {recommendReason}
+            </Text>
+          </View>
+        ) : null}
 
         {/* LIKE overlay */}
         <Animated.View

@@ -1,18 +1,75 @@
-import { likeSchema, skipSchema } from '@matrimonial/shared';
+import { feedbackSignalSchema, likeSchema, skipSchema } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { RecommendAdapter } from '../../adapters/recommend.adapter';
 import { CreditsService } from '../../modules/credits/credits.service';
 
+// ── Daily picks in-memory cache ──
+// Key: `${userId}-${YYYY-MM-DD}`, Value: { users, expireAt }
+const dailyPicksCache = new Map<
+  string,
+  { users: unknown[]; expireAt: number }
+>();
+
+/** Purge expired entries (runs lazily on each access) */
+function purgeDailyPicksCache() {
+  const now = Date.now();
+  for (const [key, entry] of dailyPicksCache) {
+    if (entry.expireAt <= now) dailyPicksCache.delete(key);
+  }
+}
+
+/** Get today's date string in YYYY-MM-DD */
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ── Free user daily swipe quota ──
+const FREE_DAILY_SWIPES = 30;
+
 export const matchRouter = router({
   /**
    * Get recommendation list — users matching preferences,
-   * excluding already liked/skipped, ordered by lastActiveAt desc.
+   * excluding already liked/skipped, ordered with exposure fairness.
+   *
+   * Returns { users, meta, quotaExhausted }.
+   * `meta` maps userId → { score, reason } when data comes from Python service.
    */
   recommendations: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
-    // First try Python recommend service
+    // ── Task 4: Check quota for free users ──
+    const currentUserForQuota = await ctx.prisma.user.findUnique({
+      where: { id: userId },
+      select: { membership: true },
+    });
+
+    const isFreeUser =
+      !currentUserForQuota?.membership ||
+      currentUserForQuota.membership === 'FREE';
+
+    if (isFreeUser) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const swipeCount = await ctx.prisma.like.count({
+        where: {
+          fromUserId: userId,
+          createdAt: { gte: todayStart },
+        },
+      });
+
+      if (swipeCount >= FREE_DAILY_SWIPES) {
+        return {
+          users: [],
+          meta: {} as Record<string, { score: number; reason?: string }>,
+          quotaExhausted: true,
+        };
+      }
+    }
+
+    // ── Task 1: Try Python recommend service, attach _recommendMeta ──
     const remote = await RecommendAdapter.getRecommendations(userId, 20);
     if (remote.length > 0) {
       const ids = remote.map((r) => r.userId);
@@ -30,23 +87,35 @@ export const matchRouter = router({
       // Preserve ordering from the recommend service
       const order = new Map(ids.map((id, idx) => [id, idx]));
       users.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
-      if (users.length > 0) return users;
+
+      if (users.length > 0) {
+        // Build meta map from Python service response
+        const meta: Record<string, { score: number; reason?: string }> = {};
+        for (const r of remote) {
+          meta[r.userId] = { score: r.score, reason: r.reason };
+        }
+
+        // Attach _recommendMeta to each user object
+        const usersWithMeta = users.map((u) => ({
+          ...u,
+          _recommendMeta: meta[u.id] ?? null,
+        }));
+
+        return { users: usersWithMeta, meta, quotaExhausted: false };
+      }
     }
 
-    // Fallback: local DB filtering by preferences
-    // Get current user's preferences
+    // ── Fallback: local DB filtering by preferences ──
     const preferences = await ctx.prisma.preference.findUnique({
       where: { userId },
     });
 
-    // Get IDs of users already interacted with (liked or skipped)
     const existingLikes = await ctx.prisma.like.findMany({
       where: { fromUserId: userId },
       select: { toUserId: true },
     });
     const excludeIds = [userId, ...existingLikes.map((l) => l.toUserId)];
 
-    // Build filter conditions from preferences
     const where: Record<string, unknown> = {
       id: { notIn: excludeIds },
     };
@@ -75,7 +144,6 @@ export const matchRouter = router({
       }
     }
 
-    // Get current user to determine opposite gender
     const currentUser = await ctx.prisma.user.findUnique({
       where: { id: userId },
       select: { gender: true },
@@ -84,7 +152,8 @@ export const matchRouter = router({
       where.gender = currentUser.gender === 'MALE' ? 'FEMALE' : 'MALE';
     }
 
-    return ctx.prisma.user.findMany({
+    // ── Task 3: Exposure fairness — fetch 50, weighted-random shuffle, return 20 ──
+    const candidates = await ctx.prisma.user.findMany({
       where,
       include: {
         photos: {
@@ -95,8 +164,16 @@ export const matchRouter = router({
         prompts: { orderBy: { order: 'asc' } },
       },
       orderBy: { lastActiveAt: 'desc' },
-      take: 20,
+      take: 50,
     });
+
+    const fairUsers = weightedRandomShuffle(candidates, 20);
+
+    return {
+      users: fairUsers,
+      meta: {} as Record<string, { score: number; reason?: string }>,
+      quotaExhausted: false,
+    };
   }),
 
   /** Like a user — creates Like record; checks for mutual match */
@@ -278,48 +355,161 @@ export const matchRouter = router({
     });
   }),
 
-  /** Daily picks — 5 random high-quality users */
-  dailyPicks: protectedProcedure.query(async ({ ctx }) => {
+  /**
+   * Task 2: Daily picks — 5 high-quality users with day-level caching + dedup.
+   * Accepts optional excludeIds to avoid overlap with main recommendation list.
+   */
+  dailyPicks: protectedProcedure
+    .input(
+      z
+        .object({
+          excludeIds: z.array(z.string()).optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+      const today = todayKey();
+      const cacheKey = `${userId}-${today}`;
+
+      // Purge stale entries
+      purgeDailyPicksCache();
+
+      // Return cached result if available
+      const cached = dailyPicksCache.get(cacheKey);
+      if (cached) {
+        return cached.users;
+      }
+
+      const currentUser = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+        select: { gender: true },
+      });
+
+      // Get existing interactions to exclude
+      const existingLikes = await ctx.prisma.like.findMany({
+        where: { fromUserId: userId },
+        select: { toUserId: true },
+      });
+      const baseExcludeIds = [
+        userId,
+        ...existingLikes.map((l) => l.toUserId),
+        ...(input?.excludeIds ?? []),
+      ];
+
+      // Find verified, active users of the opposite gender
+      const candidates = await ctx.prisma.user.findMany({
+        where: {
+          id: { notIn: baseExcludeIds },
+          gender: currentUser?.gender === 'MALE' ? 'FEMALE' : 'MALE',
+          verificationLevel: { in: ['L2', 'L3', 'L4'] },
+        },
+        include: {
+          photos: {
+            where: { auditStatus: 'APPROVED' },
+            orderBy: { order: 'asc' },
+          },
+          tags: true,
+          prompts: { orderBy: { order: 'asc' } },
+        },
+        orderBy: { lastActiveAt: 'desc' },
+        take: 50,
+      });
+
+      // Shuffle and pick top 5
+      const shuffled = candidates.sort(() => Math.random() - 0.5);
+      const picks = shuffled.slice(0, 5);
+
+      // Cache until end of day (midnight of next day)
+      const tomorrow = new Date(today + 'T00:00:00');
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      dailyPicksCache.set(cacheKey, {
+        users: picks,
+        expireAt: tomorrow.getTime(),
+      });
+
+      return picks;
+    }),
+
+  /**
+   * Task 4: Get remaining swipe quota for today.
+   */
+  remainingSwipes: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
     const currentUser = await ctx.prisma.user.findUnique({
       where: { id: userId },
-      select: { gender: true },
+      select: { membership: true },
     });
 
-    // Get existing interactions to exclude
-    const existingLikes = await ctx.prisma.like.findMany({
-      where: { fromUserId: userId },
-      select: { toUserId: true },
-    });
-    const excludeIds = [userId, ...existingLikes.map((l) => l.toUserId)];
+    const isFreeUser =
+      !currentUser?.membership || currentUser.membership === 'FREE';
 
-    // Find verified, active users of the opposite gender
-    const candidates = await ctx.prisma.user.findMany({
+    if (!isFreeUser) {
+      return {
+        remaining: Infinity,
+        total: Infinity,
+        quotaExhausted: false,
+      };
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const swipeCount = await ctx.prisma.like.count({
       where: {
-        id: { notIn: excludeIds },
-        gender: currentUser?.gender === 'MALE' ? 'FEMALE' : 'MALE',
-        verificationLevel: { in: ['L2', 'L3', 'L4'] },
+        fromUserId: userId,
+        createdAt: { gte: todayStart },
       },
-      include: {
-        photos: {
-          where: { auditStatus: 'APPROVED' },
-          orderBy: { order: 'asc' },
-        },
-        tags: true,
-        prompts: { orderBy: { order: 'asc' } },
-      },
-      orderBy: { lastActiveAt: 'desc' },
-      take: 50,
     });
 
-    // Shuffle and pick top 5
-    const shuffled = candidates.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 5);
+    const remaining = Math.max(0, FREE_DAILY_SWIPES - swipeCount);
+
+    return {
+      remaining,
+      total: FREE_DAILY_SWIPES,
+      quotaExhausted: remaining === 0,
+    };
   }),
+
+  /**
+   * Task 5: Record user feedback signal (view duration, etc.)
+   */
+  recordFeedback: protectedProcedure
+    .input(feedbackSignalSchema)
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+
+      await ctx.prisma.feedbackSignal.create({
+        data: {
+          userId,
+          targetUserId: input.targetUserId,
+          action: input.action,
+          durationMs: input.durationMs,
+        },
+      });
+
+      return { success: true };
+    }),
 
   /** Get current user's credit balance */
   getCredits: protectedProcedure.query(async ({ ctx }) => {
     return CreditsService.getBalance(ctx.user.id);
   }),
 });
+
+// ── Task 3: Weighted random shuffle helper ──
+// Users earlier in the list (more recently active) get higher weight,
+// but are not guaranteed to stay at the top.
+function weightedRandomShuffle<T>(items: T[], limit: number): T[] {
+  if (items.length <= limit) return items;
+
+  const weighted = items.map((item, index) => {
+    // Weight decays with position: first item gets weight ~1.0, last gets ~0.2
+    const weight = 0.2 + 0.8 * ((items.length - 1 - index) / (items.length - 1));
+    return { item, sortKey: Math.random() * weight };
+  });
+
+  weighted.sort((a, b) => b.sortKey - a.sortKey);
+  return weighted.slice(0, limit).map((w) => w.item);
+}

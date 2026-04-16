@@ -466,3 +466,16 @@ enum PushAudience {
   VERIFIED
   PREMIUM
 }
+
+// ========== 反馈信号 ==========
+
+model FeedbackSignal {
+  id           String   @id @default(cuid())
+  userId       String
+  targetUserId String
+  action       String   // 'view' | 'detail_view'
+  durationMs   Int
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

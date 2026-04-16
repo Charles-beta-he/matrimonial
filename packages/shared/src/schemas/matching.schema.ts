@@ -10,3 +10,9 @@ export const likeSchema = z.object({
 export const skipSchema = z.object({
   toUserId: z.string().min(1, '目标用户ID不能为空'),
 });
+
+export const feedbackSignalSchema = z.object({
+  targetUserId: z.string(),
+  action: z.enum(['view', 'detail_view']),
+  durationMs: z.number().int().min(0).max(300000),
+});

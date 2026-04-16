@@ -11,3 +11,14 @@ export interface LikeResult {
   matched: boolean;
   conversationId?: string;
 }
+
+export type SwipeQuota = {
+  remaining: number;
+  total: number;
+  quotaExhausted: boolean;
+};
+
+export type RecommendMeta = {
+  score?: number;
+  reason?: string;
+};

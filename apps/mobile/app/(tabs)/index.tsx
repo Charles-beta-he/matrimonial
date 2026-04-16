@@ -33,7 +33,7 @@ import { MatchAnimation } from '../../components/MatchAnimation';
 import { useMatchStore } from '../../stores/useMatchStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
-type ProfileCardUserWithId = ProfileCardUser & { id: string };
+type ProfileCardUserWithId = ProfileCardUser & { id: string; recommendReason?: string };
 
 function toProfileCardUser(u: any): ProfileCardUserWithId {
   const age = u?.birthday ? calculateAge(new Date(u.birthday)) : 25;
@@ -63,6 +63,7 @@ function toProfileCardUser(u: any): ProfileCardUserWithId {
     tags,
     prompts,
     isOnline: u.isOnline ?? false,
+    recommendReason: u._recommendMeta?.reason,
   };
 }
 
@@ -78,13 +79,21 @@ export default function DiscoverTab() {
 
   const recommendationsQuery = api.match.recommendations.useQuery();
   const dailyPicksQuery = api.match.dailyPicks.useQuery();
+  const remainingSwipesQuery = (api.match as any).remainingSwipes?.useQuery?.() as
+    | { data?: { used: number; total: number; remaining: number; quotaExhausted: boolean } }
+    | undefined;
 
   const likeMutation = api.match.like.useMutation();
   const skipMutation = api.match.skip.useMutation();
 
+  // Backend returns { users, meta, quotaExhausted } or legacy User[]
+  const rawData = recommendationsQuery.data as any;
+  const recommendationUsers = Array.isArray(rawData) ? rawData : (rawData?.users ?? []);
+  const quotaExhaustedFromApi = Array.isArray(rawData) ? false : (rawData?.quotaExhausted ?? false);
+
   const recommendations: ProfileCardUserWithId[] = useMemo(
-    () => (recommendationsQuery.data ?? []).map(toProfileCardUser),
-    [recommendationsQuery.data],
+    () => recommendationUsers.map(toProfileCardUser),
+    [recommendationUsers],
   );
   const dailyPicks: ProfileCardUserWithId[] = useMemo(
     () => (dailyPicksQuery.data ?? []).map(toProfileCardUser),
@@ -132,6 +141,29 @@ export default function DiscoverTab() {
     setLocalIndex((i) => i + 1);
   }, [recommendations, localIndex, likeMutation, setMatchAnimation, track]);
 
+  const handleSuperLike = useCallback(() => {
+    const user = recommendations[localIndex];
+    if (!user) return;
+    track('card_like', { target_user_id: user.id, type: 'super' });
+    likeMutation.mutate(
+      { toUserId: user.id, type: 'SUPER' },
+      {
+        onSuccess: (res) => {
+          if (res?.isMatched) {
+            setMatchInfo({ name: user.nickname, photo: user.photos[0] ?? '' });
+            setMatchAnimation(true, {
+              id: user.id,
+              nickname: user.nickname,
+              photo: user.photos[0],
+            });
+            track('match_success', { target_user_id: user.id });
+          }
+        },
+      },
+    );
+    setLocalIndex((i) => i + 1);
+  }, [recommendations, localIndex, likeMutation, setMatchAnimation, track]);
+
   const handleSwipeLeft = useCallback(() => {
     const user = recommendations[localIndex];
     if (!user) return;
@@ -152,6 +184,8 @@ export default function DiscoverTab() {
   const isLoading = recommendationsQuery.isLoading;
   const hasError = !!recommendationsQuery.error;
   const isEmpty = !isLoading && !hasError && (recommendations.length === 0 || localIndex >= recommendations.length);
+  const quotaData = remainingSwipesQuery?.data;
+  const quotaExhausted = quotaExhaustedFromApi || (quotaData?.quotaExhausted ?? false);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -167,6 +201,28 @@ export default function DiscoverTab() {
             <Ionicons name="options-outline" size={20} color="#4b5563" />
           </Pressable>
         </View>
+
+        {/* Swipe quota progress bar */}
+        {quotaData && (
+          <View className="px-4 mb-2">
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-xs text-gray-500">
+                今日已看 {quotaData.used}/{quotaData.total} 人
+              </Text>
+              <Text className="text-xs text-gray-400">
+                剩余 {quotaData.remaining} 次
+              </Text>
+            </View>
+            <View className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <View
+                className="h-full bg-rose-500 rounded-full"
+                style={{
+                  width: `${Math.min((quotaData.used / quotaData.total) * 100, 100)}%`,
+                }}
+              />
+            </View>
+          </View>
+        )}
 
         {/* Daily picks horizontal scroll */}
         <View className="mb-4">
@@ -253,6 +309,26 @@ export default function DiscoverTab() {
                 <ActivityIndicator size="large" color="#f43f5e" />
                 <Text className="text-gray-500 mt-3">正在加载推荐...</Text>
               </View>
+            ) : quotaExhausted ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+                <Ionicons name="moon-outline" size={48} color="#f43f5e" />
+                <Text className="text-xl font-bold text-gray-900 mt-4 text-center">今日推荐已用完</Text>
+                <Text className="text-sm text-gray-500 mt-2 text-center">
+                  明天将为你推荐更多优质用户
+                </Text>
+                <Pressable
+                  className="mt-6 w-full h-12 bg-rose-500 rounded-full items-center justify-center"
+                  onPress={() => router.push('/profile/membership')}
+                >
+                  <Text className="text-white font-semibold text-base">升级会员解锁无限推荐</Text>
+                </Pressable>
+                <Pressable
+                  className="mt-3 w-full h-12 bg-gray-100 rounded-full items-center justify-center"
+                  onPress={() => router.push('/(tabs)/explore' as any)}
+                >
+                  <Text className="text-gray-700 font-medium text-base">去探索更多</Text>
+                </Pressable>
+              </View>
             ) : isEmpty ? (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <EmptyState
@@ -270,6 +346,7 @@ export default function DiscoverTab() {
                     user={currentUser}
                     onSwipeLeft={handleSwipeLeft}
                     onSwipeRight={handleSwipeRight}
+                    recommendReason={currentUser.recommendReason}
                   />
                 )}
               </>
@@ -318,15 +395,15 @@ export default function DiscoverTab() {
             </Pressable>
 
             <Pressable
-              onPress={handleSwipeRight}
+              onPress={handleSuperLike}
               style={({ pressed }) => ({
                 width: 56,
                 height: 56,
                 borderRadius: 28,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#fef3c7',
                 alignItems: 'center',
                 justifyContent: 'center',
-                ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
+                ...shadowStyle({ color: '#f59e0b', y: 4, blur: 8, opacity: 0.15, elevation: 3 }),
                 opacity: pressed ? 0.85 : 1,
                 transform: [{ scale: pressed ? 0.96 : 1 }],
               })}

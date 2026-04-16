@@ -129,6 +129,20 @@ export default function UserProfileScreen() {
     );
   };
 
+  const handleSuperLike = () => {
+    likeMutation.mutate(
+      { toUserId: user.id, type: 'SUPER' },
+      {
+        onSuccess: (res) => {
+          if (res?.isMatched) {
+            Alert.alert('匹配成功', `你和 ${user.nickname} 互相喜欢了！`);
+          }
+          router.back();
+        },
+      },
+    );
+  };
+
   const handleSkip = () => {
     skipMutation.mutate({ toUserId: user.id });
     router.back();
@@ -277,8 +291,8 @@ export default function UserProfileScreen() {
             <Text className="text-white font-semibold text-base">喜欢</Text>
           </Pressable>
           <Pressable
-            onPress={handleLike}
-            className="w-12 h-12 rounded-full bg-amber-50 items-center justify-center"
+            onPress={handleSuperLike}
+            className="w-12 h-12 rounded-full bg-amber-100 items-center justify-center"
           >
             <Ionicons name="star" size={22} color="#f59e0b" />
           </Pressable>
