@@ -31,7 +31,7 @@
   },
   "pnpm": {
     "overrides": {
-      "react-server-dom-webpack": "19.0.0"
+      "react-server-dom-webpack": "19.0.2"
     }
   }
 }
