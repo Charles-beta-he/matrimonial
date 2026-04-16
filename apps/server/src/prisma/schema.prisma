@@ -55,11 +55,17 @@ model User {
   matchmaker      Matchmaker?
   textAuditItems  TextAuditItem[]
 
+  // 邀请
+  inviteCode      String?           @unique  // 6-char alphanumeric code
+  invitedBy       String?                     // userId of who invited them
+  inviteCount     Int               @default(0) // How many people they've invited
+
   // 运营状态
   role            UserRole          @default(USER)
   status          UserStatus        @default(ACTIVE)
-  bannedAt        DateTime?
-  banReason       String?
+  bannedAt              DateTime?
+  banReason             String?
+  deletionRequestedAt   DateTime?
 
   // 推荐向量
   embedding       Unsupported("vector(256)")?
@@ -68,6 +74,25 @@ model User {
   updatedAt       DateTime          @updatedAt
   lastActiveAt    DateTime          @default(now())
   isOnline        Boolean           @default(false)
+  pushToken       String?           // FCM/APNs registration ID for push notifications
+  emergencyContact  String?           // 紧急联系人手机号
+
+  // 安全
+  dateCheckins    DateCheckin[]
+
+  // 隐私设置
+  privacyBlurPhotos      Boolean  @default(false)
+  privacyIncognito       Boolean  @default(false)
+  privacyBlockContacts   Boolean  @default(false)
+  privacyBlurLocation    Boolean  @default(true)
+  privacyDisableVisitors Boolean  @default(false)
+  blockedPhoneHashes     String[]
+
+  // 通知偏好
+  notifNewMessage    Boolean  @default(true)
+  notifMatchSuccess  Boolean  @default(true)
+  notifActivity      Boolean  @default(true)
+  notifMarketing     Boolean  @default(false)
 
   @@index([city, gender, verificationLevel])
   @@index([lastActiveAt])
@@ -292,6 +317,18 @@ model ActivitySignup {
   @@unique([activityId, userId])
 }
 
+model ActivityVote {
+  id          String   @id @default(cuid())
+  activityId  String
+  voterId     String   // Who voted
+  votedId     String   // Who they voted for
+  rating      Int      // 1-5 attraction rating
+  createdAt   DateTime @default(now())
+
+  @@unique([activityId, voterId, votedId])
+  @@index([activityId, votedId])
+}
+
 // ========== User Credits (consumable products) ==========
 
 model UserCredits {
@@ -372,6 +409,7 @@ enum Membership {
 enum LikeType {
   NORMAL
   SUPER
+  SKIP
 }
 
 enum MessageType {
@@ -449,6 +487,7 @@ enum UserStatus {
   ACTIVE
   BANNED
   DELETED
+  PENDING_DELETION
 }
 
 enum TextAuditContext {
@@ -465,6 +504,58 @@ enum PushAudience {
   FEMALE
   VERIFIED
   PREMIUM
+}
+
+// ========== 约会报备 ==========
+
+model DateCheckin {
+  id              String            @id @default(cuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  partnerName     String            // 对方昵称/姓名
+  partnerUserId   String?           // 如果对方也是平台用户
+  location        String            // 约会地点
+  scheduledAt     DateTime          // 约会时间
+  expectedEndAt   DateTime          // 预计结束时间
+  status          DateCheckinStatus @default(ACTIVE)
+  safeConfirmedAt DateTime?         // 用户确认安全时间
+  sosTriggeredAt  DateTime?         // SOS触发时间
+  createdAt       DateTime          @default(now())
+
+  @@index([userId, status])
+}
+
+enum DateCheckinStatus {
+  ACTIVE
+  SAFE
+  SOS_TRIGGERED
+  EXPIRED
+}
+
+// ========== 签到 & 成就 ==========
+
+model CheckIn {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD format for easy dedup
+  streak    Int      @default(1)  // Current consecutive day streak
+  reward    String   // Description of reward given
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, createdAt])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // achievement type key
+  name        String   // display name
+  description String
+  unlockedAt  DateTime @default(now())
+
+  @@unique([userId, type])
+  @@index([userId])
 }
 
 // ========== 反馈信号 ==========

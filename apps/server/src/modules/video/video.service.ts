@@ -15,6 +15,25 @@ interface MatchmakerRoom {
   createdAt: number;
 }
 
+// Quick match queue — users waiting for random pairing
+interface QueueEntry {
+  userId: string;
+  nickname: string;
+  gender: string;
+  preferredGender?: string;
+  joinedAt: number;
+}
+
+const quickMatchQueue: QueueEntry[] = [];
+
+// Clean stale entries (older than 2 minutes)
+setInterval(() => {
+  const twoMinAgo = Date.now() - 2 * 60 * 1000;
+  while (quickMatchQueue.length > 0 && quickMatchQueue[0].joinedAt < twoMinAgo) {
+    quickMatchQueue.shift();
+  }
+}, 30_000);
+
 // In-memory store for active matchmaker rooms.
 // TODO: Move to Redis for production multi-instance deployments.
 const activeRooms = new Map<string, MatchmakerRoom>();
@@ -138,6 +157,101 @@ export const VideoService = {
       maxParticipants: r.maxParticipants,
       createdAt: new Date(r.createdAt).toISOString(),
     }));
+  },
+
+  /** Join quick match queue — returns match immediately if compatible user waiting */
+  async joinQuickMatch(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { nickname: true, gender: true, verificationLevel: true },
+    });
+    if (!user) throw new TRPCError({ code: 'NOT_FOUND' });
+    if (user.verificationLevel === 'L1') {
+      throw new TRPCError({ code: 'FORBIDDEN', message: '需要完成身份认证才能参与视频速配' });
+    }
+
+    // Check if already in queue
+    const existing = quickMatchQueue.findIndex((e) => e.userId === userId);
+    if (existing >= 0) quickMatchQueue.splice(existing, 1);
+
+    // Try to find a match in the queue
+    const preferredGender = user.gender === 'MALE' ? 'FEMALE' : 'MALE';
+    const matchIdx = quickMatchQueue.findIndex(
+      (e) => e.gender === preferredGender && e.userId !== userId,
+    );
+
+    if (matchIdx >= 0) {
+      // Found a match! Create a room
+      const partner = quickMatchQueue.splice(matchIdx, 1)[0];
+      const roomName = LiveKitAdapter.generateOneOnOneRoomName(userId, partner.userId);
+      const ttl = 5 * 60; // 5 minutes (3 min call + buffer)
+
+      const myToken = LiveKitAdapter.generateToken({
+        userId,
+        userName: user.nickname,
+        roomName,
+        ttl,
+      });
+      const partnerToken = LiveKitAdapter.generateToken({
+        userId: partner.userId,
+        userName: partner.nickname,
+        roomName,
+        ttl,
+      });
+
+      const roomId = `qm_${Date.now().toString(36)}`;
+      const quickRoom = {
+        id: roomId,
+        roomName,
+        users: [
+          { userId, nickname: user.nickname, token: myToken.token },
+          { userId: partner.userId, nickname: partner.nickname, token: partnerToken.token },
+        ],
+        wsUrl: myToken.wsUrl,
+        duration: 180, // 3 minutes in seconds
+        createdAt: Date.now(),
+      };
+
+      logger.info('quick match paired', { user1: userId, user2: partner.userId, roomId });
+
+      return {
+        status: 'matched' as const,
+        room: quickRoom,
+        myToken: myToken.token,
+        wsUrl: myToken.wsUrl,
+        partner: { userId: partner.userId, nickname: partner.nickname },
+        duration: 180,
+      };
+    }
+
+    // No match — join queue
+    quickMatchQueue.push({
+      userId,
+      nickname: user.nickname,
+      gender: user.gender,
+      preferredGender,
+      joinedAt: Date.now(),
+    });
+
+    logger.info('quick match queued', { userId, queueSize: quickMatchQueue.length });
+    return {
+      status: 'queued' as const,
+      position: quickMatchQueue.length,
+    };
+  },
+
+  /** Leave quick match queue */
+  leaveQuickMatch(userId: string) {
+    const idx = quickMatchQueue.findIndex((e) => e.userId === userId);
+    if (idx >= 0) quickMatchQueue.splice(idx, 1);
+  },
+
+  /** Check quick match queue status */
+  getQuickMatchStatus(userId: string) {
+    const entry = quickMatchQueue.find((e) => e.userId === userId);
+    if (!entry) return { inQueue: false as const, position: 0 };
+    const position = quickMatchQueue.indexOf(entry) + 1;
+    return { inQueue: true as const, position };
   },
 
   /** Leave matchmaker room */

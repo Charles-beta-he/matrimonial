@@ -6,9 +6,20 @@ import {
 } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, router } from '../base';
+import { protectedProcedure, router } from '../base';
 
 export const userRouter = router({
+  /** Register or update push token for push notifications */
+  registerPushToken: protectedProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { pushToken: input.token },
+      });
+    }),
+
+
   /** Get current user's full profile */
   me: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
@@ -27,7 +38,7 @@ export const userRouter = router({
   }),
 
   /** Get a user by ID (public fields only) */
-  getById: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
+  getById: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
     const user = await ctx.prisma.user.findUnique({
       where: { id: input },
       select: {
@@ -47,6 +58,7 @@ export const userRouter = router({
         membership: true,
         lastActiveAt: true,
         isOnline: true,
+        privacyBlurPhotos: true,
         photos: {
           where: { auditStatus: 'APPROVED' },
           orderBy: { order: 'asc' },
@@ -58,7 +70,30 @@ export const userRouter = router({
     if (!user) {
       throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
     }
-    return user;
+
+    // If target has blurPhotos enabled, check if viewer is matched
+    if (user.privacyBlurPhotos && ctx.user.id !== input) {
+      const mutualMatch = await ctx.prisma.like.findFirst({
+        where: {
+          isMatched: true,
+          OR: [
+            { fromUserId: ctx.user.id, toUserId: input },
+            { fromUserId: input, toUserId: ctx.user.id },
+          ],
+        },
+      });
+      if (!mutualMatch) {
+        // Blur photo URLs for non-matched viewers
+        (user as any).photos = user.photos.map((p) => ({
+          ...p,
+          url: p.url + '?blur=1',
+        }));
+      }
+    }
+
+    // Strip internal privacy field from response
+    const { privacyBlurPhotos, ...publicUser } = user;
+    return publicUser;
   }),
 
   /** Update profile fields and tags */
@@ -146,11 +181,129 @@ export const userRouter = router({
     });
   }),
 
+  /** Update privacy settings */
+  updatePrivacy: protectedProcedure
+    .input(
+      z.object({
+        blurPhotos: z.boolean().optional(),
+        incognito: z.boolean().optional(),
+        blockContacts: z.boolean().optional(),
+        blurLocation: z.boolean().optional(),
+        disableVisitors: z.boolean().optional(),
+        blockedPhoneHashes: z.array(z.string()).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const data: Record<string, unknown> = {};
+      if (input.blurPhotos !== undefined) data.privacyBlurPhotos = input.blurPhotos;
+      if (input.incognito !== undefined) data.privacyIncognito = input.incognito;
+      if (input.blockContacts !== undefined) data.privacyBlockContacts = input.blockContacts;
+      if (input.blurLocation !== undefined) data.privacyBlurLocation = input.blurLocation;
+      if (input.disableVisitors !== undefined) data.privacyDisableVisitors = input.disableVisitors;
+      if (input.blockedPhoneHashes !== undefined) data.blockedPhoneHashes = input.blockedPhoneHashes;
+
+      return ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data,
+        select: {
+          privacyBlurPhotos: true,
+          privacyIncognito: true,
+          privacyBlockContacts: true,
+          privacyBlurLocation: true,
+          privacyDisableVisitors: true,
+        },
+      });
+    }),
+
+  /** Request account deletion — marks account PENDING_DELETION with 14-day cooldown */
+  requestDeletion: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      await ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: {
+          status: 'PENDING_DELETION',
+          deletionRequestedAt: new Date(),
+        },
+      });
+      return { success: true, deletionAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) };
+    }),
+
+  /** Cancel a pending deletion request — restores account to ACTIVE */
+  cancelDeletion: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: { status: true },
+      });
+      if (user?.status !== 'PENDING_DELETION') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '账号未申请注销' });
+      }
+      await ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { status: 'ACTIVE', deletionRequestedAt: null },
+      });
+      return { success: true };
+    }),
+
+  /** Update notification preferences */
+  updateNotifPrefs: protectedProcedure
+    .input(z.object({
+      newMessage: z.boolean().optional(),
+      matchSuccess: z.boolean().optional(),
+      activityReminder: z.boolean().optional(),
+      marketing: z.boolean().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: {
+          ...(input.newMessage !== undefined && { notifNewMessage: input.newMessage }),
+          ...(input.matchSuccess !== undefined && { notifMatchSuccess: input.matchSuccess }),
+          ...(input.activityReminder !== undefined && { notifActivity: input.activityReminder }),
+          ...(input.marketing !== undefined && { notifMarketing: input.marketing }),
+        },
+        select: {
+          notifNewMessage: true,
+          notifMatchSuccess: true,
+          notifActivity: true,
+          notifMarketing: true,
+        },
+      });
+    }),
+
+  /** Get notification preferences */
+  getNotifPrefs: protectedProcedure
+    .query(async ({ ctx }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: {
+          notifNewMessage: true,
+          notifMatchSuccess: true,
+          notifActivity: true,
+          notifMarketing: true,
+        },
+      });
+      return {
+        newMessage: user?.notifNewMessage ?? true,
+        matchSuccess: user?.notifMatchSuccess ?? true,
+        activityReminder: user?.notifActivity ?? true,
+        marketing: user?.notifMarketing ?? false,
+      };
+    }),
+
   /** Record a profile view (fire-and-forget) */
   recordView: protectedProcedure
     .input(z.object({ viewedId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       if (input.viewedId === ctx.user.id) return { skipped: true };
+
+      // If the viewer has incognito mode enabled, skip recording the view
+      const viewer = await ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: { privacyIncognito: true },
+      });
+      if (viewer?.privacyIncognito) return { skipped: true };
+
       await ctx.prisma.profileView.upsert({
         where: {
           viewerId_viewedId: {
@@ -168,6 +321,13 @@ export const userRouter = router({
   visitors: protectedProcedure
     .input(z.object({ limit: z.number().int().min(1).max(100).default(20) }))
     .query(async ({ input, ctx }) => {
+      // If the user has disabled visitors, return empty list
+      const currentUser = await ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: { privacyDisableVisitors: true },
+      });
+      if (currentUser?.privacyDisableVisitors) return [];
+
       const views = await ctx.prisma.profileView.findMany({
         where: { viewedId: ctx.user.id },
         orderBy: { createdAt: 'desc' },

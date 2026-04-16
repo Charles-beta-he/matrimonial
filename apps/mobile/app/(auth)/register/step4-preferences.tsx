@@ -75,7 +75,7 @@ export default function RegisterStep4Preferences() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <ProgressBar step={4} total={5} />
+        <ProgressBar step={3} total={4} />
 
         <Text className="text-2xl font-bold text-gray-900 mb-2">择偶偏好</Text>
         <Text className="text-sm text-gray-400 mb-8">帮助我们为你推荐合适的人</Text>

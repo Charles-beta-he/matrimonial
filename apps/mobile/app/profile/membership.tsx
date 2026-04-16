@@ -42,7 +42,7 @@ export default function MembershipScreen() {
   const membershipQuery = api.payment.membershipStatus.useQuery();
   const utils = api.useUtils();
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
-  const expiresAt = (membershipQuery.data as any)?.expiresAt;
+  const expiresAt = (membershipQuery.data as any)?.expiry;
 
   useEffect(() => {
     track('membership_view', {});

@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { PaymentService } from '../../modules/payment/payment.service';
+import { AppleIapAdapter } from '../../adapters/apple-iap.adapter';
 import { logger } from '../../lib/logger';
 
 export const paymentRouter = router({
@@ -49,7 +50,7 @@ export const paymentRouter = router({
     };
   }),
 
-  /** Verify Apple IAP receipt and mark order paid (stub — real verify TODO) */
+  /** Verify Apple IAP receipt and mark order paid */
   verifyApplePay: protectedProcedure
     .input(
       z.object({
@@ -64,17 +65,51 @@ export const paymentRouter = router({
       if (!order) {
         throw new TRPCError({ code: 'NOT_FOUND', message: '订单不存在' });
       }
-      // TODO: Call Apple verifyReceipt endpoint
-      // https://buy.itunes.apple.com/verifyReceipt (prod)
-      // https://sandbox.itunes.apple.com/verifyReceipt (sandbox)
-      // Verify transaction_id, product_id, status === 0
-      logger.info('apple iap verify stub', {
+      if (order.status !== 'PENDING') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: '订单状态异常，非待支付状态',
+        });
+      }
+
+      logger.info('apple iap verify start', {
         orderId: order.id,
         receiptLen: input.receiptData.length,
       });
-      const tradeNo = `apple_${Date.now()}`;
+
+      const result = await AppleIapAdapter.verifyReceipt(input.receiptData);
+
+      if (!result.valid) {
+        logger.warn('apple iap verify failed', {
+          orderId: order.id,
+          status: result.status,
+        });
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Apple 验证失败 (status: ${result.status})`,
+        });
+      }
+
+      const tradeNo = result.transactionId ?? `apple_${Date.now()}`;
+
+      logger.info('apple iap verify success', {
+        orderId: order.id,
+        tradeNo,
+        environment: result.environment,
+        productId: result.productId,
+      });
+
       await PaymentService.markOrderPaid(order.id, tradeNo);
       return { success: true, orderId: order.id };
+    }),
+
+  /** Request a refund — 7天无理由退款 */
+  requestRefund: protectedProcedure
+    .input(z.object({ orderId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const order = await PaymentService.processRefund(input.orderId, ctx.user.id);
+      logger.info('refund requested', { userId: ctx.user.id, orderId: input.orderId });
+      return { success: true, order };
     }),
 
   /** Manually activate membership from a PAID order (legacy) */

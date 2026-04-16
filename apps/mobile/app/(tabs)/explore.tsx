@@ -61,6 +61,28 @@ export default function ExploreTab() {
       </View>
 
       <View className="flex-1 px-4" style={{ gap: 12 }}>
+        {/* Quick Video Match */}
+        <Pressable
+          onPress={() => router.push('/chat/quick-match')}
+          style={{
+            backgroundColor: '#fef2f2', borderRadius: 12,
+            padding: 16, flexDirection: 'row', alignItems: 'center',
+          }}
+        >
+          <View style={{
+            width: 48, height: 48, borderRadius: 24,
+            backgroundColor: '#f43f5e', alignItems: 'center', justifyContent: 'center',
+            marginRight: 12,
+          }}>
+            <Ionicons name="videocam" size={24} color="white" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#111827' }}>视频快速匹配</Text>
+            <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>随机匹配，3分钟视频相亲</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        </Pressable>
+
         {SECTIONS.map((section) => (
           <Card
             key={section.title}

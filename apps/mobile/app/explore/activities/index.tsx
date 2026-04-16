@@ -215,13 +215,27 @@ export default function ActivitiesScreen() {
                     <Text className="text-lg font-bold text-rose-500">
                       {feeText}
                     </Text>
-                    <Button
-                      title={isUpcoming ? '报名' : '已结束'}
-                      variant="primary"
-                      size="sm"
-                      disabled={!isUpcoming || signupMut.isPending}
-                      onPress={() => handleSignup(item.id, item.title)}
-                    />
+                    <View className="flex-row items-center" style={{ gap: 8 }}>
+                      {item.status === 'COMPLETED' && (
+                        <Button
+                          title="互评"
+                          variant="secondary"
+                          size="sm"
+                          onPress={() =>
+                            router.push(
+                              `/explore/activities/${item.id}/vote` as any,
+                            )
+                          }
+                        />
+                      )}
+                      <Button
+                        title={isUpcoming ? '报名' : '已结束'}
+                        variant="primary"
+                        size="sm"
+                        disabled={!isUpcoming || signupMut.isPending}
+                        onPress={() => handleSignup(item.id, item.title)}
+                      />
+                    </View>
                   </View>
                 </View>
               </Card>

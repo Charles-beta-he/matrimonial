@@ -13,9 +13,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import { Avatar } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useChat } from '../../hooks/useChat';
+import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
 import type { ChatMessage } from '../../stores/useChatStore';
@@ -33,9 +36,30 @@ export default function ChatConversationScreen() {
   const { track } = useAnalytics();
 
   const cid = conversationId ?? '';
-  const { messages: liveMessages, typingUsers, emitTyping } = useChat(cid);
+  const { messages: liveMessages, typingUsers, emitTyping, markAsRead, otherReadAt } = useChat(cid);
+
+  // Membership gating for read receipts (QUARTERLY+ required)
+  const membershipQuery = api.payment.membershipStatus.useQuery();
+  const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
+  const canSeeReadReceipts = currentPlan === 'QUARTERLY' || currentPlan === 'YEARLY';
   const [inputText, setInputText] = useState('');
   const listRef = useRef<FlatList<ChatMessage>>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  // Voice recording
+  const {
+    isRecording,
+    isUploading,
+    duration: recordingDuration,
+    setRecorderState,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+  } = useVoiceRecorder();
+
+  // Upload mutations for voice
+  const requestUpload = api.upload.requestUpload.useMutation();
+  const confirmUpload = api.upload.confirmUpload.useMutation();
 
   // History from server
   const historyQuery = api.chat.messages.useQuery(
@@ -57,6 +81,19 @@ export default function ChatConversationScreen() {
       isOnline: !!other?.isOnline,
     };
   }, [conversationsQuery.data, cid]);
+
+  // Video call
+  const startVideoMut = api.video.start1v1.useMutation();
+  const handleStartVideoCall = async () => {
+    const otherUserId = conversationMeta?.userId;
+    if (!otherUserId) return;
+    try {
+      const room = await startVideoMut.mutateAsync({ targetUserId: otherUserId });
+      router.push({ pathname: '/chat/quick-match', params: { roomId: room.roomName, token: room.token } });
+    } catch (e: any) {
+      Alert.alert('错误', e?.message ?? '无法发起视频通话');
+    }
+  };
 
   // Mutations
   const sendMessageMutation = api.chat.sendMessage.useMutation({
@@ -88,6 +125,24 @@ export default function ChatConversationScreen() {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
   }, [historyQuery.data, liveMessages]);
+
+  // Emit socket read event when messages change (user is viewing them)
+  const prevMessageCountRef = useRef(0);
+  useEffect(() => {
+    if (!cid || allMessages.length === 0) return;
+    const lastMsg = allMessages[allMessages.length - 1];
+    if (!lastMsg) return;
+    // Emit read receipt for the latest message (covers both initial load and new incoming)
+    if (allMessages.length !== prevMessageCountRef.current) {
+      prevMessageCountRef.current = allMessages.length;
+      markAsRead(lastMsg.id);
+      // Also update server-side lastReadAt for incoming messages
+      if (lastMsg.senderId !== currentUser?.id) {
+        markReadMutation.mutate({ conversationId: cid });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allMessages.length, cid]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -124,6 +179,112 @@ export default function ChatConversationScreen() {
     [emitTyping],
   );
 
+  // Upload a voice file and return its public URL
+  const uploadVoice = useCallback(
+    async (uri: string): Promise<string | null> => {
+      try {
+        const info = await FileSystem.getInfoAsync(uri);
+        if (!info.exists) throw new Error('录音文件不存在');
+        const filename = uri.split('/').pop() ?? 'voice.m4a';
+        const contentType = 'audio/m4a';
+
+        const credential = await requestUpload.mutateAsync({
+          category: 'chat' as const,
+          filename,
+          contentType,
+          sizeBytes: (info as any).size ?? 0,
+        });
+
+        const uploadResult = await FileSystem.uploadAsync(credential.uploadUrl, uri, {
+          httpMethod: 'PUT',
+          headers: { 'Content-Type': contentType },
+        });
+
+        if (uploadResult.status < 200 || uploadResult.status >= 300) {
+          throw new Error(`上传失败 (${uploadResult.status})`);
+        }
+
+        await confirmUpload.mutateAsync({
+          objectKey: credential.objectKey,
+          category: 'chat' as const,
+        });
+
+        return credential.publicUrl;
+      } catch (err: any) {
+        Alert.alert('语音上传失败', err?.message ?? '请重试');
+        return null;
+      }
+    },
+    [requestUpload, confirmUpload],
+  );
+
+  // Handle voice send: stop recording -> upload -> send message
+  const handleVoiceSend = useCallback(async () => {
+    setRecorderState('uploading');
+    const uri = await stopRecording();
+    if (!uri) {
+      setRecorderState('idle');
+      return;
+    }
+
+    const mediaUrl = await uploadVoice(uri);
+    setRecorderState('idle');
+    if (!mediaUrl || !cid) return;
+
+    try {
+      await sendMessageMutation.mutateAsync({
+        conversationId: cid,
+        type: 'VOICE',
+        content: '语音消息',
+        mediaUrl,
+      });
+      track('chat_message_send', { conversation_id: cid, type: 'voice' });
+    } catch (e: any) {
+      Alert.alert('发送失败', e?.message ?? '请重试');
+    }
+  }, [cid, stopRecording, uploadVoice, sendMessageMutation, track, setRecorderState]);
+
+  // Play a voice message
+  const playAudio = useCallback(async (url?: string) => {
+    if (!url) return;
+    try {
+      // Unload previous sound if any
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+      });
+      const { sound } = await Audio.Sound.createAsync({ uri: url });
+      soundRef.current = sound;
+      await sound.playAsync();
+      // Clean up when done
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+          soundRef.current = null;
+        }
+      });
+    } catch {
+      Alert.alert('播放失败', '无法播放语音消息');
+    }
+  }, []);
+
+  // Clean up sound on unmount
+  useEffect(() => {
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, []);
+
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
@@ -157,9 +318,27 @@ export default function ChatConversationScreen() {
                 : 'bg-gray-100 rounded-2xl rounded-tl-sm ml-2'
             }`}
           >
-            <Text className={`text-base ${isMe ? 'text-white' : 'text-gray-900'}`}>
-              {item.content}
-            </Text>
+            {item.type === 'VOICE' ? (
+              <Pressable
+                className="flex-row items-center"
+                onPress={() => playAudio(item.mediaUrl)}
+              >
+                <Ionicons
+                  name="play-circle"
+                  size={24}
+                  color={isMe ? '#fff' : '#f43f5e'}
+                />
+                <Text
+                  className={`ml-2 text-sm ${isMe ? 'text-white' : 'text-gray-600'}`}
+                >
+                  语音消息
+                </Text>
+              </Pressable>
+            ) : (
+              <Text className={`text-base ${isMe ? 'text-white' : 'text-gray-900'}`}>
+                {item.content}
+              </Text>
+            )}
             {isMe && item.status === 'sending' && (
               <Text className="text-xs text-white/70 mt-1">发送中...</Text>
             )}
@@ -168,6 +347,9 @@ export default function ChatConversationScreen() {
             )}
           </View>
         </View>
+        {isMe && canSeeReadReceipts && otherReadAt && new Date(item.createdAt) <= new Date(otherReadAt) && item.status !== 'sending' && item.status !== 'failed' && (
+          <Text className="text-xs text-gray-400 mt-0.5 text-right mr-1">已读</Text>
+        )}
       </View>
     );
   };
@@ -188,7 +370,7 @@ export default function ChatConversationScreen() {
           size={36}
           online={showOnline}
         />
-        <View className="ml-3">
+        <View className="ml-3 flex-1">
           <Text className="text-base font-semibold text-gray-900">
             {conversationMeta?.nickname ?? '聊天'}
           </Text>
@@ -196,6 +378,12 @@ export default function ChatConversationScreen() {
             {showOnline ? '在线' : '离线'}
           </Text>
         </View>
+        <Pressable
+          onPress={handleStartVideoCall}
+          style={{ marginRight: 4 }}
+        >
+          <Ionicons name="videocam-outline" size={24} color="#374151" />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView
@@ -237,6 +425,16 @@ export default function ChatConversationScreen() {
           />
         )}
 
+        {/* Read receipt upsell — shown once at bottom of conversation for FREE users */}
+        {!canSeeReadReceipts && allMessages.length > 0 && (
+          <Pressable
+            onPress={() => router.push('/profile/membership')}
+            className="px-4 pb-1 items-end"
+          >
+            <Text style={{ fontSize: 10, color: '#9CA3AF' }}>升级查看已读</Text>
+          </Pressable>
+        )}
+
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
           <View className="px-4 pb-1">
@@ -245,34 +443,73 @@ export default function ChatConversationScreen() {
         )}
 
         {/* Input bar */}
-        <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
-          <Pressable className="w-10 h-10 items-center justify-center">
-            <Ionicons name="mic-outline" size={22} color="#6b7280" />
-          </Pressable>
-          <View className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 min-h-[40px] justify-center">
-            <TextInput
-              className="text-base text-gray-900"
-              placeholder="输入消息..."
-              placeholderTextColor="#9ca3af"
-              value={inputText}
-              onChangeText={handleChangeText}
-              multiline
-              maxLength={500}
-            />
-          </View>
-          <Pressable className="w-10 h-10 items-center justify-center">
-            <Ionicons name="camera-outline" size={22} color="#6b7280" />
-          </Pressable>
-          {inputText.trim() ? (
+        {isRecording || isUploading ? (
+          /* Recording UI */
+          <View className="flex-row items-center px-4 py-3 border-t border-gray-100 bg-red-50" style={{ gap: 8 }}>
+            <Pressable
+              className="w-10 h-10 items-center justify-center"
+              onPress={cancelRecording}
+            >
+              <Ionicons name="close-circle" size={28} color="#6b7280" />
+            </Pressable>
+            <View className="flex-1 flex-row items-center justify-center" style={{ gap: 8 }}>
+              {isUploading ? (
+                <>
+                  <ActivityIndicator size="small" color="#f43f5e" />
+                  <Text className="text-sm text-gray-600">发送中...</Text>
+                </>
+              ) : (
+                <>
+                  <View className="w-3 h-3 rounded-full bg-red-500" />
+                  <Text className="text-base font-medium text-red-600">
+                    {formatDuration(recordingDuration)}
+                  </Text>
+                  <Text className="text-sm text-gray-500">录音中</Text>
+                </>
+              )}
+            </View>
             <Pressable
               className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
-              onPress={handleSend}
-              disabled={sendMessageMutation.isPending}
+              onPress={handleVoiceSend}
+              disabled={isUploading}
             >
               <Ionicons name="arrow-up" size={18} color="#ffffff" />
             </Pressable>
-          ) : null}
-        </View>
+          </View>
+        ) : (
+          /* Normal input bar */
+          <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
+            <Pressable
+              className="w-10 h-10 items-center justify-center"
+              onPress={startRecording}
+            >
+              <Ionicons name="mic-outline" size={22} color="#6b7280" />
+            </Pressable>
+            <View className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 min-h-[40px] justify-center">
+              <TextInput
+                className="text-base text-gray-900"
+                placeholder="输入消息..."
+                placeholderTextColor="#9ca3af"
+                value={inputText}
+                onChangeText={handleChangeText}
+                multiline
+                maxLength={500}
+              />
+            </View>
+            <Pressable className="w-10 h-10 items-center justify-center">
+              <Ionicons name="camera-outline" size={22} color="#6b7280" />
+            </Pressable>
+            {inputText.trim() ? (
+              <Pressable
+                className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
+                onPress={handleSend}
+                disabled={sendMessageMutation.isPending}
+              >
+                <Ionicons name="arrow-up" size={18} color="#ffffff" />
+              </Pressable>
+            ) : null}
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

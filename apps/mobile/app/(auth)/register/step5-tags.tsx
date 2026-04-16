@@ -50,8 +50,7 @@ export default function RegisterStep5Tags() {
         step: 5,
         duration_ms: Date.now() - mountedAtRef.current,
       });
-      toast.success('注册完成，欢迎加入！');
-      router.replace('/(tabs)');
+      router.replace('/(auth)/register/complete');
     } catch (e: any) {
       toast.error(e?.message ?? '保存标签失败');
     }
@@ -60,7 +59,7 @@ export default function RegisterStep5Tags() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <ProgressBar step={5} total={5} />
+        <ProgressBar step={4} total={4} />
 
         <Text className="text-2xl font-bold text-gray-900 mb-1">选择你的标签</Text>
         <Text className="text-sm text-gray-400 mb-2">选择3-5个最能代表你的标签</Text>

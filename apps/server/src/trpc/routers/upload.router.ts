@@ -2,6 +2,8 @@ import { TRPCError } from '@trpc/server';
 import { uploadRequestSchema, confirmUploadSchema } from '@matrimonial/shared';
 import { protectedProcedure, router } from '../base';
 import { UploadService } from '../../modules/upload/upload.service';
+import { audit } from '../../adapters/audit.adapter';
+import { logger } from '../../lib/logger';
 
 export const uploadRouter = router({
   /** Request upload credentials */
@@ -30,7 +32,7 @@ export const uploadRouter = router({
       // Auto-create Photo record for photo category
       if (input.category === 'photo' || input.category === 'avatar') {
         const count = await ctx.prisma.photo.count({ where: { userId: ctx.user.id } });
-        await ctx.prisma.photo.create({
+        const photo = await ctx.prisma.photo.create({
           data: {
             userId: ctx.user.id,
             url: publicUrl,
@@ -39,6 +41,26 @@ export const uploadRouter = router({
             auditStatus: 'PENDING',
           },
         });
+
+        // Async audit — don't block the response
+        audit
+          .auditImage(publicUrl)
+          .then(async (result) => {
+            if (result.status === 'REJECTED') {
+              await ctx.prisma.photo.update({
+                where: { id: photo.id },
+                data: { auditStatus: 'REJECTED' },
+              });
+              logger.info('photo auto-rejected', { photoId: photo.id, reasons: result.reasons });
+            } else if (result.status === 'APPROVED') {
+              await ctx.prisma.photo.update({
+                where: { id: photo.id },
+                data: { auditStatus: 'APPROVED' },
+              });
+            }
+            // REVIEW status keeps PENDING for manual review
+          })
+          .catch((err) => logger.error('photo audit failed', { error: err?.message }));
       }
 
       return { publicUrl, objectKey: input.objectKey };

@@ -15,13 +15,14 @@ interface MenuItem {
   title: string;
   icon: IoniconName;
   iconColor: string;
-  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings';
+  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings' | '/profile/checkin' | '/profile/invite';
 }
 
 const MENU_ITEMS: MenuItem[] = [
   { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: '#3b82f6', route: '/profile/verification' },
   { title: '会员中心', icon: 'diamond-outline',          iconColor: '#f59e0b', route: '/profile/membership' },
   { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: '#6b7280', route: '/profile/privacy' },
+  { title: '邀请好友', icon: 'gift-outline',              iconColor: '#ec4899', route: '/profile/invite' },
   { title: '安全工具', icon: 'shield-outline',           iconColor: '#ef4444', route: '/profile/safety' },
   { title: '设置',     icon: 'settings-outline',         iconColor: '#64748b', route: '/profile/settings' },
 ];
@@ -40,6 +41,7 @@ export default function ProfileTab() {
   const matchesQuery = api.match.matches.useQuery();
   const visitorsQuery = api.user.visitors.useQuery({ limit: 100 });
   const logoutMut = api.auth.logout.useMutation();
+  const checkinQuery = api.checkin.history.useQuery(undefined, { staleTime: 60_000 });
 
   const user = (meQuery.data as any) ?? storeUser;
 
@@ -130,6 +132,33 @@ export default function ProfileTab() {
             <Text className="text-rose-500 font-medium text-sm">编辑资料</Text>
           </Pressable>
         </View>
+
+        {/* Daily check-in card */}
+        <Pressable
+          className="bg-white mt-2 mx-4 rounded-2xl p-4 flex-row items-center"
+          style={{ shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}
+          onPress={() => router.push('/profile/checkin' as any)}
+        >
+          <View className="w-11 h-11 rounded-xl bg-orange-50 items-center justify-center">
+            <Ionicons name="flame" size={24} color="#f97316" />
+          </View>
+          <View className="flex-1 ml-3">
+            <Text className="text-base font-bold text-gray-900">每日签到</Text>
+            <Text className="text-xs text-gray-500 mt-0.5">
+              {checkinQuery.data?.checkedInToday
+                ? `已签到 · 连续${checkinQuery.data.currentStreak}天`
+                : '今日未签到，点击领取奖励'}
+            </Text>
+          </View>
+          <View className="flex-row items-center" style={{ gap: 4 }}>
+            {!checkinQuery.data?.checkedInToday && (
+              <View className="bg-rose-500 rounded-full px-2.5 py-1">
+                <Text className="text-white text-xs font-bold">签到</Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+          </View>
+        </Pressable>
 
         {/* Stats row */}
         <View className="bg-white mt-2 flex-row py-4">

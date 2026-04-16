@@ -19,7 +19,7 @@ if (env.NODE_ENV === 'production' && !env.OSS_ACCESS_KEY_ID) {
 const CATEGORY_LIMITS = {
   avatar: { maxSize: 5 * 1024 * 1024, types: ['image/jpeg', 'image/png', 'image/webp'] },
   photo: { maxSize: 10 * 1024 * 1024, types: ['image/jpeg', 'image/png', 'image/webp', 'image/heic'] },
-  chat: { maxSize: 20 * 1024 * 1024, types: ['image/jpeg', 'image/png', 'image/webp', 'video/mp4'] },
+  chat: { maxSize: 20 * 1024 * 1024, types: ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'audio/m4a', 'audio/mp4', 'audio/mpeg', 'audio/aac'] },
   activity: { maxSize: 5 * 1024 * 1024, types: ['image/jpeg', 'image/png', 'image/webp'] },
   verify: { maxSize: 10 * 1024 * 1024, types: ['image/jpeg', 'image/png'] },
 } as const;

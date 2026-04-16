@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Dimensions, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
@@ -67,6 +67,120 @@ function toProfileCardUser(u: any): ProfileCardUserWithId {
   };
 }
 
+// ── Filter option constants ──
+const EDUCATION_OPTIONS = [
+  { label: '高中', value: 'HIGH_SCHOOL' },
+  { label: '大专', value: 'ASSOCIATE' },
+  { label: '本科', value: 'BACHELOR' },
+  { label: '硕士', value: 'MASTER' },
+  { label: '博士', value: 'PHD' },
+] as const;
+
+const INCOME_OPTIONS = [
+  { label: '5千以下', value: 'BELOW_5K' },
+  { label: '5千-1万', value: 'K5_10' },
+  { label: '1万-2万', value: 'K10_20' },
+  { label: '2万-5万', value: 'K20_50' },
+  { label: '5万以上', value: 'ABOVE_50K' },
+] as const;
+
+const ZODIAC_OPTIONS = [
+  '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座',
+  '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座',
+] as const;
+
+const MBTI_OPTIONS = [
+  'INTJ', 'INTP', 'ENTJ', 'ENTP',
+  'INFJ', 'INFP', 'ENFJ', 'ENFP',
+  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
+  'ISTP', 'ISFP', 'ESTP', 'ESFP',
+] as const;
+
+const VERIFICATION_OPTIONS = [
+  { label: 'L1 基础', value: 'L1' },
+  { label: 'L2 实名', value: 'L2' },
+  { label: 'L3 学历', value: 'L3' },
+  { label: 'L4 全认证', value: 'L4' },
+] as const;
+
+type EducationLevel = 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD';
+type IncomeRange = 'BELOW_5K' | 'K5_10' | 'K10_20' | 'K20_50' | 'ABOVE_50K';
+type VerificationLevel = 'L1' | 'L2' | 'L3' | 'L4';
+
+type Filters = {
+  heightMin?: number;
+  heightMax?: number;
+  educationMin?: EducationLevel;
+  incomeRange?: IncomeRange[];
+  zodiac?: string[];
+  mbti?: string[];
+  occupation?: string;
+  verificationLevel?: VerificationLevel[];
+  ageMin?: number;
+  ageMax?: number;
+  cities?: string[];
+};
+
+function isFiltersEmpty(f: Filters): boolean {
+  return (
+    !f.heightMin &&
+    !f.heightMax &&
+    !f.educationMin &&
+    !f.incomeRange?.length &&
+    !f.zodiac?.length &&
+    !f.mbti?.length &&
+    !f.occupation &&
+    !f.verificationLevel?.length &&
+    !f.ageMin &&
+    !f.ageMax &&
+    !f.cities?.length
+  );
+}
+
+/** Chip selector for multi-select options */
+function ChipGroup({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: readonly (string | { label: string; value: string })[];
+  selected: string[];
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {options.map((opt) => {
+        const value = typeof opt === 'string' ? opt : opt.value;
+        const label = typeof opt === 'string' ? opt : opt.label;
+        const isSelected = selected.includes(value);
+        return (
+          <Pressable
+            key={value}
+            onPress={() => onToggle(value)}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 16,
+              backgroundColor: isSelected ? '#f43f5e' : '#f3f4f6',
+              borderWidth: 1,
+              borderColor: isSelected ? '#f43f5e' : '#e5e7eb',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 13,
+                color: isSelected ? '#ffffff' : '#374151',
+              }}
+            >
+              {label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 /** Discover / Recommend page */
 export default function DiscoverTab() {
   const router = useRouter();
@@ -77,7 +191,74 @@ export default function DiscoverTab() {
   const [matchInfo, setMatchInfo] = useState<{ name: string; photo: string } | null>(null);
   const cardShownAtRef = useRef<number>(Date.now());
 
-  const recommendationsQuery = api.match.recommendations.useQuery();
+  // ── Membership ──
+  const { data: membershipData } = api.payment.membershipStatus.useQuery();
+  const membershipPlan = (membershipData as any)?.plan ?? 'FREE';
+
+  // ── Filter state ──
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<Filters>({});
+  const [draftFilters, setDraftFilters] = useState<Filters>({});
+  const filterHeight = useRef(new Animated.Value(0)).current;
+  const hasActiveFilters = !isFiltersEmpty(filters);
+
+  const toggleFilters = useCallback(() => {
+    if (membershipPlan === 'FREE') {
+      Alert.alert(
+        '会员专属功能',
+        '高级筛选（收入、星座、MBTI等）为会员专属，升级会员即可使用',
+        [
+          { text: '取消', style: 'cancel' },
+          { text: '升级会员', onPress: () => router.push('/profile/membership') },
+        ]
+      );
+      return;
+    }
+    const toValue = showFilters ? 0 : 1;
+    if (!showFilters) {
+      setDraftFilters({ ...filters });
+    }
+    setShowFilters(!showFilters);
+    Animated.timing(filterHeight, {
+      toValue,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [membershipPlan, showFilters, filters, filterHeight, router]);
+
+  const applyFilters = useCallback(() => {
+    setFilters({ ...draftFilters });
+    setLocalIndex(0);
+    setShowFilters(false);
+    Animated.timing(filterHeight, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [draftFilters, filterHeight]);
+
+  const resetFilters = useCallback(() => {
+    setDraftFilters({});
+  }, []);
+
+  const toggleArrayFilter = useCallback(
+    (key: 'incomeRange' | 'zodiac' | 'mbti' | 'verificationLevel', value: string) => {
+      setDraftFilters((prev) => {
+        const arr = (prev[key] as string[] | undefined) ?? [];
+        const next = arr.includes(value)
+          ? arr.filter((v) => v !== value)
+          : [...arr, value];
+        return { ...prev, [key]: next } as Filters;
+      });
+    },
+    [],
+  );
+
+  // ── Credits ──
+  const { data: credits } = api.credits.balance.useQuery();
+
+  const queryInput = hasActiveFilters ? { filters } : undefined;
+  const recommendationsQuery = api.match.recommendations.useQuery(queryInput);
   const dailyPicksQuery = api.match.dailyPicks.useQuery();
   const remainingSwipesQuery = (api.match as any).remainingSwipes?.useQuery?.() as
     | { data?: { used: number; total: number; remaining: number; quotaExhausted: boolean } }
@@ -196,11 +377,339 @@ export default function DiscoverTab() {
           <Pressable
             className="w-10 h-10 bg-white rounded-full items-center justify-center"
             style={shadowStyle({ y: 1, blur: 3, opacity: 0.06, elevation: 1 })}
-            onPress={() => router.push('/profile/settings')}
+            onPress={toggleFilters}
           >
-            <Ionicons name="options-outline" size={20} color="#4b5563" />
+            <Ionicons
+              name={showFilters ? 'close-outline' : 'options-outline'}
+              size={20}
+              color={hasActiveFilters ? '#f43f5e' : '#4b5563'}
+            />
+            {hasActiveFilters && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  right: 6,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: '#f43f5e',
+                }}
+              />
+            )}
           </Pressable>
         </View>
+
+        {/* Filter drawer */}
+        <Animated.View
+          style={{
+            maxHeight: filterHeight.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 600],
+            }),
+            opacity: filterHeight,
+            overflow: 'hidden',
+          }}
+        >
+          <ScrollView
+            style={{
+              backgroundColor: '#ffffff',
+              borderBottomWidth: 1,
+              borderBottomColor: '#e5e7eb',
+            }}
+            contentContainerStyle={{ padding: 16, gap: 16 }}
+          >
+            {/* Age range */}
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                年龄范围
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      ageMin: Math.max(18, (p.ageMin ?? 18) - 1),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
+                  {draftFilters.ageMin ?? 18}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      ageMin: Math.min((p.ageMax ?? 60) - 1, (p.ageMin ?? 18) + 1),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      ageMax: Math.max((p.ageMin ?? 18) + 1, (p.ageMax ?? 60) - 1),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
+                  {draftFilters.ageMax ?? 60}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      ageMax: Math.min(99, (p.ageMax ?? 60) + 1),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Height range */}
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                身高范围 (cm)
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      heightMin: Math.max(140, (p.heightMin ?? 150) - 5),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
+                  {draftFilters.heightMin ?? 150}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      heightMin: Math.min((p.heightMax ?? 200) - 5, (p.heightMin ?? 150) + 5),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      heightMax: Math.max((p.heightMin ?? 150) + 5, (p.heightMax ?? 200) - 5),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                </Pressable>
+                <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
+                  {draftFilters.heightMax ?? 200}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    setDraftFilters((p) => ({
+                      ...p,
+                      heightMax: Math.min(220, (p.heightMax ?? 200) + 5),
+                    }))
+                  }
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#f3f4f6',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Education */}
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                最低学历
+              </Text>
+              <ChipGroup
+                options={EDUCATION_OPTIONS}
+                selected={draftFilters.educationMin ? [draftFilters.educationMin] : []}
+                onToggle={(v) =>
+                  setDraftFilters((p) => ({
+                    ...p,
+                    educationMin: p.educationMin === v ? undefined : (v as EducationLevel),
+                  }))
+                }
+              />
+            </View>
+
+            {/* Verification level */}
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                认证等级
+              </Text>
+              <ChipGroup
+                options={VERIFICATION_OPTIONS}
+                selected={draftFilters.verificationLevel ?? []}
+                onToggle={(v) => toggleArrayFilter('verificationLevel', v)}
+              />
+            </View>
+
+            {/* Advanced filters section */}
+            <View style={{ borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingTop: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>
+                  高级筛选
+                </Text>
+                <View
+                  style={{
+                    backgroundColor: '#fef3c7',
+                    paddingHorizontal: 6,
+                    paddingVertical: 2,
+                    borderRadius: 4,
+                  }}
+                >
+                  <Text style={{ fontSize: 10, color: '#d97706', fontWeight: '600' }}>会员</Text>
+                </View>
+              </View>
+
+              {/* Income */}
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                  收入范围
+                </Text>
+                <ChipGroup
+                  options={INCOME_OPTIONS}
+                  selected={draftFilters.incomeRange ?? []}
+                  onToggle={(v) => toggleArrayFilter('incomeRange', v)}
+                />
+              </View>
+
+              {/* Zodiac */}
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                  星座
+                </Text>
+                <ChipGroup
+                  options={ZODIAC_OPTIONS}
+                  selected={draftFilters.zodiac ?? []}
+                  onToggle={(v) => toggleArrayFilter('zodiac', v)}
+                />
+              </View>
+
+              {/* MBTI */}
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                  MBTI
+                </Text>
+                <ChipGroup
+                  options={MBTI_OPTIONS}
+                  selected={draftFilters.mbti ?? []}
+                  onToggle={(v) => toggleArrayFilter('mbti', v)}
+                />
+              </View>
+            </View>
+
+            {/* Action buttons */}
+            <View style={{ flexDirection: 'row', gap: 12, paddingTop: 4 }}>
+              <Pressable
+                onPress={resetFilters}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: '#f3f4f6',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 15, fontWeight: '600', color: '#374151' }}>重置</Text>
+              </Pressable>
+              <Pressable
+                onPress={applyFilters}
+                style={{
+                  flex: 2,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: '#f43f5e',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 15, fontWeight: '600', color: '#ffffff' }}>应用</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </Animated.View>
 
         {/* Swipe quota progress bar */}
         {quotaData && (
@@ -394,22 +903,36 @@ export default function DiscoverTab() {
               <Ionicons name="heart" size={32} color="#ffffff" />
             </Pressable>
 
-            <Pressable
-              onPress={handleSuperLike}
-              style={({ pressed }) => ({
-                width: 56,
-                height: 56,
-                borderRadius: 28,
-                backgroundColor: '#fef3c7',
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...shadowStyle({ color: '#f59e0b', y: 4, blur: 8, opacity: 0.15, elevation: 3 }),
-                opacity: pressed ? 0.85 : 1,
-                transform: [{ scale: pressed ? 0.96 : 1 }],
-              })}
-            >
-              <Ionicons name="star" size={26} color="#f59e0b" />
-            </Pressable>
+            <View style={{ position: 'relative' }}>
+              <Pressable
+                onPress={handleSuperLike}
+                disabled={credits?.superLikes === 0}
+                style={({ pressed }) => ({
+                  width: 56,
+                  height: 56,
+                  borderRadius: 28,
+                  backgroundColor: '#fef3c7',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  ...shadowStyle({ color: '#f59e0b', y: 4, blur: 8, opacity: 0.15, elevation: 3 }),
+                  opacity: credits?.superLikes === 0 ? 0.4 : pressed ? 0.85 : 1,
+                  transform: [{ scale: pressed ? 0.96 : 1 }],
+                })}
+              >
+                <Ionicons name="star" size={26} color="#f59e0b" />
+              </Pressable>
+              {credits?.superLikes !== undefined && (
+                <View style={{
+                  position: 'absolute', top: -4, right: -4,
+                  backgroundColor: '#f43f5e', borderRadius: 8,
+                  minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+                    {credits.superLikes}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
 

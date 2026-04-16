@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { RecommendAdapter } from '../../adapters/recommend.adapter';
 import { CreditsService } from '../../modules/credits/credits.service';
+import { NotificationService } from '../../modules/notification/notification.module';
+import { logger } from '../../lib/logger';
 
 // ── Daily picks in-memory cache ──
 // Key: `${userId}-${YYYY-MM-DD}`, Value: { users, expireAt }
@@ -36,7 +38,49 @@ export const matchRouter = router({
    * Returns { users, meta, quotaExhausted }.
    * `meta` maps userId → { score, reason } when data comes from Python service.
    */
-  recommendations: protectedProcedure.query(async ({ ctx }) => {
+  recommendations: protectedProcedure
+    .input(
+      z
+        .object({
+          filters: z
+            .object({
+              heightMin: z.number().int().optional(),
+              heightMax: z.number().int().optional(),
+              educationMin: z
+                .enum([
+                  'HIGH_SCHOOL',
+                  'ASSOCIATE',
+                  'BACHELOR',
+                  'MASTER',
+                  'PHD',
+                ])
+                .optional(),
+              incomeRange: z
+                .array(
+                  z.enum([
+                    'BELOW_5K',
+                    'K5_10',
+                    'K10_20',
+                    'K20_50',
+                    'ABOVE_50K',
+                  ]),
+                )
+                .optional(),
+              zodiac: z.array(z.string()).optional(),
+              mbti: z.array(z.string()).optional(),
+              occupation: z.string().optional(),
+              verificationLevel: z
+                .array(z.enum(['L1', 'L2', 'L3', 'L4']))
+                .optional(),
+              ageMin: z.number().int().optional(),
+              ageMax: z.number().int().optional(),
+              cities: z.array(z.string()).optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ input, ctx }) => {
     const userId = ctx.user.id;
 
     // ── Task 4: Check quota for free users ──
@@ -111,13 +155,38 @@ export const matchRouter = router({
     });
 
     const existingLikes = await ctx.prisma.like.findMany({
-      where: { fromUserId: userId },
+      where: { fromUserId: userId, type: { not: 'SKIP' } },
       select: { toUserId: true },
     });
     const excludeIds = [userId, ...existingLikes.map((l) => l.toUserId)];
 
+    // ── Blocked contacts filtering ──
+    const currentUserPrivacy = await ctx.prisma.user.findUnique({
+      where: { id: userId },
+      select: { blockedPhoneHashes: true },
+    });
+    const blockedHashes = currentUserPrivacy?.blockedPhoneHashes ?? [];
+
+    // If user has blocked contacts, find users whose phone hash is in the blocked list
+    let blockedUserIds: string[] = [];
+    if (blockedHashes.length > 0) {
+      // We need to hash-match against user phones; blockedPhoneHashes stores SHA256 of contact phones
+      // Find users whose phone (hashed) matches any blocked hash
+      // Since we store raw phones in User.phone, we do a raw query to compare
+      // For now, we store blocked phone hashes client-side and match against them
+      // The simplest approach: find all users, but that's expensive.
+      // Instead, we'll use Prisma raw query to do SHA256 comparison in Postgres.
+      const blocked = await ctx.prisma.$queryRawUnsafe<{ id: string }[]>(
+        `SELECT id FROM "User" WHERE encode(digest(phone, 'sha256'), 'hex') = ANY($1)`,
+        blockedHashes,
+      );
+      blockedUserIds = blocked.map((u) => u.id);
+    }
+
+    const allExcludeIds = [...excludeIds, ...blockedUserIds];
+
     const where: Record<string, unknown> = {
-      id: { notIn: excludeIds },
+      id: { notIn: allExcludeIds },
     };
 
     if (preferences) {
@@ -142,6 +211,78 @@ export const matchRouter = router({
         const minIdx = eduOrder.indexOf(preferences.educationMin);
         where.education = { in: eduOrder.slice(minIdx) };
       }
+    }
+
+    // ── Advanced filters (override preferences when provided) ──
+    const filters = input?.filters;
+    if (filters) {
+      // Check membership for advanced filters (income, zodiac, mbti, occupation)
+      const hasAdvancedFilters =
+        filters.incomeRange || filters.zodiac || filters.mbti || filters.occupation;
+      if (hasAdvancedFilters) {
+        const userForMembership = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { membership: true },
+        });
+        if (
+          !userForMembership?.membership ||
+          userForMembership.membership === 'FREE'
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: '高级筛选需要会员权限',
+          });
+        }
+      }
+
+      if (filters.heightMin || filters.heightMax) {
+        where.height = {};
+        if (filters.heightMin)
+          (where.height as Record<string, unknown>).gte = filters.heightMin;
+        if (filters.heightMax)
+          (where.height as Record<string, unknown>).lte = filters.heightMax;
+      }
+      if (filters.educationMin) {
+        const eduOrder = [
+          'HIGH_SCHOOL',
+          'ASSOCIATE',
+          'BACHELOR',
+          'MASTER',
+          'PHD',
+        ];
+        const minIdx = eduOrder.indexOf(filters.educationMin);
+        where.education = { in: eduOrder.slice(minIdx) };
+      }
+      if (filters.incomeRange?.length)
+        where.incomeRange = { in: filters.incomeRange };
+      if (filters.zodiac?.length) where.zodiac = { in: filters.zodiac };
+      if (filters.mbti?.length) where.mbti = { in: filters.mbti };
+      if (filters.occupation)
+        where.occupation = { contains: filters.occupation, mode: 'insensitive' };
+      if (filters.verificationLevel?.length)
+        where.verificationLevel = { in: filters.verificationLevel };
+      if (filters.ageMin || filters.ageMax) {
+        const now = new Date();
+        if (filters.ageMax)
+          where.birthday = {
+            ...(where.birthday as Record<string, unknown>),
+            gte: new Date(
+              now.getFullYear() - filters.ageMax,
+              now.getMonth(),
+              now.getDate(),
+            ),
+          };
+        if (filters.ageMin)
+          where.birthday = {
+            ...(where.birthday as Record<string, unknown>),
+            lte: new Date(
+              now.getFullYear() - filters.ageMin,
+              now.getMonth(),
+              now.getDate(),
+            ),
+          };
+      }
+      if (filters.cities?.length) where.city = { in: filters.cities };
     }
 
     const currentUser = await ctx.prisma.user.findUnique({
@@ -250,16 +391,57 @@ export const matchRouter = router({
           data: { isMatched: true },
         });
 
-        // Create a conversation for the matched pair
-        const conversation = await ctx.prisma.conversation.create({
-          data: {
-            lastMessageAt: new Date(),
+        // Check for an existing conversation between these two users
+        const existingConversation = await ctx.prisma.conversation.findFirst({
+          where: {
             participants: {
-              create: [{ userId }, { userId: input.toUserId }],
+              every: {
+                userId: { in: [userId, input.toUserId] },
+              },
             },
           },
+          include: { participants: true },
         });
+        const twoPartyConvo = existingConversation?.participants.length === 2;
+
+        let conversation: { id: string };
+        if (twoPartyConvo && existingConversation) {
+          conversation = existingConversation;
+        } else {
+          // Create a conversation for the matched pair
+          conversation = await ctx.prisma.conversation.create({
+            data: {
+              lastMessageAt: new Date(),
+              participants: {
+                create: [{ userId }, { userId: input.toUserId }],
+              },
+            },
+          });
+        }
         conversationId = conversation.id;
+
+        // Notify the other user about the match
+        const fromUser = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { nickname: true },
+        });
+        NotificationService.notifyMatch(
+          input.toUserId,
+          fromUser?.nickname ?? '某人',
+          conversation.id,
+        ).catch((err) => logger.error('push notification failed', { err }));
+      }
+
+      // Notify about the like if no match yet
+      if (!isMatched) {
+        const fromUser = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { nickname: true },
+        });
+        NotificationService.notifyNewLike(
+          input.toUserId,
+          fromUser?.nickname ?? '某人',
+        ).catch((err) => logger.error('push notification failed', { err }));
       }
 
       return { like, isMatched, conversationId };
@@ -271,8 +453,8 @@ export const matchRouter = router({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
 
-      // Create a NORMAL like with isMatched=false as a skip marker
-      // The recommendations query excludes any user with an existing Like
+      // Create a SKIP like record — skips are excluded from the exclusion query
+      // so skipped users can reappear in future recommendations
       return ctx.prisma.like.upsert({
         where: {
           fromUserId_toUserId: {
@@ -283,7 +465,7 @@ export const matchRouter = router({
         create: {
           fromUserId: userId,
           toUserId: input.toUserId,
-          type: 'NORMAL',
+          type: 'SKIP',
           isMatched: false,
         },
         update: {}, // No-op if already exists

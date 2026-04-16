@@ -3,6 +3,8 @@ import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { api } from '@matrimonial/api-client';
+import { toast } from '@matrimonial/ui';
 import { useAppStore } from '../../stores/useAppStore';
 
 const DELETION_ITEMS = [
@@ -16,6 +18,7 @@ export default function DeleteAccountPage() {
   const router = useRouter();
   const clearAuth = useAppStore((s) => s.clearAuth);
   const user = useAppStore((s) => s.user);
+  const deleteMut = api.user.requestDeletion.useMutation();
 
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -56,16 +59,21 @@ export default function DeleteAccountPage() {
         {
           text: '确认注销',
           style: 'destructive',
-          onPress: () => {
-            clearAuth();
-            router.replace('/(auth)/login');
+          onPress: async () => {
+            try {
+              await deleteMut.mutateAsync();
+              clearAuth();
+              router.replace('/(auth)/login');
+            } catch (err: any) {
+              toast.error(err?.message ?? '注销申请失败');
+            }
           },
         },
       ]
     );
   };
 
-  const canSubmit = phone.length === 11 && code.length >= 4;
+  const canSubmit = phone.length === 11 && code.length >= 4 && !deleteMut.isPending;
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -171,7 +179,7 @@ export default function DeleteAccountPage() {
             <Text
               className={`font-bold text-base ${canSubmit ? 'text-white' : 'text-gray-400'}`}
             >
-              确认注销
+              {deleteMut.isPending ? '提交中...' : '确认注销'}
             </Text>
           </Pressable>
         </View>

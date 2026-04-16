@@ -70,7 +70,7 @@ export default function RegisterStep2BasicInfo() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-          <ProgressBar step={2} total={5} />
+          <ProgressBar step={1} total={4} />
 
           <Text className="text-2xl font-bold text-gray-900 mb-2">基本资料</Text>
           <Text className="text-sm text-gray-400 mb-8">让我们更好地了解你</Text>

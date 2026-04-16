@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
@@ -27,6 +27,20 @@ const EDUCATION_ENUM_TO_LABEL: Record<string, string> = {
 
 const EDUCATION_OPTIONS = ['高中', '大专', '本科', '硕士', '博士'];
 const INCOME_OPTIONS = ['5K以下', '5-10K', '10-20K', '20-50K', '50K以上'];
+const INCOME_LABEL_TO_ENUM: Record<string, 'BELOW_5K' | 'K5_10' | 'K10_20' | 'K20_50' | 'ABOVE_50K'> = {
+  '5K以下': 'BELOW_5K',
+  '5-10K': 'K5_10',
+  '10-20K': 'K10_20',
+  '20-50K': 'K20_50',
+  '50K以上': 'ABOVE_50K',
+};
+const INCOME_ENUM_TO_LABEL: Record<string, string> = {
+  BELOW_5K: '5K以下',
+  K5_10: '5-10K',
+  K10_20: '10-20K',
+  K20_50: '20-50K',
+  ABOVE_50K: '50K以上',
+};
 const ZODIAC_OPTIONS = [
   '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座',
   '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座',
@@ -45,7 +59,12 @@ export default function ProfileEditScreen() {
   const meQuery = api.user.me.useQuery();
   const utils = api.useUtils();
   const updateMut = api.user.updateProfile.useMutation();
+  const updatePromptsMut = api.user.updatePrompts.useMutation();
   const user: any = meQuery.data ?? storeUser;
+
+  // Prompt editing state
+  const [editingPromptIdx, setEditingPromptIdx] = useState<number | null>(null);
+  const [promptDraft, setPromptDraft] = useState('');
 
   const [avatarUrl, setAvatarUrl] = useState<string>(
     (user as any)?.photos?.[0]?.url ??
@@ -72,7 +91,9 @@ export default function ProfileEditScreen() {
     user?.education ? (EDUCATION_ENUM_TO_LABEL[user.education] ?? '本科') : '本科',
   );
   const [occupation, setOccupation] = useState<string>((user?.occupation as string | undefined) ?? '');
-  const [income, setIncome] = useState<string>('10-20K');
+  const [income, setIncome] = useState<string>(
+    user?.incomeRange ? (INCOME_ENUM_TO_LABEL[user.incomeRange] ?? '10-20K') : '10-20K',
+  );
   const [hometown, setHometown] = useState<string>((user?.hometown as string | undefined) ?? '');
   const [zodiac, setZodiac] = useState<string>((user?.zodiac as string | undefined) ?? '');
   const [mbti, setMbti] = useState<string>((user?.mbti as string | undefined) ?? '');
@@ -80,6 +101,13 @@ export default function ProfileEditScreen() {
     Array.isArray(user?.tags)
       ? user.tags.map((t: any) => (typeof t === 'string' ? t : t?.tag)).filter(Boolean)
       : [],
+  );
+
+  // Prompts state: array of { questionId, answerText }
+  const [prompts, setPrompts] = useState<{ questionId: string; answerText: string }[]>(
+    Array.isArray(user?.prompts)
+      ? user.prompts.map((p: any) => ({ questionId: p.questionId, answerText: p.answerText ?? '' }))
+      : PROMPT_QUESTIONS.slice(0, 3).map((q, i) => ({ questionId: q.id, answerText: '' })),
   );
 
   // Hydrate fields once user data arrives
@@ -93,6 +121,9 @@ export default function ProfileEditScreen() {
       setEducation(EDUCATION_ENUM_TO_LABEL[u.education] ?? '本科');
     }
     setOccupation((prev) => prev || u.occupation || '');
+    if (u.incomeRange) {
+      setIncome(INCOME_ENUM_TO_LABEL[u.incomeRange] ?? '10-20K');
+    }
     setHometown((prev) => prev || u.hometown || '');
     setZodiac((prev) => prev || u.zodiac || '');
     setMbti((prev) => prev || u.mbti || '');
@@ -100,6 +131,9 @@ export default function ProfileEditScreen() {
       setSelectedTags(
         u.tags.map((t: any) => (typeof t === 'string' ? t : t?.tag)).filter(Boolean),
       );
+    }
+    if (Array.isArray(u.prompts) && u.prompts.length > 0) {
+      setPrompts(u.prompts.map((p: any) => ({ questionId: p.questionId, answerText: p.answerText ?? '' })));
     }
     if (u.photos?.[0]?.url) setAvatarUrl(u.photos[0].url);
   }, [meQuery.data]);
@@ -118,6 +152,9 @@ export default function ProfileEditScreen() {
     if (mbti) payload.mbti = mbti;
     if (education && EDUCATION_LABEL_TO_ENUM[education]) {
       payload.education = EDUCATION_LABEL_TO_ENUM[education];
+    }
+    if (income && INCOME_LABEL_TO_ENUM[income]) {
+      payload.incomeRange = INCOME_LABEL_TO_ENUM[income];
     }
     if (selectedTags.length >= 3 && selectedTags.length <= 5) {
       payload.tags = selectedTags;
@@ -291,16 +328,89 @@ export default function ProfileEditScreen() {
         {/* Prompt cards */}
         <View className="bg-white mt-2 p-4">
           <Text className="text-base font-semibold text-gray-900 mb-3">自我介绍</Text>
-          {PROMPT_QUESTIONS.slice(0, 3).map((q) => (
-            <View key={q.id} className="mb-3">
-              <PromptCard
-                question={q.text}
-                answer="点击编辑你的回答..."
-                onPress={() => Alert.alert(q.text, '编辑功能开发中')}
-              />
-            </View>
-          ))}
+          {prompts.slice(0, 3).map((p, idx) => {
+            const question = PROMPT_QUESTIONS.find((q) => q.id === p.questionId);
+            const questionText = question?.text ?? p.questionId;
+            return (
+              <View key={p.questionId} className="mb-3">
+                <PromptCard
+                  question={questionText}
+                  answer={p.answerText || '点击编辑你的回答...'}
+                  onPress={() => {
+                    setEditingPromptIdx(idx);
+                    setPromptDraft(p.answerText);
+                  }}
+                />
+              </View>
+            );
+          })}
         </View>
+
+        {/* Prompt edit modal */}
+        <Modal
+          visible={editingPromptIdx !== null}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setEditingPromptIdx(null)}
+        >
+          <View className="flex-1 justify-end bg-black/40">
+            <View className="bg-white rounded-t-2xl p-6">
+              {editingPromptIdx !== null && (
+                <>
+                  <Text className="text-sm font-semibold text-gray-700 mb-3">
+                    {PROMPT_QUESTIONS.find((q) => q.id === prompts[editingPromptIdx]?.questionId)?.text ?? ''}
+                  </Text>
+                  <TextInput
+                    className="border border-gray-200 rounded-xl p-3 text-sm text-gray-800 min-h-[80px]"
+                    value={promptDraft}
+                    onChangeText={setPromptDraft}
+                    placeholder="写下你的回答..."
+                    multiline
+                    maxLength={500}
+                    textAlignVertical="top"
+                  />
+                  <View className="flex-row mt-4" style={{ gap: 12 }}>
+                    <Pressable
+                      className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
+                      onPress={() => setEditingPromptIdx(null)}
+                    >
+                      <Text className="text-sm text-gray-600">取消</Text>
+                    </Pressable>
+                    <Pressable
+                      className="flex-1 py-3 rounded-xl bg-rose-500 items-center"
+                      disabled={updatePromptsMut.isPending}
+                      onPress={async () => {
+                        const updated = prompts.map((p, i) =>
+                          i === editingPromptIdx ? { ...p, answerText: promptDraft } : p,
+                        );
+                        try {
+                          await updatePromptsMut.mutateAsync(
+                            updated.map((p, i) => ({
+                              questionId: p.questionId,
+                              answerText: p.answerText,
+                              order: i,
+                            })),
+                          );
+                          setPrompts(updated);
+                          toast.success('回答已保存');
+                        } catch (err: any) {
+                          toast.error(err?.message ?? '保存失败');
+                        }
+                        setEditingPromptIdx(null);
+                      }}
+                    >
+                      {updatePromptsMut.isPending ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text className="text-sm text-white font-medium">保存</Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
 
         {/* Tags */}
         <View className="bg-white mt-2 p-4">

@@ -577,6 +577,106 @@ export const adminRouter = router({
         }));
     }),
 
+  /** Gender ratio statistics */
+  genderStats: adminProcedure.query(async ({ ctx }) => {
+    const [male, female] = await Promise.all([
+      ctx.prisma.user.count({ where: { gender: 'MALE' } }),
+      ctx.prisma.user.count({ where: { gender: 'FEMALE' } }),
+    ]);
+    const total = male + female;
+    return {
+      male,
+      female,
+      total,
+      malePercent: total > 0 ? ((male / total) * 100).toFixed(1) : '0',
+      femalePercent: total > 0 ? ((female / total) * 100).toFixed(1) : '0',
+      ratio: female > 0 ? (male / female).toFixed(2) : 'N/A',
+    };
+  }),
+
+  /** Revenue analytics */
+  revenueStats: adminProcedure.query(async ({ ctx }) => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [totalRevenue, monthRevenue, paidOrders, paidUsers, totalUsers, membershipBreakdown] = await Promise.all([
+      ctx.prisma.paymentOrder.aggregate({
+        where: { status: 'PAID' },
+        _sum: { amount: true },
+      }),
+      ctx.prisma.paymentOrder.aggregate({
+        where: { status: 'PAID', paidAt: { gte: thirtyDaysAgo } },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      ctx.prisma.paymentOrder.count({ where: { status: 'PAID' } }),
+      ctx.prisma.paymentOrder.groupBy({
+        by: ['userId'],
+        where: { status: 'PAID' },
+      }),
+      ctx.prisma.user.count(),
+      ctx.prisma.user.groupBy({
+        by: ['membership'],
+        _count: true,
+      }),
+    ]);
+
+    const uniquePayers = paidUsers.length;
+    const arpu = totalUsers > 0 ? Number(totalRevenue._sum.amount ?? 0) / totalUsers : 0;
+    const arppu = uniquePayers > 0 ? Number(totalRevenue._sum.amount ?? 0) / uniquePayers : 0;
+
+    return {
+      totalRevenue: Number(totalRevenue._sum.amount ?? 0),
+      monthRevenue: Number(monthRevenue._sum.amount ?? 0),
+      monthOrders: monthRevenue._count ?? 0,
+      totalPaidOrders: paidOrders,
+      uniquePayers,
+      arpu: arpu.toFixed(2),
+      arppu: arppu.toFixed(2),
+      payRate: totalUsers > 0 ? ((uniquePayers / totalUsers) * 100).toFixed(1) : '0',
+      membershipBreakdown: membershipBreakdown.map(m => ({
+        plan: m.membership ?? 'FREE',
+        count: m._count,
+      })),
+    };
+  }),
+
+  /** Message reply rate statistics */
+  messageStats: adminProcedure.query(async ({ ctx }) => {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const [totalMessages, conversations, activeConversations] = await Promise.all([
+      ctx.prisma.message.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+      ctx.prisma.conversation.count(),
+      ctx.prisma.message.groupBy({
+        by: ['conversationId'],
+        where: { createdAt: { gte: sevenDaysAgo } },
+      }),
+    ]);
+
+    const repliedConversations = await ctx.prisma.$queryRaw`
+      SELECT COUNT(*)::int as count
+      FROM (
+        SELECT c.id
+        FROM "Conversation" c
+        JOIN "Message" m ON m."conversationId" = c.id
+        WHERE m."createdAt" >= ${sevenDaysAgo}
+        GROUP BY c.id
+        HAVING COUNT(DISTINCT m."senderId") > 1
+      ) sub
+    `.then((rows: any) => rows?.[0]?.count ?? 0).catch(() => 0);
+
+    return {
+      totalMessages7d: totalMessages,
+      totalConversations: conversations,
+      activeConversations7d: activeConversations.length,
+      repliedConversations7d: repliedConversations,
+      replyRate: activeConversations.length > 0
+        ? ((repliedConversations / activeConversations.length) * 100).toFixed(1)
+        : '0',
+    };
+  }),
+
   /** Dashboard statistics */
   stats: adminProcedure.query(async ({ ctx }) => {
     const now = new Date();

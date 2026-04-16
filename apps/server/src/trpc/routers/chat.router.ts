@@ -2,6 +2,9 @@ import { sendMessageSchema } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
+import { audit } from '../../adapters/audit.adapter';
+import { NotificationService } from '../../modules/notification/notification.module';
+import { logger } from '../../lib/logger';
 
 export const chatRouter = router({
   /** List all conversations for the current user with last message and unread count */
@@ -127,6 +130,41 @@ export const chatRouter = router({
         });
       }
 
+      // Content audit for text messages
+      if (input.type === 'TEXT' && input.content) {
+        const previousMessageCount = await ctx.prisma.message.count({
+          where: { conversationId: input.conversationId, senderId: userId },
+        });
+
+        const isFirstMessage = previousMessageCount === 0;
+        const auditResult = await audit.auditText(
+          input.content,
+          isFirstMessage ? 'FIRST_MESSAGE' : 'MESSAGE',
+        );
+
+        if (auditResult.status === 'REJECTED') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: isFirstMessage
+              ? '开场白质量不佳，试试更真诚的内容吧'
+              : '消息包含违规内容，请修改后重试',
+          });
+        }
+
+        if (auditResult.status === 'REVIEW') {
+          // Create audit item for manual review but allow the message
+          await ctx.prisma.textAuditItem
+            .create({
+              data: {
+                userId,
+                text: input.content,
+                context: 'MESSAGE',
+              },
+            })
+            .catch(() => {}); // Don't fail if audit item creation fails
+        }
+      }
+
       const message = await ctx.prisma.message.create({
         data: {
           conversationId: input.conversationId,
@@ -146,6 +184,23 @@ export const chatRouter = router({
         where: { id: input.conversationId },
         data: { lastMessageAt: new Date() },
       });
+
+      // Notify recipient if offline
+      const otherParticipant = await ctx.prisma.conversationParticipant.findFirst({
+        where: { conversationId: input.conversationId, userId: { not: userId } },
+        select: { userId: true },
+      });
+      if (otherParticipant) {
+        const sender = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { nickname: true },
+        });
+        NotificationService.notifyNewMessage(
+          otherParticipant.userId,
+          sender?.nickname ?? '某人',
+          input.content ?? '[媒体消息]',
+        ).catch((err) => logger.error('push notification failed', { err }));
+      }
 
       return message;
     }),

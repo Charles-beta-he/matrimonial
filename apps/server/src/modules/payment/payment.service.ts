@@ -126,10 +126,113 @@ export const PaymentService = {
 
     if (order.productType === 'BOOST') {
       // productId like BOOST_30MIN — extract minutes
-      const minutes = 30;  // default
+      const minuteMatch = order.productId?.match(/BOOST_(\d+)MIN/);
+      const minutes = minuteMatch ? parseInt(minuteMatch[1]) : 30;
       await CreditsService.grant(order.userId, 'BOOST', minutes, 'payment_order', orderId);
     }
 
+    return updated;
+  },
+
+  async processRefund(orderId: string, userId: string) {
+    const order = await prisma.paymentOrder.findUnique({ where: { id: orderId } });
+    if (!order) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: '订单不存在' });
+    }
+    if (order.userId !== userId) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: '订单不存在' });
+    }
+    if (order.status !== 'PAID') {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '订单状态不支持退款' });
+    }
+
+    // Check for refunds in last 30 days (max 1 refund per month)
+    const recentRefund = await prisma.paymentOrder.findFirst({
+      where: {
+        userId: order.userId,
+        status: 'REFUNDED',
+        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+    });
+    if (recentRefund) {
+      throw new TRPCError({
+        code: 'TOO_MANY_REQUESTS',
+        message: '每30天只能申请一次退款',
+      });
+    }
+
+    // 7天无理由退款: only refund within 7 days of paidAt
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    if (!order.paidAt || Date.now() - order.paidAt.getTime() > sevenDaysMs) {
+      throw new TRPCError({ code: 'PRECONDITION_FAILED', message: '已超过7天退款期限' });
+    }
+
+    // TODO: Integrate Alipay/WeChat refund API to actually refund the payment
+    // For now, only update internal state.
+
+    // Revoke product in a transaction
+    const updated = await prisma.$transaction(async (tx) => {
+      const refundedOrder = await tx.paymentOrder.update({
+        where: { id: orderId },
+        data: { status: 'REFUNDED' },
+      });
+
+      if (order.productType === 'MEMBERSHIP') {
+        await tx.user.update({
+          where: { id: userId },
+          data: { membership: 'FREE', membershipExpiry: null },
+        });
+        logger.info('membership revoked on refund', { userId, orderId });
+      }
+
+      // Revoke consumable credits — only revoke unspent portion
+      if (order.productType === 'SUPER_LIKE') {
+        const purchasedAmount = order.productId?.includes('_20') ? 20 : 5;
+        const creditRecord = await prisma.userCredits.findUnique({
+          where: { userId: order.userId },
+          select: { superLikes: true },
+        });
+        const currentBalance = creditRecord?.superLikes ?? 0;
+        const toRevoke = Math.min(currentBalance, purchasedAmount);
+        if (toRevoke > 0) {
+          await prisma.userCredits.update({
+            where: { userId: order.userId },
+            data: { superLikes: { decrement: toRevoke } },
+          });
+        }
+      }
+
+      if (order.productType === 'LOVE_LETTER') {
+        try {
+          await CreditsService.consume(userId, 'LOVE_LETTER', 1, 'refund');
+        } catch {
+          // Credits already used — nothing to revoke
+        }
+      }
+
+      if (order.productType === 'VIDEO_TICKET') {
+        try {
+          await CreditsService.consume(userId, 'VIDEO_TICKET', 1, 'refund');
+        } catch {
+          // Credits already used — nothing to revoke
+        }
+      }
+
+      if (order.productType === 'BOOST') {
+        // Boost is time-based; clear remaining boost time
+        await tx.userCredits.update({
+          where: { userId },
+          data: { boostUntil: null },
+        }).catch(() => {
+          // No credits record — nothing to revoke
+        });
+        logger.info('boost revoked on refund', { userId, orderId });
+      }
+
+      return refundedOrder;
+    });
+
+    logger.info('refund processed', { userId, orderId, productType: order.productType });
     return updated;
   },
 };

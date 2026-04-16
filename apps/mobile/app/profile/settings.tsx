@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -24,6 +24,9 @@ export default function SettingsPage() {
   const clearAuth = useAppStore((s) => s.clearAuth);
   const logoutMut = api.auth.logout.useMutation();
 
+  const { data: notifPrefs } = api.user.getNotifPrefs.useQuery();
+  const updateNotifMut = api.user.updateNotifPrefs.useMutation();
+
   const [notifications, setNotifications] = useState<Record<string, boolean>>({
     newMessage: true,
     matchSuccess: true,
@@ -31,8 +34,21 @@ export default function SettingsPage() {
     marketing: false,
   });
 
+  useEffect(() => {
+    if (notifPrefs) {
+      setNotifications({
+        newMessage: notifPrefs.newMessage,
+        matchSuccess: notifPrefs.matchSuccess,
+        activityReminder: notifPrefs.activityReminder,
+        marketing: notifPrefs.marketing,
+      });
+    }
+  }, [notifPrefs]);
+
   const toggleNotification = (key: string) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+    const newValue = !notifications[key];
+    setNotifications((prev) => ({ ...prev, [key]: newValue }));
+    updateNotifMut.mutate({ [key]: newValue });
   };
 
   const handleClearCache = () => {

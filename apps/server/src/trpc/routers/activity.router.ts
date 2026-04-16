@@ -145,4 +145,210 @@ export const activityRouter = router({
       orderBy: { createdAt: 'desc' },
     });
   }),
+
+  /** Vote for another participant after activity */
+  vote: protectedProcedure
+    .input(
+      z.object({
+        activityId: z.string(),
+        votedId: z.string(),
+        rating: z.number().int().min(1).max(5),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+
+      // Verify activity is COMPLETED
+      const activity = await ctx.prisma.activity.findUnique({
+        where: { id: input.activityId },
+      });
+      if (!activity || activity.status !== 'COMPLETED') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: '活动尚未结束，无法投票',
+        });
+      }
+
+      // Verify both users signed up for this activity
+      const [mySignup, theirSignup] = await Promise.all([
+        ctx.prisma.activitySignup.findUnique({
+          where: {
+            activityId_userId: {
+              activityId: input.activityId,
+              userId,
+            },
+          },
+        }),
+        ctx.prisma.activitySignup.findUnique({
+          where: {
+            activityId_userId: {
+              activityId: input.activityId,
+              userId: input.votedId,
+            },
+          },
+        }),
+      ]);
+      if (!mySignup || !theirSignup) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: '只能为同场活动参与者投票',
+        });
+      }
+
+      // Can't vote for yourself
+      if (input.votedId === userId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: '不能给自己投票',
+        });
+      }
+
+      // Create or update vote
+      const vote = await ctx.prisma.activityVote.upsert({
+        where: {
+          activityId_voterId_votedId: {
+            activityId: input.activityId,
+            voterId: userId,
+            votedId: input.votedId,
+          },
+        },
+        create: {
+          activityId: input.activityId,
+          voterId: userId,
+          votedId: input.votedId,
+          rating: input.rating,
+        },
+        update: { rating: input.rating },
+      });
+
+      // Check for mutual vote (both rated >= 3)
+      const reciprocalVote = await ctx.prisma.activityVote.findUnique({
+        where: {
+          activityId_voterId_votedId: {
+            activityId: input.activityId,
+            voterId: input.votedId,
+            votedId: userId,
+          },
+        },
+      });
+
+      let conversationId: string | null = null;
+      if (reciprocalVote && reciprocalVote.rating >= 3 && input.rating >= 3) {
+        // Mutual attraction — check if conversation already exists between them
+        const existingConv = await ctx.prisma.conversationParticipant.findMany({
+          where: { userId },
+          select: { conversationId: true },
+        });
+        const existingConvIds = existingConv.map((c) => c.conversationId);
+        const mutual = existingConvIds.length
+          ? await ctx.prisma.conversationParticipant.findFirst({
+              where: {
+                userId: input.votedId,
+                conversationId: { in: existingConvIds },
+              },
+            })
+          : null;
+
+        if (!mutual) {
+          // Create conversation with system message
+          const conversation = await ctx.prisma.conversation.create({
+            data: {
+              lastMessageAt: new Date(),
+              participants: {
+                create: [{ userId }, { userId: input.votedId }],
+              },
+              messages: {
+                create: {
+                  senderId: userId,
+                  type: 'SYSTEM',
+                  content: `你们在「${activity.title}」活动中互相欣赏，开始聊天吧！`,
+                },
+              },
+            },
+          });
+          conversationId = conversation.id;
+        }
+      }
+
+      return { vote, isMutual: !!conversationId, conversationId };
+    }),
+
+  /** Get participants available to vote for in a completed activity */
+  votableParticipants: protectedProcedure
+    .input(z.object({ activityId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+
+      const signups = await ctx.prisma.activitySignup.findMany({
+        where: {
+          activityId: input.activityId,
+          status: { not: 'CANCELLED' },
+          userId: { not: userId },
+        },
+      });
+
+      // Get user details for participants
+      const userIds = signups.map((s) => s.userId);
+      const users = await ctx.prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: {
+          id: true,
+          nickname: true,
+          gender: true,
+          birthday: true,
+          city: true,
+          photos: {
+            where: { auditStatus: 'APPROVED', isAvatar: true },
+            take: 1,
+          },
+        },
+      });
+
+      // Get my existing votes for this activity
+      const myVotes = await ctx.prisma.activityVote.findMany({
+        where: { activityId: input.activityId, voterId: userId },
+      });
+      const votedMap = new Map(myVotes.map((v) => [v.votedId, v.rating]));
+
+      return users.map((u) => ({
+        id: u.id,
+        nickname: u.nickname,
+        gender: u.gender,
+        birthday: u.birthday,
+        city: u.city,
+        avatarUrl: u.photos[0]?.url ?? null,
+        myRating: votedMap.get(u.id) ?? null,
+      }));
+    }),
+
+  /** Get my mutual matches from activities */
+  activityMatches: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    // Find votes where I voted >= 3 AND they voted me >= 3
+    const myVotes = await ctx.prisma.activityVote.findMany({
+      where: { voterId: userId, rating: { gte: 3 } },
+    });
+
+    const mutuals = [];
+    for (const vote of myVotes) {
+      const reciprocal = await ctx.prisma.activityVote.findUnique({
+        where: {
+          activityId_voterId_votedId: {
+            activityId: vote.activityId,
+            voterId: vote.votedId,
+            votedId: userId,
+          },
+        },
+      });
+      if (reciprocal && reciprocal.rating >= 3) {
+        mutuals.push({
+          activityId: vote.activityId,
+          userId: vote.votedId,
+        });
+      }
+    }
+
+    return mutuals;
+  }),
 });

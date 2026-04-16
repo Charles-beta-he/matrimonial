@@ -88,6 +88,23 @@ export default function VideoHallScreen() {
         <Text className="text-xl font-bold text-gray-900">视频相亲大厅</Text>
       </View>
 
+      {/* Quick Match Entry Card */}
+      <Pressable
+        onPress={() => router.push('/chat/quick-match')}
+        className="mx-4 mb-4 bg-gradient-to-r rounded-2xl overflow-hidden"
+      >
+        <View className="bg-rose-500 rounded-2xl p-4 flex-row items-center">
+          <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">
+            <Ionicons name="flash" size={28} color="#ffffff" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-white text-lg font-bold">视频速配</Text>
+            <Text className="text-white/80 text-xs">3分钟随机匹配，快速了解新朋友</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#ffffff" />
+        </View>
+      </Pressable>
+
       {/* Tabs */}
       <View className="flex-row mx-4 bg-gray-100 rounded-xl p-1 mb-4">
         <Pressable

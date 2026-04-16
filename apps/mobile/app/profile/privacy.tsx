@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { ScrollView, Switch, Text, View, Pressable } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, Switch, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { api } from '@matrimonial/api-client';
+import * as Contacts from 'expo-contacts';
+import * as Crypto from 'expo-crypto';
 
 interface PrivacySetting {
   key: string;
@@ -40,9 +43,27 @@ const SETTINGS: PrivacySetting[] = [
   },
 ];
 
+/** Map from toggle key to the privacy field on the User model */
+const KEY_TO_FIELD: Record<string, string> = {
+  blurPhotos: 'privacyBlurPhotos',
+  incognito: 'privacyIncognito',
+  blockContacts: 'privacyBlockContacts',
+  blurLocation: 'privacyBlurLocation',
+  disableVisitors: 'privacyDisableVisitors',
+};
+
 /** Privacy settings screen */
 export default function PrivacyScreen() {
   const router = useRouter();
+  const meQuery = api.user.me.useQuery();
+  const utils = api.useUtils();
+  const updatePrivacy = api.user.updatePrivacy.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+    },
+  });
+
+  // Local state mirrors server values; initialised from `me` query
   const [values, setValues] = useState<Record<string, boolean>>({
     blurPhotos: false,
     incognito: false,
@@ -50,10 +71,105 @@ export default function PrivacyScreen() {
     blurLocation: true,
     disableVisitors: false,
   });
+  const [savingKey, setSavingKey] = useState<string | null>(null);
 
-  const toggleSetting = (key: string) => {
-    setValues((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  // Sync local state when server data loads
+  useEffect(() => {
+    if (meQuery.data) {
+      const u = meQuery.data as Record<string, unknown>;
+      setValues({
+        blurPhotos: (u.privacyBlurPhotos as boolean) ?? false,
+        incognito: (u.privacyIncognito as boolean) ?? false,
+        blockContacts: (u.privacyBlockContacts as boolean) ?? false,
+        blurLocation: (u.privacyBlurLocation as boolean) ?? true,
+        disableVisitors: (u.privacyDisableVisitors as boolean) ?? false,
+      });
+    }
+  }, [meQuery.data]);
+
+  /** Hash phone numbers from contacts and upload them */
+  const uploadBlockedContacts = useCallback(async () => {
+    try {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('权限不足', '需要通讯录权限才能屏蔽联系人');
+        return null;
+      }
+      const { data } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.PhoneNumbers],
+      });
+      const phones: string[] = [];
+      for (const contact of data) {
+        if (contact.phoneNumbers) {
+          for (const pn of contact.phoneNumbers) {
+            if (pn.number) {
+              // Normalise: strip non-digit chars
+              const normalised = pn.number.replace(/\D/g, '');
+              if (normalised.length >= 7) phones.push(normalised);
+            }
+          }
+        }
+      }
+      // Dedupe
+      const unique = [...new Set(phones)];
+      // SHA256 hash each phone
+      const hashes: string[] = [];
+      for (const phone of unique) {
+        const hash = await Crypto.digestStringAsync(
+          Crypto.CryptoDigestAlgorithm.SHA256,
+          phone,
+        );
+        hashes.push(hash);
+      }
+      return hashes;
+    } catch {
+      Alert.alert('错误', '读取通讯录失败');
+      return null;
+    }
+  }, []);
+
+  const toggleSetting = useCallback(
+    async (key: string) => {
+      const newValue = !values[key];
+
+      // Membership gate for incognito
+      if (key === 'incognito' && newValue) {
+        const membership = (meQuery.data as Record<string, unknown>)?.membership as string | null;
+        if (!membership || membership === 'FREE') {
+          Alert.alert('会员专享', '隐身模式为会员专属功能，请先升级会员');
+          return;
+        }
+      }
+
+      setSavingKey(key);
+
+      try {
+        const mutation: Record<string, unknown> = { [key]: newValue };
+
+        // When enabling blockContacts, read and hash contact phone numbers
+        if (key === 'blockContacts' && newValue) {
+          const hashes = await uploadBlockedContacts();
+          if (hashes === null) {
+            setSavingKey(null);
+            return; // Permission denied or error
+          }
+          mutation.blockedPhoneHashes = hashes;
+        }
+        // When disabling blockContacts, clear the hashes
+        if (key === 'blockContacts' && !newValue) {
+          mutation.blockedPhoneHashes = [];
+        }
+
+        await updatePrivacy.mutateAsync(mutation as any);
+        setValues((prev) => ({ ...prev, [key]: newValue }));
+      } catch {
+        Alert.alert('保存失败', '隐私设置保存失败，请稍后重试');
+      } finally {
+        setSavingKey(null);
+      }
+    },
+    [values, meQuery.data, updatePrivacy, uploadBlockedContacts],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -82,12 +198,17 @@ export default function PrivacyScreen() {
                     {setting.description}
                   </Text>
                 </View>
-                <Switch
-                  value={values[setting.key] ?? false}
-                  onValueChange={() => toggleSetting(setting.key)}
-                  trackColor={{ false: '#d1d5db', true: '#fda4af' }}
-                  thumbColor={values[setting.key] ? '#f43f5e' : '#f4f4f5'}
-                />
+                {savingKey === setting.key ? (
+                  <ActivityIndicator size="small" color="#f43f5e" />
+                ) : (
+                  <Switch
+                    value={values[setting.key] ?? false}
+                    onValueChange={() => toggleSetting(setting.key)}
+                    trackColor={{ false: '#d1d5db', true: '#fda4af' }}
+                    thumbColor={values[setting.key] ? '#f43f5e' : '#f4f4f5'}
+                    disabled={savingKey !== null || meQuery.isLoading}
+                  />
+                )}
               </View>
               {index < SETTINGS.length - 1 && (
                 <View className="border-b border-gray-100 ml-4" />

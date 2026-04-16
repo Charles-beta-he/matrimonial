@@ -27,18 +27,6 @@ function Checkbox({
   );
 }
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
-  return (
-    <View className="flex-row mb-8" style={{ gap: 4 }}>
-      {Array.from({ length: total }, (_, i) => (
-        <View
-          key={i}
-          className={`flex-1 h-1 rounded-full ${i < step ? 'bg-rose-500' : 'bg-gray-200'}`}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function RegisterStep1Phone() {
   const router = useRouter();
@@ -139,8 +127,6 @@ export default function RegisterStep1Phone() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View className="flex-1 px-6 pt-4">
-          <ProgressBar step={1} total={5} />
-
           <Text className="text-2xl font-bold text-gray-900 mb-2">输入手机号</Text>
           <Text className="text-sm text-gray-400 mb-8">我们将发送验证码到您的手机</Text>
 

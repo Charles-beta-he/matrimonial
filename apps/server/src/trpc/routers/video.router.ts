@@ -35,6 +35,22 @@ export const videoRouter = router({
       return VideoService.joinMatchmakerRoom(ctx.user.id, input.roomId);
     }),
 
+  /** Join quick match queue */
+  quickMatch: protectedProcedure.mutation(async ({ ctx }) => {
+    return VideoService.joinQuickMatch(ctx.user.id);
+  }),
+
+  /** Leave quick match queue */
+  leaveQuickMatch: protectedProcedure.mutation(async ({ ctx }) => {
+    VideoService.leaveQuickMatch(ctx.user.id);
+    return { success: true };
+  }),
+
+  /** Check queue status */
+  quickMatchStatus: protectedProcedure.query(async ({ ctx }) => {
+    return VideoService.getQuickMatchStatus(ctx.user.id);
+  }),
+
   /** Leave a room */
   leaveRoom: protectedProcedure
     .input(z.object({ roomId: z.string() }))
