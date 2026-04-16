@@ -245,8 +245,8 @@ export default function CircleDetailScreen() {
       <View className="flex-row items-center mb-2" style={{ gap: 10 }}>
         <Avatar
           source={
-            item.author?.avatar
-              ? { uri: item.author.avatar }
+            item.author?.photos?.[0]?.url
+              ? { uri: item.author.photos[0].url }
               : { uri: `https://picsum.photos/seed/${item.author?.id ?? 'anon'}/100/100` }
           }
           size={36}
@@ -287,7 +287,7 @@ export default function CircleDetailScreen() {
       {/* Like count */}
       <View className="flex-row items-center" style={{ gap: 4 }}>
         <Ionicons name="heart-outline" size={14} color="#9ca3af" />
-        <Text className="text-xs text-gray-400">{item.likeCount ?? 0}</Text>
+        <Text className="text-xs text-gray-400">{(item as any).likeCount ?? 0}</Text>
       </View>
     </View>
   );

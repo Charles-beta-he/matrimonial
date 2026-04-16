@@ -43,15 +43,6 @@ const SETTINGS: PrivacySetting[] = [
   },
 ];
 
-/** Map from toggle key to the privacy field on the User model */
-const KEY_TO_FIELD: Record<string, string> = {
-  blurPhotos: 'privacyBlurPhotos',
-  incognito: 'privacyIncognito',
-  blockContacts: 'privacyBlockContacts',
-  blurLocation: 'privacyBlurLocation',
-  disableVisitors: 'privacyDisableVisitors',
-};
-
 /** Privacy settings screen */
 export default function PrivacyScreen() {
   const router = useRouter();

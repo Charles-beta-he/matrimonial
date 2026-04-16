@@ -13,7 +13,16 @@ interface ToastMessage {
 let toastListeners: Array<(msg: ToastMessage) => void> = [];
 
 export const toast = {
-  show(type: ToastType, message: string) {
+  show(typeOrOptions: ToastType | { type: ToastType; text1: string }, messageArg?: string) {
+    let type: ToastType;
+    let message: string;
+    if (typeof typeOrOptions === 'object') {
+      type = typeOrOptions.type;
+      message = typeOrOptions.text1;
+    } else {
+      type = typeOrOptions;
+      message = messageArg ?? '';
+    }
     const msg: ToastMessage = { id: `t_${Date.now()}`, type, message };
     toastListeners.forEach(fn => fn(msg));
   },

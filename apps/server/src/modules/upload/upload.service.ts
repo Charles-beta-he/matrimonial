@@ -55,8 +55,8 @@ export const UploadService = {
     userId: string,
     category: keyof typeof CATEGORY_LIMITS,
     filename: string,
-    contentType: string,
-    sizeBytes: number,
+    _contentType: string,
+    _sizeBytes: number,
   ): Promise<{
     uploadUrl: string;
     publicUrl: string;

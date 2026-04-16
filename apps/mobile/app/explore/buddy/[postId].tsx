@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Pressable,
   ScrollView,
   Text,
@@ -76,7 +75,7 @@ export default function BuddyPostDetailScreen() {
   const listPost = (listData as any)?.items?.find((p: any) => p.id === postId);
   const post = myPost ?? listPost;
 
-  const applyMut = api.buddy.apply.useMutation({
+  const applyMut = api.buddy.applyPost.useMutation({
     onSuccess: () => {
       toast.success('报名成功！等待发布者确认');
       setShowApplyInput(false);

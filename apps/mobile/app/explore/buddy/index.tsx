@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Badge, Card, EmptyState } from '@matrimonial/ui';
+import { Card, EmptyState } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';

@@ -3,7 +3,7 @@ import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Avatar, Badge, ListItem, toast } from '@matrimonial/ui';
+import { Avatar, Badge, ListItem } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';

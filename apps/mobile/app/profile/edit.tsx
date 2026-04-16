@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Button, Input, PromptCard, TagSelector, toast } from '@matrimonial/ui';
-import { ALL_TAGS, PROMPT_QUESTIONS, TAG_CATEGORIES } from '@matrimonial/shared';
+import { ALL_TAGS, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
@@ -107,7 +107,7 @@ export default function ProfileEditScreen() {
   const [prompts, setPrompts] = useState<{ questionId: string; answerText: string }[]>(
     Array.isArray(user?.prompts)
       ? user.prompts.map((p: any) => ({ questionId: p.questionId, answerText: p.answerText ?? '' }))
-      : PROMPT_QUESTIONS.slice(0, 3).map((q, i) => ({ questionId: q.id, answerText: '' })),
+      : PROMPT_QUESTIONS.slice(0, 3).map((q) => ({ questionId: q.id, answerText: '' })),
   );
 
   // Hydrate fields once user data arrives

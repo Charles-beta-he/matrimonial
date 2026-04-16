@@ -108,7 +108,6 @@ export default function ChatConversationScreen() {
     if (!cid) return;
     track('chat_open', { conversation_id: cid });
     markReadMutation.mutate({ conversationId: cid });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cid]);
 
   // Merge history + live, dedupe by id
@@ -141,7 +140,6 @@ export default function ChatConversationScreen() {
         markReadMutation.mutate({ conversationId: cid });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allMessages.length, cid]);
 
   // Auto-scroll to bottom when messages change

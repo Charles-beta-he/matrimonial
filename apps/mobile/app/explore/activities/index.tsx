@@ -75,7 +75,7 @@ export default function ActivitiesScreen() {
     },
   });
 
-  const handleSignup = (activityId: string, title: string) => {
+  const handleSignup = (activityId: string, _title: string) => {
     track('activity_signup', { activity_id: activityId });
     signupMut.mutate({ activityId });
   };

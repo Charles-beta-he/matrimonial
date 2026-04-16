@@ -34,6 +34,10 @@ export type AnalyticsEvent =
   | { event: 'activity_view'; props: { activity_id: string } }
   | { event: 'activity_signup'; props: { activity_id: string; fee: number } }
   | { event: 'buddy_post_create'; props: { type: string } }
+  // Invite
+  | { event: 'invite_code_applied'; props: Record<string, never> }
+  | { event: 'invite_code_copied'; props: Record<string, never> }
+  | { event: 'invite_shared'; props: Record<string, never> }
   // Payment
   | { event: 'membership_view'; props: Record<string, never>}
   | { event: 'payment_start'; props: { product_type: string; amount: number } }

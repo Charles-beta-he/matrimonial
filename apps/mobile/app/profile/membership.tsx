@@ -3,7 +3,7 @@ import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Card } from '@matrimonial/ui';
+import { Button } from '@matrimonial/ui';
 import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { usePayment } from '../../hooks/usePayment';

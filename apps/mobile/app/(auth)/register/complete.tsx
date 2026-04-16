@@ -24,7 +24,7 @@ export default function RegisterComplete() {
   const { track } = useAnalytics();
 
   useEffect(() => {
-    track('register_complete');
+    track('register_complete', { total_duration_ms: 0 });
   }, [track]);
 
   return (

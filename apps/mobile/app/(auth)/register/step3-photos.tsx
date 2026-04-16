@@ -80,8 +80,6 @@ export default function RegisterStep3Photos() {
     const uri = photos[index];
     const isActive = activeSlot === index && uploading;
     const radius = variant === 'main' ? 'rounded-2xl' : 'rounded-xl';
-    const plus = variant === 'main' ? 'text-3xl' : 'text-2xl';
-
     return (
       <Pressable
         className={`w-full h-full overflow-hidden ${radius}`}

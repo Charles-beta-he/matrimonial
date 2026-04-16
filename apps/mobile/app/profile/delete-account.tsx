@@ -17,7 +17,6 @@ const DELETION_ITEMS = [
 export default function DeleteAccountPage() {
   const router = useRouter();
   const clearAuth = useAppStore((s) => s.clearAuth);
-  const user = useAppStore((s) => s.user);
   const deleteMut = api.user.requestDeletion.useMutation();
 
   const [phone, setPhone] = useState('');

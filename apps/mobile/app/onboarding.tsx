@@ -26,7 +26,6 @@ async function setOnboardingFlag(value: string): Promise<void> {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const ONBOARDING_KEY = 'hasSeenOnboarding';
 
 interface OnboardingPage {
   icon: IoniconName;

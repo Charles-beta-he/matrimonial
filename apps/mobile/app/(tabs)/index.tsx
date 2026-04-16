@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Dimensions, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
@@ -258,7 +258,7 @@ export default function DiscoverTab() {
   const { data: credits } = api.credits.balance.useQuery();
 
   const queryInput = hasActiveFilters ? { filters } : undefined;
-  const recommendationsQuery = api.match.recommendations.useQuery(queryInput);
+  const recommendationsQuery = api.match.recommendations.useQuery(queryInput as any);
   const dailyPicksQuery = api.match.dailyPicks.useQuery();
   const remainingSwipesQuery = (api.match as any).remainingSwipes?.useQuery?.() as
     | { data?: { used: number; total: number; remaining: number; quotaExhausted: boolean } }

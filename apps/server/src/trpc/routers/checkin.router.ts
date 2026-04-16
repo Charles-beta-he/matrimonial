@@ -102,7 +102,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
           .catch(() => {});
       }
     }
-  } catch (e) {
+  } catch {
     logger.warn('first_video achievement check skipped: VideoRoom model may not exist', { userId });
   }
 }

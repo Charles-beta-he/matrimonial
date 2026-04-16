@@ -92,6 +92,7 @@ export const userRouter = router({
     }
 
     // Strip internal privacy field from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { privacyBlurPhotos, ...publicUser } = user;
     return publicUser;
   }),
