@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, TextStyle } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -14,45 +15,57 @@ export interface ChromaTextProps {
 }
 
 export function ChromaText({ text, style, trigger }: ChromaTextProps) {
-  const redX = useSharedValue(-2);
-  const redY = useSharedValue(1);
-  const blueX = useSharedValue(2);
-  const blueY = useSharedValue(-1);
-  const chromaOpacity = useSharedValue(0.7);
+  // Start channels maximally separated — will converge on mount (materialization)
+  const redX = useSharedValue(-22);
+  const redY = useSharedValue(5);
+  const blueX = useSharedValue(22);
+  const blueY = useSharedValue(-5);
+  const chromaOpacity = useSharedValue(0);
+  const mainOpacity = useSharedValue(0);
+
+  const CONVERGE = { duration: 650, easing: Easing.out(Easing.cubic) };
+
+  function materialize() {
+    mainOpacity.value = withTiming(1, { duration: 220 });
+    chromaOpacity.value = withSequence(
+      withTiming(1.0, { duration: 0 }),
+      withTiming(0.7, { duration: 700, easing: Easing.out(Easing.cubic) }),
+    );
+    redX.value = withTiming(-2, CONVERGE);
+    redY.value = withTiming(1, CONVERGE);
+    blueX.value = withTiming(2, CONVERGE);
+    blueY.value = withTiming(-1, CONVERGE);
+  }
 
   function runGlitch() {
-    'worklet';
     redX.value = withSequence(
-      withTiming(-8, { duration: 80 }),
-      withTiming(-2, { duration: 120 }),
+      withTiming(-10, { duration: 70 }),
+      withTiming(-2, { duration: 130 }),
     );
     redY.value = withSequence(
-      withTiming(4, { duration: 80 }),
-      withTiming(1, { duration: 120 }),
+      withTiming(5, { duration: 70 }),
+      withTiming(1, { duration: 130 }),
     );
     blueX.value = withSequence(
-      withTiming(8, { duration: 80 }),
-      withTiming(2, { duration: 120 }),
+      withTiming(10, { duration: 70 }),
+      withTiming(2, { duration: 130 }),
     );
     blueY.value = withSequence(
-      withTiming(-4, { duration: 80 }),
-      withTiming(-1, { duration: 120 }),
+      withTiming(-5, { duration: 70 }),
+      withTiming(-1, { duration: 130 }),
     );
     chromaOpacity.value = withSequence(
-      withTiming(0.4, { duration: 40 }),
-      withTiming(0.7, { duration: 40 }),
-      withTiming(0.7, { duration: 0 }),
+      withTiming(0.4, { duration: 35 }),
+      withTiming(0.7, { duration: 35 }),
     );
   }
 
   useEffect(() => {
-    runGlitch();
+    materialize();
   }, []);
 
   useEffect(() => {
-    if (trigger) {
-      runGlitch();
-    }
+    if (trigger) runGlitch();
   }, [trigger]);
 
   const redAnimStyle = useAnimatedStyle(() => ({
@@ -65,12 +78,15 @@ export function ChromaText({ text, style, trigger }: ChromaTextProps) {
     opacity: chromaOpacity.value,
   }));
 
+  const mainAnimStyle = useAnimatedStyle(() => ({
+    opacity: mainOpacity.value,
+  }));
+
   const { color: passedColor, ...restStyle } = StyleSheet.flatten(style) ?? {};
   const mainColor = (passedColor as string | undefined) ?? 'white';
 
   return (
     <>
-      {/* Red channel — absolutely overlaid, drawn first (bottom-most) */}
       <Animated.Text
         style={[restStyle, styles.absolute, { color: 'rgba(255,0,0,0.7)' }, redAnimStyle]}
         numberOfLines={1}
@@ -78,8 +94,6 @@ export function ChromaText({ text, style, trigger }: ChromaTextProps) {
       >
         {text}
       </Animated.Text>
-
-      {/* Blue channel — absolutely overlaid */}
       <Animated.Text
         style={[restStyle, styles.absolute, { color: 'rgba(0,100,255,0.7)' }, blueAnimStyle]}
         numberOfLines={1}
@@ -87,11 +101,12 @@ export function ChromaText({ text, style, trigger }: ChromaTextProps) {
       >
         {text}
       </Animated.Text>
-
-      {/* Main layer — in normal flow, drives layout size, renders on top */}
-      <Text style={[restStyle, { color: mainColor }]} numberOfLines={1}>
+      <Animated.Text
+        style={[restStyle, { color: mainColor }, mainAnimStyle]}
+        numberOfLines={1}
+      >
         {text}
-      </Text>
+      </Animated.Text>
     </>
   );
 }

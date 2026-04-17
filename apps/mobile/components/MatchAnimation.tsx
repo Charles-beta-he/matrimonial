@@ -47,8 +47,8 @@ interface ParticleData {
 
 const PARTICLES: ParticleData[] = Array.from({ length: 16 }, (_, i) => ({
   angle: (i / 16) * 360 + Math.random() * 22.5,
-  distance: 130 + Math.random() * 120,
-  size: 6 + Math.random() * 4,
+  distance: 210 + Math.random() * 160,
+  size: 5 + Math.random() * 6,
   color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
 }));
 
@@ -103,57 +103,57 @@ export function MatchAnimation({
   const suggestions = icebreakersData?.suggestions ?? [];
 
   function triggerParticles() {
-    // Ring 1 — immediate
+    // Ring 1 — immediate, thick, expands wide
     ringScale.value = 1;
-    ringOpacity.value = 0.5;
-    ringScale.value = withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) });
-    ringOpacity.value = withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) });
+    ringOpacity.value = 0.65;
+    ringScale.value = withTiming(9.0, { duration: 1100, easing: Easing.out(Easing.cubic) });
+    ringOpacity.value = withTiming(0, { duration: 1100, easing: Easing.out(Easing.cubic) });
 
-    // Ring 2 — 150ms delay
+    // Ring 2 — 120ms delay
     ringScale2.value = 1;
     ringOpacity2.value = 0;
-    ringScale2.value = withDelay(150, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringScale2.value = withDelay(120, withTiming(8.5, { duration: 1000, easing: Easing.out(Easing.cubic) }));
     ringOpacity2.value = withDelay(
-      150,
+      120,
       withSequence(
-        withTiming(0.5, { duration: 0 }),
-        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
+        withTiming(0.55, { duration: 0 }),
+        withTiming(0, { duration: 1000, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
-    // Ring 3 — 300ms delay
+    // Ring 3 — 280ms delay
     ringScale3.value = 1;
     ringOpacity3.value = 0;
-    ringScale3.value = withDelay(300, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringScale3.value = withDelay(280, withTiming(8.0, { duration: 950, easing: Easing.out(Easing.cubic) }));
     ringOpacity3.value = withDelay(
-      300,
+      280,
       withSequence(
-        withTiming(0.5, { duration: 0 }),
-        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
+        withTiming(0.45, { duration: 0 }),
+        withTiming(0, { duration: 950, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
-    // Ring 4 — 500ms delay, gold
+    // Ring 4 — 480ms delay, gold
     ringScale4.value = 1;
     ringOpacity4.value = 0;
-    ringScale4.value = withDelay(500, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringScale4.value = withDelay(480, withTiming(7.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
     ringOpacity4.value = withDelay(
-      500,
+      480,
       withSequence(
-        withTiming(0.5, { duration: 0 }),
+        withTiming(0.55, { duration: 0 }),
         withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
-    // Ring 5 — 700ms delay, faint gold
+    // Ring 5 — 700ms delay, white — wide bloom
     ringScale5.value = 1;
     ringOpacity5.value = 0;
-    ringScale5.value = withDelay(700, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringScale5.value = withDelay(700, withTiming(7.0, { duration: 850, easing: Easing.out(Easing.cubic) }));
     ringOpacity5.value = withDelay(
       700,
       withSequence(
-        withTiming(0.5, { duration: 0 }),
-        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
+        withTiming(0.35, { duration: 0 }),
+        withTiming(0, { duration: 850, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
@@ -169,15 +169,32 @@ export function MatchAnimation({
 
   useEffect(() => {
     overlayOpacity.value = withTiming(1, { duration: 300 });
-    leftX.value = withSpring(-40, { damping: 12 });
-    rightX.value = withSpring(40, { damping: 12 });
-    textScale.value = withDelay(400, withSpring(1, { damping: 10 }));
-    flashOpacity.value = withSequence(
-      withTiming(0.7, { duration: 80 }),
-      withTiming(0, { duration: 400, easing: Easing.out(Easing.cubic) }),
+    // Avatars overshoot on collision then settle
+    leftX.value = withSequence(
+      withSpring(-52, { damping: 8, stiffness: 160 }),
+      withSpring(-40, { damping: 14, stiffness: 200 }),
     );
-    rotL.value = withSpring(0, { damping: 10 });
-    rotR.value = withSpring(0, { damping: 10 });
+    rightX.value = withSequence(
+      withSpring(52, { damping: 8, stiffness: 160 }),
+      withSpring(40, { damping: 14, stiffness: 200 }),
+    );
+    // Text: spring in, then heartbeat pulse at 1200ms
+    textScale.value = withDelay(
+      380,
+      withSequence(
+        withSpring(1, { damping: 9, stiffness: 160 }),
+        withDelay(800, withSequence(
+          withSpring(1.07, { damping: 7, stiffness: 350 }),
+          withSpring(1.0, { damping: 12, stiffness: 250 }),
+        )),
+      ),
+    );
+    flashOpacity.value = withSequence(
+      withTiming(0.85, { duration: 70 }),
+      withTiming(0, { duration: 450, easing: Easing.out(Easing.cubic) }),
+    );
+    rotL.value = withSpring(0, { damping: 9 });
+    rotR.value = withSpring(0, { damping: 9 });
     triggerParticles();
   }, []);
 
@@ -251,7 +268,7 @@ export function MatchAnimation({
       className="absolute inset-0 items-center justify-center z-50"
       style={[{ backgroundColor: 'rgba(0,0,0,0.8)' }, bgStyle]}
     >
-      {/* Ring pulse — ring 1 */}
+      {/* Ring pulse — ring 1 (thick, rose) */}
       <Animated.View
         pointerEvents="none"
         style={[
@@ -260,7 +277,7 @@ export function MatchAnimation({
             width: 100,
             height: 100,
             borderRadius: 50,
-            borderWidth: 2,
+            borderWidth: 4,
             borderColor: '#f43f5e',
           },
           ringStyle,
@@ -315,7 +332,7 @@ export function MatchAnimation({
         ]}
       />
 
-      {/* Ring pulse — ring 5 (faint gold) */}
+      {/* Ring pulse — ring 5 (white bloom) */}
       <Animated.View
         pointerEvents="none"
         style={[
@@ -324,8 +341,8 @@ export function MatchAnimation({
             width: 100,
             height: 100,
             borderRadius: 50,
-            borderWidth: 2,
-            borderColor: 'rgba(253,230,138,0.3)',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.5)',
           },
           ringStyle5,
         ]}
