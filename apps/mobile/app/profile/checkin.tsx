@@ -3,9 +3,56 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withSpring,
+} from 'react-native-reanimated';
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
+
+function CheckinDot({ isChecked, isToday, day, index }: {
+  isChecked: boolean;
+  isToday: boolean;
+  day: number;
+  index: number;
+}) {
+  const scale = useSharedValue(isChecked ? 0 : 1);
+  const dotStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  useEffect(() => {
+    if (isChecked) {
+      scale.value = withDelay(index * 18, withSpring(1, { damping: 12, stiffness: 220 }));
+    }
+  }, [isChecked, index, scale]);
+
+  return (
+    <View style={{ width: '14.28%', aspectRatio: 1 }} className="items-center justify-center">
+      <Animated.View
+        style={[dotStyle, {
+          width: 32,
+          height: 32,
+          borderRadius: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: isChecked ? '#f43f5e' : isToday ? 'transparent' : 'transparent',
+          borderWidth: isToday && !isChecked ? 1 : 0,
+          borderColor: '#fda4af',
+        }]}
+      >
+        <Text
+          className={`text-sm ${
+            isChecked ? 'text-white font-bold' : isToday ? 'text-rose-500 font-medium' : 'text-gray-700'
+          }`}
+        >
+          {day}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+}
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -146,33 +193,13 @@ export default function CheckinScreen() {
               const isChecked = checkedDays.has(day);
               const isToday = day === todayDate;
               return (
-                <View
+                <CheckinDot
                   key={day}
-                  style={{ width: '14.28%', aspectRatio: 1 }}
-                  className="items-center justify-center"
-                >
-                  <View
-                    className={`w-8 h-8 rounded-full items-center justify-center ${
-                      isChecked
-                        ? 'bg-rose-500'
-                        : isToday
-                          ? 'bg-rose-50 border border-rose-300'
-                          : ''
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm ${
-                        isChecked
-                          ? 'text-white font-bold'
-                          : isToday
-                            ? 'text-rose-500 font-medium'
-                            : 'text-gray-700'
-                      }`}
-                    >
-                      {day}
-                    </Text>
-                  </View>
-                </View>
+                  day={day}
+                  index={i}
+                  isChecked={isChecked}
+                  isToday={isToday}
+                />
               );
             })}
           </View>

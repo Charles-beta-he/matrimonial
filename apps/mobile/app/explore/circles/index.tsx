@@ -8,12 +8,35 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Card, EmptyState } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
+
+function AnimatedBanner({ color, index }: { color: string; index: number }) {
+  const width = useSharedValue(0);
+  const widthStyle = useAnimatedStyle(() => ({ width: `${width.value}%` as any }));
+
+  useEffect(() => {
+    width.value = withDelay(
+      Math.min(index * 60, 400) + 80,
+      withTiming(100, { duration: 400, easing: Easing.out(Easing.cubic) }),
+    );
+  }, [index, width]);
+
+  return (
+    <Animated.View style={[{ height: 6, backgroundColor: color }, widthStyle]} />
+  );
+}
 
 const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -120,9 +143,9 @@ export default function CirclesScreen() {
               <Pressable onPress={() => router.push(`/explore/circles/${item.id}` as any)}>
                 <Card className="overflow-hidden">
                   {/* Color banner */}
-                  <View
-                    style={{ backgroundColor: accentColor, height: 6 }}
-                  />
+                  <View style={{ height: 6, backgroundColor: accentColor + '30', overflow: 'hidden' }}>
+                    <AnimatedBanner color={accentColor} index={index} />
+                  </View>
                   <View className="p-4">
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1 mr-3">
