@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   ActivityIndicator,
   Alert,
@@ -32,6 +33,18 @@ export default function VideoHallScreen() {
   const roomsQuery = useVideoRooms();
   const createRoom = useCreateVideoRoom();
   const joinRoom = useJoinVideoRoom();
+
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
 
   const handleJoinRoom = async (roomId: string) => {
     try {
@@ -81,12 +94,12 @@ export default function VideoHallScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3">
+      <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">视频相亲大厅</Text>
-      </View>
+      </Animated.View>
 
       {/* Quick Match Entry Card */}
       <Pressable

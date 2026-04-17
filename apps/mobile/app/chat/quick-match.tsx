@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -21,6 +22,18 @@ export default function QuickMatchScreen() {
   const quickMatch = useQuickMatch();
   const leaveQuickMatch = useLeaveQuickMatch();
   const statusQuery = useQuickMatchStatus(callState === 'matching');
+
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Poll for match while queued
@@ -123,12 +136,12 @@ export default function QuickMatchScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3">
+      <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">视频速配</Text>
-      </View>
+      </Animated.View>
 
       <View className="flex-1 items-center justify-center px-8">
         {/* Idle state — start button */}

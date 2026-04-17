@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   ActivityIndicator,
   Alert,
@@ -56,6 +57,17 @@ export default function BuddyPostDetailScreen() {
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const [applyMessage, setApplyMessage] = useState('');
   const [showApplyInput, setShowApplyInput] = useState(false);
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
 
   const { data: myPostsData } = api.buddy.myPosts.useQuery(undefined, { enabled: !!postId });
 
@@ -121,12 +133,12 @@ export default function BuddyPostDetailScreen() {
   if (!post) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <View className="flex-row items-center px-4 py-3">
+        <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
           <Pressable onPress={() => router.back()} className="mr-3">
             <Ionicons name="chevron-back" size={24} color="#374151" />
           </Pressable>
           <Text className="text-xl font-bold text-gray-900">帖子详情</Text>
-        </View>
+        </Animated.View>
         <View className="flex-1 items-center justify-center">
           <EmptyState
             icon={<Ionicons name="document-outline" size={56} color="#9ca3af" />}
@@ -150,7 +162,7 @@ export default function BuddyPostDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
@@ -163,7 +175,7 @@ export default function BuddyPostDetailScreen() {
             {statusConf.label}
           </Text>
         </View>
-      </View>
+      </Animated.View>
 
       <ScrollView
         className="flex-1"
