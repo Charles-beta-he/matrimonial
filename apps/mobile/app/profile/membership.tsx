@@ -175,9 +175,11 @@ export default function MembershipScreen() {
             return (
               <PlanCardWrapper key={plan.plan} index={i}>
               <ScalePressable
-                className={`flex-1 rounded-2xl border-2 p-3 items-center ${
+                containerStyle={{ flex: 1 }}
+                className={`rounded-2xl border-2 p-3 items-center ${
                   isSelected ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
                 }`}
+                style={{ flex: 1 }}
                 onPress={() => setSelectedPlan(plan.plan)}
               >
                 {'badge' in plan && plan.badge && (

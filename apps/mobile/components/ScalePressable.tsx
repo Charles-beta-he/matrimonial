@@ -1,16 +1,17 @@
 import { useCallback, type ReactNode } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Pressable, type GestureResponderEvent } from 'react-native';
+import { Pressable, type GestureResponderEvent, type ViewStyle } from 'react-native';
 
 interface ScalePressableProps {
   onPress?: (e: GestureResponderEvent) => void;
   disabled?: boolean;
   className?: string;
-  style?: object;
+  style?: ViewStyle;
+  containerStyle?: ViewStyle;
   children: ReactNode;
 }
 
-export function ScalePressable({ onPress, disabled, className, style, children }: ScalePressableProps) {
+export function ScalePressable({ onPress, disabled, className, style, containerStyle, children }: ScalePressableProps) {
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -22,7 +23,7 @@ export function ScalePressable({ onPress, disabled, className, style, children }
   }, [scale]);
 
   return (
-    <Animated.View style={animStyle}>
+    <Animated.View style={[animStyle, containerStyle]}>
       <Pressable
         onPress={onPress}
         disabled={disabled}
