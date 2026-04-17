@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react-native';
 
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 const mockBack = jest.fn();

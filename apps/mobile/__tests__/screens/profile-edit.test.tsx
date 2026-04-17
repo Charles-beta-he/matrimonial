@@ -57,6 +57,14 @@ jest.mock('@matrimonial/api-client', () => ({
         }),
       },
     },
+    ai: {
+      evaluatePrompt: {
+        useMutation: () => ({
+          mutateAsync: jest.fn().mockResolvedValue({ score: 8, feedback: '' }),
+          isPending: false,
+        }),
+      },
+    },
     useUtils: () => ({
       user: { me: { invalidate: mockInvalidate } },
     }),
