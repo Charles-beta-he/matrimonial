@@ -12,8 +12,23 @@
   },
   "rewrites": [
     {
-      "source": "/((?!_expo|assets|favicon).*)",
+      "source": "/((?!_expo|assets|favicon|manifest\\.json|sw\\.js|icons).*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Service-Worker-Allowed", "value": "/" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json" }
+      ]
     }
   ]
 }
