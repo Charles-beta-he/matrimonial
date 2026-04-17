@@ -12,6 +12,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Button } from '@matrimonial/ui';
+import { ScalePressable } from '../../components/ScalePressable';
 import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { usePayment } from '../../hooks/usePayment';
@@ -71,6 +72,13 @@ export default function MembershipScreen() {
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const expiresAt = (membershipQuery.data as any)?.expiry;
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   const heroScale = useSharedValue(0.88);
   const heroOpacity = useSharedValue(0);
   const heroStyle = useAnimatedStyle(() => ({
@@ -79,9 +87,12 @@ export default function MembershipScreen() {
   }));
 
   useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
     track('membership_view', {});
     heroScale.value = withSpring(1, { damping: 14, stiffness: 160 });
-    heroOpacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
+    heroOpacity.value = withTiming(1, { duration: 350, easing: e });
   }, [track, heroScale, heroOpacity]);
 
   const handleSubscribe = () => {
@@ -132,12 +143,12 @@ export default function MembershipScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center px-4 py-3 bg-white">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">会员中心</Text>
-      </View>
+      </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Current plan */}
@@ -163,7 +174,7 @@ export default function MembershipScreen() {
             const isSelected = selectedPlan === plan.plan;
             return (
               <PlanCardWrapper key={plan.plan} index={i}>
-              <Pressable
+              <ScalePressable
                 className={`flex-1 rounded-2xl border-2 p-3 items-center ${
                   isSelected ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
                 }`}
@@ -181,7 +192,7 @@ export default function MembershipScreen() {
                 <Text className="text-xs text-gray-400 line-through">
                   ¥{plan.originalPrice}
                 </Text>
-              </Pressable>
+              </ScalePressable>
               </PlanCardWrapper>
             );
           })}

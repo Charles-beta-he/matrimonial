@@ -10,6 +10,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
+import { ScalePressable } from '../../components/ScalePressable';
 import { Avatar, EmptyState, ListItem } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { formatLastActive } from '@matrimonial/shared';
@@ -177,7 +178,7 @@ export default function MessagesTab() {
           >
             {newMatches.map((match, i) => (
               <StaggeredListItem key={match.id} index={i} style={{ alignItems: 'center' }}>
-                <Pressable
+                <ScalePressable
                   className="items-center"
                   onPress={() => router.push(`/discover/${match.id}`)}
                 >
@@ -189,7 +190,7 @@ export default function MessagesTab() {
                   <Text className="text-xs text-gray-700 mt-1" numberOfLines={1}>
                     {match.nickname}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               </StaggeredListItem>
             ))}
           </ScrollView>

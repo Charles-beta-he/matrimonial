@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Pressable, Text, View } from 'react-native';
 
 export interface ListItemProps {
@@ -19,6 +20,16 @@ export function ListItem({
   onPress,
   showDivider = true,
 }: ListItemProps) {
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const handlePressIn = useCallback(() => {
+    scale.value = withSpring(0.97, { damping: 14, stiffness: 280 });
+  }, [scale]);
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, { damping: 12, stiffness: 240 });
+  }, [scale]);
+
   const content = (
     <>
       <View className="flex-row items-center px-4 py-3">
@@ -39,7 +50,17 @@ export function ListItem({
   );
 
   if (onPress) {
-    return <Pressable onPress={onPress}>{content}</Pressable>;
+    return (
+      <Animated.View style={animStyle}>
+        <Pressable
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+        >
+          {content}
+        </Pressable>
+      </Animated.View>
+    );
   }
 
   return <View>{content}</View>;
