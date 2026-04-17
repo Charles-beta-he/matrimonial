@@ -7,6 +7,7 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -28,6 +29,7 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1.0);
+  const decisionFlash = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
@@ -39,18 +41,24 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
     })
     .onEnd((e) => {
       if (e.translationX > SWIPE_THRESHOLD) {
-        translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+        decisionFlash.value = withSequence(withTiming(0.55, { duration: 0 }), withTiming(0, { duration: 350 }));
+        const dur = Math.max(80, 280 - Math.abs(e.velocityX) * 0.1);
+        translateX.value = withTiming(SCREEN_WIDTH * 1.6, { duration: dur }, () => {
           if (onSwipeRight) runOnJS(onSwipeRight)();
         });
+        translateY.value = withTiming(e.translationY + e.velocityY * 0.06, { duration: dur });
       } else if (e.translationX < -SWIPE_THRESHOLD) {
-        translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+        decisionFlash.value = withSequence(withTiming(0.5, { duration: 0 }), withTiming(0, { duration: 350 }));
+        const dur = Math.max(80, 280 - Math.abs(e.velocityX) * 0.1);
+        translateX.value = withTiming(-SCREEN_WIDTH * 1.6, { duration: dur }, () => {
           if (onSwipeLeft) runOnJS(onSwipeLeft)();
         });
+        translateY.value = withTiming(e.translationY + e.velocityY * 0.06, { duration: dur });
       } else {
-        translateX.value = withSpring(0);
-        translateY.value = withSpring(0);
+        translateX.value = withSpring(0, { damping: 8, stiffness: 180 });
+        translateY.value = withSpring(0, { damping: 8, stiffness: 180 });
       }
-      scale.value = withSpring(1.0);
+      scale.value = withSpring(1.0, { damping: 9, stiffness: 180 });
     })
     .onFinalize(() => {
       scale.value = withSpring(1.0);
@@ -67,7 +75,7 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
       return { transform: [{ scale: s }] };
     }
 
-    const rotate = interpolate(translateX.value, [-150, 0, 150], [-15, 0, 15], Extrapolation.CLAMP);
+    const rotate = interpolate(translateX.value, [-150, 0, 150], [-15, 0, 15], Extrapolation.EXTEND);
     return {
       transform: [
         { translateX: translateX.value },
@@ -92,6 +100,14 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
   }));
   const skipEdgeStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateX.value, [-100, -20], [0.7, 0], Extrapolation.CLAMP),
+  }));
+
+  // Decision flash — bright white pulse on commit swipe
+  const isRight = useAnimatedStyle(() => ({
+    opacity: translateX.value > 0 ? decisionFlash.value : 0,
+  }));
+  const isLeft = useAnimatedStyle(() => ({
+    opacity: translateX.value < 0 ? decisionFlash.value : 0,
   }));
 
   // LIKE/SKIP labels — scale bounces in alongside opacity
@@ -151,6 +167,16 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
             <Text style={styles.reasonText}>{recommendReason}</Text>
           </View>
         ) : null}
+
+        {/* Decision flash — green for like, rose for skip */}
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: '#22c55e', borderRadius: 24 }, isRight]}
+        />
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: '#f43f5e', borderRadius: 24 }, isLeft]}
+        />
 
         {/* LIKE label */}
         <Animated.View
