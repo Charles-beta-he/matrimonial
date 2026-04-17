@@ -15,6 +15,7 @@ import { Avatar, Badge, Button, Card, EmptyState, toast } from '@matrimonial/ui'
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
+import { ScalePressable } from '../../../components/ScalePressable';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/buddy/100/100';
 
@@ -236,7 +237,7 @@ export default function BuddyPostDetailScreen() {
         {/* Author card */}
         {post.author ? (
           <Card className="mx-4 mt-3">
-            <Pressable
+            <ScalePressable
               className="p-4 flex-row items-center"
               style={{ gap: 12 }}
               onPress={() => router.push(`/profile/${post.author.id}` as any)}
@@ -260,7 +261,7 @@ export default function BuddyPostDetailScreen() {
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </Card>
         ) : null}
 

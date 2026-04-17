@@ -14,6 +14,7 @@ import { EmptyState, ProfileCard } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
+import { ScalePressable } from '../../components/ScalePressable';
 
 type ProfileCardUserWithId = ProfileCardUser & { id: string };
 
@@ -103,11 +104,11 @@ export default function DailyPicksScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, gap: 16, paddingBottom: 24 }}
           renderItem={({ item, index }) => (
             <StaggeredCard index={index}>
-              <Pressable onPress={() => router.push(`/discover/${item.id}`)}>
+              <ScalePressable onPress={() => router.push(`/discover/${item.id}`)}>
                 <View style={{ height: 480 }}>
                   <ProfileCard user={item} />
                 </View>
-              </Pressable>
+              </ScalePressable>
             </StaggeredCard>
           )}
         />
