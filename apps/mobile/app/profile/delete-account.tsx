@@ -16,7 +16,12 @@ const DELETION_ITEMS = [
 
 export default function DeleteAccountPage() {
   const router = useRouter();
-  const clearAuth = useAppStore((s) => s.clearAuth);
+  const { token, refreshToken, user, setAuth } = useAppStore((s) => ({
+    token: s.token,
+    refreshToken: s.refreshToken,
+    user: s.user,
+    setAuth: s.setAuth,
+  }));
   const deleteMut = api.user.requestDeletion.useMutation();
 
   const [phone, setPhone] = useState('');
@@ -61,8 +66,15 @@ export default function DeleteAccountPage() {
           onPress: async () => {
             try {
               await deleteMut.mutateAsync();
-              clearAuth();
-              router.replace('/(auth)/login');
+              if (token && refreshToken && user) {
+                setAuth(token, refreshToken, {
+                  ...user,
+                  status: 'PENDING_DELETION',
+                  deletionRequestedAt: new Date().toISOString(),
+                });
+              }
+              toast.success('注销申请已提交，14天内可随时撤回');
+              router.replace('/(tabs)/profile');
             } catch (err: any) {
               toast.error(err?.message ?? '注销申请失败');
             }

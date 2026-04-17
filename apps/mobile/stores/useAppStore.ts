@@ -28,6 +28,8 @@ interface UserProfile {
   prompts?: unknown[];
   tags?: string[];
   isNewUser?: boolean;
+  status?: 'ACTIVE' | 'PENDING_DELETION' | 'BANNED' | 'DELETED';
+  deletionRequestedAt?: string | null;
 }
 
 interface AppState {

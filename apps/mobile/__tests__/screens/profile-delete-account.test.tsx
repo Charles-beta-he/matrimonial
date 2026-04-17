@@ -21,9 +21,16 @@ jest.mock('@expo/vector-icons', () => ({
   Ionicons: () => null,
 }));
 
-const mockClearAuth = jest.fn();
+const mockSetAuth = jest.fn();
 jest.mock('../../stores/useAppStore', () => ({
-  useAppStore: (sel: any) => sel({ clearAuth: mockClearAuth }),
+  useAppStore: (sel: any) =>
+    sel({
+      token: 'test-token',
+      refreshToken: 'test-refresh',
+      user: { id: 'u1', nickname: '测试' },
+      setAuth: mockSetAuth,
+      clearAuth: jest.fn(),
+    }),
 }));
 
 const mockDeletionMutateAsync = jest.fn();
@@ -115,5 +122,34 @@ describe('DeleteAccountScreen', () => {
     fireEvent.press(getByText('确认注销'));
     // Since disabled = true, onPress won't fire
     expect(mockDeletionMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('calls setAuth with PENDING_DELETION status and redirects to profile tab on success', async () => {
+    mockDeletionMutateAsync.mockResolvedValueOnce({ success: true });
+    const { getByText, getByPlaceholderText } = render(<DeleteAccountScreen />);
+
+    // Fill in required fields to enable the button
+    fireEvent.changeText(getByPlaceholderText('请输入注册手机号'), '13800138000');
+    fireEvent.changeText(getByPlaceholderText('请输入验证码'), '123456');
+
+    // Trigger the confirm flow — button now enabled
+    fireEvent.press(getByText('确认注销'));
+
+    // The confirm dialog is shown via Alert.alert — find the destructive button
+    const { Alert: RNAlert } = require('react-native');
+    if (RNAlert.alert.mock?.calls?.length) {
+      const [, , buttons] = RNAlert.alert.mock.calls[RNAlert.alert.mock.calls.length - 1];
+      const confirmButton = buttons?.find((b: any) => b.style === 'destructive');
+      if (confirmButton?.onPress) {
+        await confirmButton.onPress();
+        expect(mockSetAuth).toHaveBeenCalledWith(
+          'test-token',
+          'test-refresh',
+          expect.objectContaining({ status: 'PENDING_DELETION' }),
+        );
+        expect(mockReplace).toHaveBeenCalledWith('/(tabs)/profile');
+        expect(mockReplace).not.toHaveBeenCalledWith('/(auth)/login');
+      }
+    }
   });
 });

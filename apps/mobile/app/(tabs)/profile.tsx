@@ -3,7 +3,7 @@ import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Avatar, Badge, ListItem } from '@matrimonial/ui';
+import { Avatar, Badge, ListItem, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';
@@ -42,6 +42,20 @@ export default function ProfileTab() {
   const visitorsQuery = api.user.visitors.useQuery({ limit: 100 });
   const logoutMut = api.auth.logout.useMutation();
   const checkinQuery = api.checkin.history.useQuery(undefined, { staleTime: 60_000 });
+  const cancelDeletionMut = api.user.cancelDeletion.useMutation({
+    onSuccess: () => {
+      const s = useAppStore.getState();
+      if (s.token && s.refreshToken && s.user) {
+        s.setAuth(s.token, s.refreshToken, {
+          ...s.user,
+          status: 'ACTIVE',
+          deletionRequestedAt: null,
+        });
+      }
+      meQuery.refetch();
+      toast.success('注销申请已撤回');
+    },
+  });
 
   const user = (meQuery.data as any) ?? storeUser;
 
@@ -62,6 +76,13 @@ export default function ProfileTab() {
         : null;
 
   const verificationLevel = user?.verificationLevel ?? null;
+
+  const deletionDeadline = (() => {
+    const raw = user?.deletionRequestedAt;
+    if (!raw) return '';
+    const d = new Date(new Date(raw).getTime() + 14 * 24 * 60 * 60 * 1000);
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  })();
 
   const performLogout = async () => {
     track('auth_logout', {});
@@ -100,6 +121,30 @@ export default function ProfileTab() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* Pending deletion banner */}
+        {user?.status === 'PENDING_DELETION' && (
+          <View className="mx-4 mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
+              <Ionicons name="warning" size={16} color="#b45309" />
+              <Text className="text-sm font-bold text-amber-700">账号注销申请中</Text>
+            </View>
+            <Text className="text-xs text-amber-600 leading-5 mb-3">
+              {deletionDeadline
+                ? `您的账号将于 ${deletionDeadline} 正式注销。在此之前，您可以随时撤回申请，恢复正常使用。`
+                : '您的账号注销申请正在处理中，14天内可随时撤回。'}
+            </Text>
+            <Pressable
+              className={`rounded-full py-2.5 items-center ${cancelDeletionMut.isPending ? 'bg-amber-200' : 'bg-amber-500'}`}
+              onPress={() => cancelDeletionMut.mutate()}
+              disabled={cancelDeletionMut.isPending}
+            >
+              <Text className="text-white text-sm font-bold">
+                {cancelDeletionMut.isPending ? '处理中...' : '取消注销'}
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Header profile area */}
         <View className="bg-white px-6 pt-6 pb-6 items-center">
           <Avatar

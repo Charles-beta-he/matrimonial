@@ -22,6 +22,8 @@ const NOTIFICATION_SETTINGS: SettingToggle[] = [
 export default function SettingsPage() {
   const router = useRouter();
   const clearAuth = useAppStore((s) => s.clearAuth);
+  const storeUser = useAppStore((s) => s.user);
+  const isPendingDeletion = (storeUser as any)?.status === 'PENDING_DELETION';
   const logoutMut = api.auth.logout.useMutation();
 
   const { data: notifPrefs } = api.user.getNotifPrefs.useQuery();
@@ -211,9 +213,11 @@ export default function SettingsPage() {
           <View className="bg-white">
             <Pressable
               className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
-              onPress={handleDeleteAccount}
+              onPress={isPendingDeletion ? () => router.push('/(tabs)/profile' as any) : handleDeleteAccount}
             >
-              <Text className="text-base text-red-500">注销账号</Text>
+              <Text className="text-base text-red-500">
+                {isPendingDeletion ? '账号注销申请中' : '注销账号'}
+              </Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </Pressable>
             <Pressable
