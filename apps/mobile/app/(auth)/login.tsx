@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@matrimonial/ui';
+import { Button, ChromaText, Input } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
@@ -12,6 +20,38 @@ export default function LoginScreen() {
   const router = useRouter();
   const setAuth = useAppStore((s) => s.setAuth);
   const { track, setUserId } = useAnalytics();
+
+  // Entrance animations
+  const iconScale = useSharedValue(0);
+  const iconOpacity = useSharedValue(0);
+  const titleOpacity = useSharedValue(0);
+  const formOpacity = useSharedValue(0);
+  const formY = useSharedValue(28);
+  const ctaOpacity = useSharedValue(0);
+  const ctaY = useSharedValue(16);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    iconScale.value = withSpring(1, { damping: 9, stiffness: 160 });
+    iconOpacity.value = withTiming(1, { duration: 300 });
+    titleOpacity.value = withDelay(150, withTiming(1, { duration: 350, easing: e }));
+    formOpacity.value = withDelay(260, withTiming(1, { duration: 350, easing: e }));
+    formY.value = withDelay(260, withTiming(0, { duration: 350, easing: e }));
+    ctaOpacity.value = withDelay(380, withTiming(1, { duration: 300, easing: e }));
+    ctaY.value = withDelay(380, withTiming(0, { duration: 300, easing: e }));
+  }, []);
+  const iconStyle = useAnimatedStyle(() => ({
+    opacity: iconOpacity.value,
+    transform: [{ scale: iconScale.value }],
+  }));
+  const titleStyle = useAnimatedStyle(() => ({ opacity: titleOpacity.value }));
+  const formStyle = useAnimatedStyle(() => ({
+    opacity: formOpacity.value,
+    transform: [{ translateY: formY.value }],
+  }));
+  const ctaStyle = useAnimatedStyle(() => ({
+    opacity: ctaOpacity.value,
+    transform: [{ translateY: ctaY.value }],
+  }));
 
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -95,65 +135,74 @@ export default function LoginScreen() {
         <View className="flex-1 px-6 pt-16">
           {/* Logo */}
           <View className="items-center mb-12">
-            <Ionicons name="heart" size={48} color="#f43f5e" style={{ marginBottom: 8 }} />
-            <Text className="text-2xl font-bold text-rose-500">缘分</Text>
-            <Text className="text-sm text-gray-400 mt-1">遇见对的人</Text>
+            <Animated.View style={[{ marginBottom: 8 }, iconStyle]}>
+              <Ionicons name="heart" size={48} color="#f43f5e" />
+            </Animated.View>
+            <Animated.View style={titleStyle}>
+              <ChromaText
+                text="缘分"
+                style={{ fontSize: 26, fontWeight: '700', color: '#f43f5e' }}
+              />
+            </Animated.View>
+            <Animated.Text className="text-sm text-gray-400 mt-1" style={titleStyle}>
+              遇见对的人
+            </Animated.Text>
           </View>
 
-          {/* Phone */}
-          <View className="mb-4">
-            <Input
-              label="手机号"
-              placeholder="请输入手机号"
-              value={phone}
-              onChangeText={setPhone}
-              maxLength={11}
-            />
-          </View>
-
-          {/* Code */}
-          <View className="mb-6">
-            <Input
-              label="验证码"
-              placeholder="请输入验证码"
-              value={code}
-              onChangeText={setCode}
-              maxLength={6}
-              rightIcon={
-                <Pressable
-                  onPress={handleSendCode}
-                  disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
-                >
-                  <Text
-                    className={`text-sm font-medium ${
-                      countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
-                    }`}
+          {/* Phone + Code */}
+          <Animated.View style={formStyle}>
+            <View className="mb-4">
+              <Input
+                label="手机号"
+                placeholder="请输入手机号"
+                value={phone}
+                onChangeText={setPhone}
+                maxLength={11}
+              />
+            </View>
+            <View className="mb-6">
+              <Input
+                label="验证码"
+                placeholder="请输入验证码"
+                value={code}
+                onChangeText={setCode}
+                maxLength={6}
+                rightIcon={
+                  <Pressable
+                    onPress={handleSendCode}
+                    disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
                   >
-                    {countdown > 0 ? `${countdown}s` : sendCodeMutation.isPending ? '发送中...' : '发送验证码'}
-                  </Text>
-                </Pressable>
-              }
+                    <Text
+                      className={`text-sm font-medium ${
+                        countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
+                      }`}
+                    >
+                      {countdown > 0 ? `${countdown}s` : sendCodeMutation.isPending ? '发送中...' : '发送验证码'}
+                    </Text>
+                  </Pressable>
+                }
+              />
+            </View>
+          </Animated.View>
+
+          {/* CTA + Register link */}
+          <Animated.View style={ctaStyle}>
+            <Button
+              title="登录"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={verifyCodeMutation.isPending}
+              disabled={!phone || !code}
+              onPress={handleLogin}
             />
-          </View>
-
-          {/* Login button */}
-          <Button
-            title="登录"
-            variant="primary"
-            size="lg"
-            fullWidth
-            loading={verifyCodeMutation.isPending}
-            disabled={!phone || !code}
-            onPress={handleLogin}
-          />
-
-          {/* Register link */}
-          <View className="flex-row justify-center mt-6">
-            <Text className="text-gray-400 text-sm">还没有账号？</Text>
-            <Pressable onPress={() => router.push('/(auth)/register/step1-phone')}>
-              <Text className="text-rose-500 text-sm font-medium">立即注册</Text>
-            </Pressable>
-          </View>
+            <View className="flex-row justify-center mt-6">
+              <Text className="text-gray-400 text-sm">还没有账号？</Text>
+              <Pressable onPress={() => router.push('/(auth)/register/step1-phone')}>
+                <Text className="text-rose-500 text-sm font-medium">立即注册</Text>
+              </Pressable>
+            </View>
+          </Animated.View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
