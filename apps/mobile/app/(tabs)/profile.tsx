@@ -15,12 +15,13 @@ interface MenuItem {
   title: string;
   icon: IoniconName;
   iconColor: string;
-  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings' | '/profile/checkin' | '/profile/invite';
+  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings' | '/profile/checkin' | '/profile/invite' | '/profile/preferences';
 }
 
 const MENU_ITEMS: MenuItem[] = [
   { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: '#3b82f6', route: '/profile/verification' },
   { title: '会员中心', icon: 'diamond-outline',          iconColor: '#f59e0b', route: '/profile/membership' },
+  { title: '择偶偏好', icon: 'options-outline',          iconColor: '#8b5cf6', route: '/profile/preferences' },
   { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: '#6b7280', route: '/profile/privacy' },
   { title: '邀请好友', icon: 'gift-outline',              iconColor: '#ec4899', route: '/profile/invite' },
   { title: '安全工具', icon: 'shield-outline',           iconColor: '#ef4444', route: '/profile/safety' },
