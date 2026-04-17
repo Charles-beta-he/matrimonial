@@ -11,7 +11,8 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-native": ">=0.76"
+    "react-native": ">=0.76",
+    "react-native-reanimated": ">=3"
   },
   "devDependencies": {
     "@matrimonial/config": "workspace:*",

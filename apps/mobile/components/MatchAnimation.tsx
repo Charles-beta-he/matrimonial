@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -79,6 +80,10 @@ export function MatchAnimation({
   // Ring pulse shared values
   const ringScale = useSharedValue(1);
   const ringOpacity = useSharedValue(0);
+  const ringScale2 = useSharedValue(1);
+  const ringOpacity2 = useSharedValue(0);
+  const ringScale3 = useSharedValue(1);
+  const ringOpacity3 = useSharedValue(0);
 
   const { data: icebreakersData, isLoading: icebreakersLoading } = useIcebreakers(
     matchedUserId ?? '',
@@ -87,11 +92,35 @@ export function MatchAnimation({
   const suggestions = icebreakersData?.suggestions ?? [];
 
   function triggerParticles() {
-    // Ring pulse
+    // Ring 1 — immediate
     ringScale.value = 1;
-    ringOpacity.value = 0.6;
-    ringScale.value = withTiming(2.2, { duration: 600, easing: Easing.out(Easing.quad) });
-    ringOpacity.value = withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) });
+    ringOpacity.value = 0.5;
+    ringScale.value = withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) });
+    ringOpacity.value = withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) });
+
+    // Ring 2 — 150ms delay
+    ringScale2.value = 1;
+    ringOpacity2.value = 0;
+    ringScale2.value = withDelay(150, withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    ringOpacity2.value = withDelay(
+      150,
+      withSequence(
+        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+      ),
+    );
+
+    // Ring 3 — 300ms delay
+    ringScale3.value = 1;
+    ringOpacity3.value = 0;
+    ringScale3.value = withDelay(300, withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    ringOpacity3.value = withDelay(
+      300,
+      withSequence(
+        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+      ),
+    );
 
     // Particle burst
     PARTICLES.forEach((_, i) => {
@@ -152,12 +181,22 @@ export function MatchAnimation({
     transform: [{ scale: ringScale.value }],
   }));
 
+  const ringStyle2 = useAnimatedStyle(() => ({
+    opacity: ringOpacity2.value,
+    transform: [{ scale: ringScale2.value }],
+  }));
+
+  const ringStyle3 = useAnimatedStyle(() => ({
+    opacity: ringOpacity3.value,
+    transform: [{ scale: ringScale3.value }],
+  }));
+
   return (
     <Animated.View
       className="absolute inset-0 items-center justify-center z-50"
       style={[{ backgroundColor: 'rgba(0,0,0,0.8)' }, bgStyle]}
     >
-      {/* Ring pulse */}
+      {/* Ring pulse — ring 1 */}
       <Animated.View
         pointerEvents="none"
         style={[
@@ -170,6 +209,38 @@ export function MatchAnimation({
             borderColor: '#f43f5e',
           },
           ringStyle,
+        ]}
+      />
+
+      {/* Ring pulse — ring 2 */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: '#fb7185',
+          },
+          ringStyle2,
+        ]}
+      />
+
+      {/* Ring pulse — ring 3 */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: 'rgba(251, 113, 133, 0.4)',
+          },
+          ringStyle3,
         ]}
       />
 

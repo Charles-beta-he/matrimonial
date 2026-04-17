@@ -21,6 +21,8 @@ interface AnimatedTabIconProps {
 export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
   const dotScale = useSharedValue(focused ? 1 : 0);
+  const glowScale = useSharedValue(0);
+  const glowOpacity = useSharedValue(0);
 
   // Track whether this is the initial mount to skip animation
   const mounted = useSharedValue(false);
@@ -36,8 +38,15 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
         withSpring(1.0, { damping: 8, stiffness: 200 }),
       );
       dotScale.value = withSpring(1, { damping: 8, stiffness: 200 });
+      glowScale.value = withSequence(
+        withSpring(1.8, { damping: 6, stiffness: 150 }),
+        withSpring(1.2, { damping: 12, stiffness: 200 }),
+      );
+      glowOpacity.value = withTiming(0.25, { duration: 150 });
     } else {
       dotScale.value = withTiming(0, { duration: 150 });
+      glowScale.value = withTiming(0, { duration: 200 });
+      glowOpacity.value = withTiming(0, { duration: 200 });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focused]);
@@ -50,11 +59,30 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
     transform: [{ scale: dotScale.value }],
   }));
 
+  const glowStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: glowScale.value }],
+    opacity: glowOpacity.value,
+  }));
+
   return (
     <View style={{ alignItems: 'center' }}>
-      <Animated.View style={iconStyle}>
-        <Ionicons name={name} size={size} color={color} />
-      </Animated.View>
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: '#f43f5e',
+            },
+            glowStyle,
+          ]}
+        />
+        <Animated.View style={iconStyle}>
+          <Ionicons name={name} size={size} color={color} />
+        </Animated.View>
+      </View>
       <Animated.View
         style={[
           {

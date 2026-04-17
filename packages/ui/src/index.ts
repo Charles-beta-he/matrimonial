@@ -1,4 +1,5 @@
 export * from './Button';
+export * from './ChromaText';
 export * from './Avatar';
 export * from './Badge';
 export * from './Card';

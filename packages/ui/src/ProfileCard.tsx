@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
 import { Badge } from './Badge';
+import { ChromaText } from './ChromaText';
 
 export interface ProfileCardUser {
   nickname: string;
@@ -75,9 +76,11 @@ export function ProfileCard({ user }: ProfileCardProps) {
       >
         {/* Name row */}
         <View className="flex-row items-center mb-1">
-          <Text className="text-3xl font-bold text-white mr-2">
-            {nickname}, {age}
-          </Text>
+          <ChromaText
+            text={`${nickname}, ${age}`}
+            style={{ fontSize: 30, fontWeight: 'bold', color: 'white', marginRight: 8 }}
+            trigger
+          />
           {isOnline && (
             <View className="w-3 h-3 bg-green-400 rounded-full ml-1" />
           )}
