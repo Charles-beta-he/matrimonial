@@ -4,8 +4,9 @@ import { httpBatchLink, TRPCClientError, type TRPCLink } from '@trpc/client';
 import { observable } from '@trpc/server/observable';
 import type { AnyRouter } from '@trpc/server';
 import { Stack } from 'expo-router';
+import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { api } from '@matrimonial/api-client';
 import { ErrorBoundary, ToastProvider, toast } from '@matrimonial/ui';
@@ -103,6 +104,13 @@ export default function RootLayout() {
     useAppStore.getState().hydrate();
   }, []);
 
+  // Register service worker (web only)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    if (!('serviceWorker' in navigator)) return;
+    (navigator as any).serviceWorker.register('/sw.js').catch(() => {});
+  }, []);
+
   // Auto-connect socket when hydrated and token is available
   useEffect(() => {
     if (!hydrated) return;
@@ -117,7 +125,31 @@ export default function RootLayout() {
     };
   }, [hydrated, token]);
 
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            gcTime: 5 * 60_000,
+            retry: (count, error) => {
+              if (error instanceof TRPCClientError) {
+                const code = error.data?.code as string | undefined;
+                // Never retry client errors — they won't recover
+                if (['UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'BAD_REQUEST'].includes(code ?? '')) {
+                  return false;
+                }
+              }
+              return count < 2;
+            },
+            refetchOnWindowFocus: Platform.OS === 'web',
+          },
+          mutations: {
+            retry: false,
+          },
+        },
+      }),
+  );
   const trpcClient = useMemo(
     () =>
       api.createClient({
@@ -180,6 +212,22 @@ export default function RootLayout() {
   }
 
   return (
+    <>
+    {Platform.OS === 'web' && (
+      <Head>
+        <meta name="theme-color" content="#f43f5e" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="缘分" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+        <meta name="description" content="基于AI的智能婚恋匹配平台" />
+        <meta property="og:title" content="缘分 — 智能婚恋" />
+        <meta property="og:description" content="基于AI的智能婚恋匹配平台" />
+        <meta property="og:type" content="website" />
+      </Head>
+    )}
     <ErrorBoundary
       screenName="root"
       onError={(error) => {
@@ -214,5 +262,6 @@ export default function RootLayout() {
         </api.Provider>
       </ToastProvider>
     </ErrorBoundary>
+    </>
   );
 }

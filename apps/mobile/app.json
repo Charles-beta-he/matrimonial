@@ -19,7 +19,10 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static"
+      "output": "static",
+      "backgroundColor": "#ffffff",
+      "themeColor": "#f43f5e",
+      "lang": "zh-CN"
     },
     "plugins": ["expo-router"],
     "extra": {
