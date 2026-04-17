@@ -1,4 +1,12 @@
+import { useEffect } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { ProfileCardUser } from '@matrimonial/ui';
@@ -8,6 +16,22 @@ import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 
 type ProfileCardUserWithId = ProfileCardUser & { id: string };
+
+function StaggeredCard({ index, children }: { index: number; children: React.ReactNode }) {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(28);
+  useEffect(() => {
+    const delay = index * 80;
+    const e = Easing.out(Easing.cubic);
+    opacity.value = withDelay(delay, withTiming(1, { duration: 320, easing: e }));
+    translateY.value = withDelay(delay, withTiming(0, { duration: 320, easing: e }));
+  }, []);
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
 
 function toProfileCardUser(u: any): ProfileCardUserWithId {
   const age = u?.birthday ? calculateAge(new Date(u.birthday)) : 25;
@@ -77,12 +101,14 @@ export default function DailyPicksScreen() {
           data={picks}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 16, gap: 16, paddingBottom: 24 }}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/discover/${item.id}`)}>
-              <View style={{ height: 480 }}>
-                <ProfileCard user={item} />
-              </View>
-            </Pressable>
+          renderItem={({ item, index }) => (
+            <StaggeredCard index={index}>
+              <Pressable onPress={() => router.push(`/discover/${item.id}`)}>
+                <View style={{ height: 480 }}>
+                  <ProfileCard user={item} />
+                </View>
+              </Pressable>
+            </StaggeredCard>
           )}
         />
       )}

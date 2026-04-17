@@ -3,23 +3,11 @@ import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, toast } from '@matrimonial/ui';
+import { AnimatedProgressBar, Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useUpload } from '../../../hooks/useUpload';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
-  return (
-    <View className="flex-row mb-8" style={{ gap: 4 }}>
-      {Array.from({ length: total }, (_, i) => (
-        <View
-          key={i}
-          className={`flex-1 h-1 rounded-full ${i < step ? 'bg-rose-500' : 'bg-gray-200'}`}
-        />
-      ))}
-    </View>
-  );
-}
 
 const SLOTS = 6;
 
@@ -119,7 +107,7 @@ export default function RegisterStep3Photos() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <ProgressBar step={2} total={4} />
+        <AnimatedProgressBar step={2} total={4} />
 
         <Text className="text-2xl font-bold text-gray-900 mb-1">上传照片</Text>
         <Text className="text-sm text-gray-400 mb-6">至少上传2张真人照片</Text>

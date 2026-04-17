@@ -12,3 +12,4 @@ export * from './EmptyState';
 export * from './ListItem';
 export * from './ErrorBoundary';
 export { ToastProvider, toast } from './Toast';
+export * from './AnimatedProgressBar';

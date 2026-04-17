@@ -12,11 +12,14 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  Easing,
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   interpolate,
   Extrapolation,
+  withDelay,
+  withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -110,6 +113,19 @@ export default function UserProfileScreen() {
       });
     };
   }, [userId]);
+
+  // Info section entrance
+  const infoOpacity = useSharedValue(0);
+  const infoY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    infoOpacity.value = withDelay(120, withTiming(1, { duration: 380, easing: e }));
+    infoY.value = withDelay(120, withTiming(0, { duration: 360, easing: e }));
+  }, []);
+  const infoSectionStyle = useAnimatedStyle(() => ({
+    opacity: infoOpacity.value,
+    transform: [{ translateY: infoY.value }],
+  }));
 
   // --- Parallax scroll tracking ---
   const scrollY = useSharedValue(0);
@@ -361,7 +377,7 @@ export default function UserProfileScreen() {
         </View>
 
         {/* User info */}
-        <View className="px-4 pt-4">
+        <Animated.View className="px-4 pt-4" style={infoSectionStyle}>
           <View className="flex-row items-center mb-1">
             <Text className="text-2xl font-bold text-gray-900 mr-2">
               {user.nickname}, {user.age}
@@ -423,7 +439,7 @@ export default function UserProfileScreen() {
               </View>
             </>
           )}
-        </View>
+        </Animated.View>
 
         <View className="h-24" />
       </Animated.ScrollView>

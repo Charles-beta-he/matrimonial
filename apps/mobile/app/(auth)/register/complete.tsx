@@ -11,22 +11,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, ChromaText } from '@matrimonial/ui';
+import { AnimatedProgressBar, Button, ChromaText } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
-  return (
-    <View className="flex-row mb-8" style={{ gap: 4 }}>
-      {Array.from({ length: total }, (_, i) => (
-        <View
-          key={i}
-          className={`flex-1 h-1 rounded-full ${i < step ? 'bg-rose-500' : 'bg-gray-200'}`}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function RegisterComplete() {
   const router = useRouter();
@@ -106,7 +94,7 @@ export default function RegisterComplete() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 px-6 pt-4">
-        <ProgressBar step={4} total={4} />
+        <AnimatedProgressBar step={4} total={4} />
 
         <View className="flex-1 items-center justify-center" style={{ gap: 16 }}>
           {/* Icon with ring pulses */}

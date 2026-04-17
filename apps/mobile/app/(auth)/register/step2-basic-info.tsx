@@ -3,23 +3,11 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, toast } from '@matrimonial/ui';
+import { AnimatedProgressBar, Button, Input, toast } from '@matrimonial/ui';
 import type { Gender } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
-  return (
-    <View className="flex-row mb-8" style={{ gap: 4 }}>
-      {Array.from({ length: total }, (_, i) => (
-        <View
-          key={i}
-          className={`flex-1 h-1 rounded-full ${i < step ? 'bg-rose-500' : 'bg-gray-200'}`}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function RegisterStep2BasicInfo() {
   const router = useRouter();
@@ -70,7 +58,7 @@ export default function RegisterStep2BasicInfo() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-          <ProgressBar step={1} total={4} />
+          <AnimatedProgressBar step={1} total={4} />
 
           <Text className="text-2xl font-bold text-gray-900 mb-2">基本资料</Text>
           <Text className="text-sm text-gray-400 mb-8">让我们更好地了解你</Text>
