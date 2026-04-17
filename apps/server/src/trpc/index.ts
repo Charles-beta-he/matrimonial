@@ -15,6 +15,8 @@ import { safetyRouter } from './routers/safety.router';
 import { videoRouter } from './routers/video.router';
 import { checkinRouter } from './routers/checkin.router';
 import { inviteRouter } from './routers/invite.router';
+import { circleRouter } from './routers/circle.router';
+import { buddyRouter } from './routers/buddy.router';
 
 export const appRouter = router({
   auth: authRouter,
@@ -33,6 +35,8 @@ export const appRouter = router({
   video: videoRouter,
   checkin: checkinRouter,
   invite: inviteRouter,
+  circle: circleRouter,
+  buddy: buddyRouter,
 });
 
 export type AppRouter = typeof appRouter;

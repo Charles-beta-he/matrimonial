@@ -96,7 +96,7 @@ export function useVoiceRecorder() {
       recordingRef.current = null;
       setState('idle');
       return uri;
-    } catch (err: any) {
+    } catch {
       recordingRef.current = null;
       setState('idle');
       return null;

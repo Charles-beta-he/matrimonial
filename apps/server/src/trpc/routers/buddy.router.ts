@@ -78,7 +78,7 @@ export const buddyRouter = router({
     }),
 
   /** Apply to join a buddy activity */
-  apply: protectedProcedure
+  applyPost: protectedProcedure
     .input(
       z.object({
         postId: z.string(),

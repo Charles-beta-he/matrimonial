@@ -67,7 +67,16 @@ export const matchRouter = router({
                 )
                 .optional(),
               zodiac: z.array(z.string()).optional(),
-              mbti: z.array(z.string()).optional(),
+              mbti: z
+                .array(
+                  z.enum([
+                    'INTJ', 'INTP', 'ENTJ', 'ENTP',
+                    'INFJ', 'INFP', 'ENFJ', 'ENFP',
+                    'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
+                    'ISTP', 'ISFP', 'ESTP', 'ESFP',
+                  ]),
+                )
+                .optional(),
               occupation: z.string().optional(),
               verificationLevel: z
                 .array(z.enum(['L1', 'L2', 'L3', 'L4']))

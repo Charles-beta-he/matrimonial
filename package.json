@@ -32,6 +32,13 @@
   "pnpm": {
     "overrides": {
       "react-server-dom-webpack": "19.0.2"
+    },
+    "packageExtensions": {
+      "@expo/vector-icons": {
+        "peerDependencies": {
+          "react": "*"
+        }
+      }
     }
   }
 }

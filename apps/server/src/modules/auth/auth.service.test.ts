@@ -58,9 +58,10 @@ describe('AuthService', () => {
     });
 
     it('code can only be used once', async () => {
-      await AuthService.sendVerificationCode('13800000001');
-      AuthService.verifyCode('13800000001', '123456');
-      expect(AuthService.verifyCode('13800000001', '123456')).toBe(false);
+      // Use non-bypass phone so code is stored in verificationCodes map (one-time-use)
+      await AuthService.sendVerificationCode('13900000001');
+      AuthService.verifyCode('13900000001', '123456');
+      expect(AuthService.verifyCode('13900000001', '123456')).toBe(false);
     });
   });
 
