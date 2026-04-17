@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { AnimatedCounter } from '../../components/AnimatedCounter';
+import { StaggeredListItem } from '../../components/StaggeredListItem';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withTiming,
@@ -51,9 +53,15 @@ export default function ProfileTab() {
 
   const headerOpacity = useSharedValue(0);
   const headerTranslateY = useSharedValue(-20);
+  const statsOpacity = useSharedValue(0);
+  const statsY = useSharedValue(20);
   const headerStyle = useAnimatedStyle(() => ({
     opacity: headerOpacity.value,
     transform: [{ translateY: headerTranslateY.value }],
+  }));
+  const statsStyle = useAnimatedStyle(() => ({
+    opacity: statsOpacity.value,
+    transform: [{ translateY: statsY.value }],
   }));
 
   useEffect(() => {
@@ -65,9 +73,12 @@ export default function ProfileTab() {
       -1,
       true,
     );
-    const cfg = { duration: 400, easing: Easing.out(Easing.cubic) };
+    const e = Easing.out(Easing.cubic);
+    const cfg = { duration: 400, easing: e };
     headerOpacity.value = withTiming(1, cfg);
     headerTranslateY.value = withTiming(0, cfg);
+    statsOpacity.value = withDelay(200, withTiming(1, { duration: 380, easing: e }));
+    statsY.value = withDelay(200, withTiming(0, { duration: 360, easing: e }));
   }, [breathe, headerOpacity, headerTranslateY]);
 
   const meQuery = api.user.me.useQuery(undefined, {
@@ -244,7 +255,7 @@ export default function ProfileTab() {
         </Pressable>
 
         {/* Stats row */}
-        <View className="bg-white mt-2 flex-row py-4">
+        <Animated.View className="bg-white mt-2 flex-row py-4" style={statsStyle}>
           {stats.map((stat, i) => (
             stat.route ? (
               <Pressable
@@ -268,25 +279,26 @@ export default function ProfileTab() {
               </View>
             )
           ))}
-        </View>
+        </Animated.View>
 
         {/* Menu items */}
         <View className="bg-white mt-2">
-          {MENU_ITEMS.map((item) => (
-            <ListItem
-              key={item.title}
-              left={
-                <View
-                  className="w-9 h-9 rounded-xl items-center justify-center"
-                  style={{ backgroundColor: item.iconColor + '15' }}
-                >
-                  <Ionicons name={item.icon} size={20} color={item.iconColor} />
-                </View>
-              }
-              title={item.title}
-              right={<Ionicons name="chevron-forward" size={18} color="#d1d5db" />}
-              onPress={() => router.push(item.route as any)}
-            />
+          {MENU_ITEMS.map((item, i) => (
+            <StaggeredListItem key={item.title} index={i}>
+              <ListItem
+                left={
+                  <View
+                    className="w-9 h-9 rounded-xl items-center justify-center"
+                    style={{ backgroundColor: item.iconColor + '15' }}
+                  >
+                    <Ionicons name={item.icon} size={20} color={item.iconColor} />
+                  </View>
+                }
+                title={item.title}
+                right={<Ionicons name="chevron-forward" size={18} color="#d1d5db" />}
+                onPress={() => router.push(item.route as any)}
+              />
+            </StaggeredListItem>
           ))}
         </View>
 

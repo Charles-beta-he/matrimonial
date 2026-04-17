@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, Easing, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
@@ -33,7 +33,9 @@ import { HeartBurst } from '../../components/HeartBurst';
 import { StarBurst } from '../../components/StarBurst';
 import { SwipeCard } from '../../components/SwipeCard';
 import { CardStack } from '../../components/CardStack';
-import { MatchAnimation } from '../../components/MatchAnimation';
+const MatchAnimation = lazy(() =>
+  import('../../components/MatchAnimation').then((m) => ({ default: m.MatchAnimation })),
+);
 import { SkeletonCard } from '../../components/SkeletonLoader';
 import { useMatchStore } from '../../stores/useMatchStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -205,6 +207,8 @@ export default function DiscoverTab() {
   const [filters, setFilters] = useState<Filters>({});
   const [draftFilters, setDraftFilters] = useState<Filters>({});
   const filterHeight = useRef(new Animated.Value(0)).current;
+  const headerOpacity = useRef(new Animated.Value(0)).current;
+  const headerTranslateY = useRef(new Animated.Value(-16)).current;
   const hasActiveFilters = !isFiltersEmpty(filters);
 
   const toggleFilters = useCallback(() => {
@@ -290,9 +294,13 @@ export default function DiscoverTab() {
   const currentUser = recommendations[localIndex];
   const nextUser = recommendations[localIndex + 1];
 
-  // Screen view tracking
+  // Screen view tracking + header entrance
   useEffect(() => {
     track('screen_view', { screen_name: 'discover' });
+    Animated.parallel([
+      Animated.timing(headerOpacity, { toValue: 1, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(headerTranslateY, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+    ]).start();
   }, [track]);
 
   // Track card_view whenever the current card changes
@@ -382,7 +390,10 @@ export default function DiscoverTab() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 bg-gray-50">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-3">
+        <Animated.View
+          className="flex-row items-center justify-between px-4 py-3"
+          style={{ opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }}
+        >
           <Text className="text-2xl font-bold text-gray-900">发现</Text>
           <Pressable
             className="w-10 h-10 bg-white rounded-full items-center justify-center"
@@ -408,7 +419,7 @@ export default function DiscoverTab() {
               />
             )}
           </Pressable>
-        </View>
+        </Animated.View>
 
         {/* Filter drawer */}
         <Animated.View
@@ -921,20 +932,22 @@ export default function DiscoverTab() {
 
         {/* Match animation overlay */}
         {showMatchAnimation && matchInfo && (
-          <MatchAnimation
-            myPhoto="https://picsum.photos/seed/me/200/200"
-            theirPhoto={matchInfo.photo}
-            theirName={matchInfo.name}
-            matchedUserId={matchedUser?.id}
-            onSendMessage={() => {
-              setMatchAnimation(false);
-              setMatchInfo(null);
-            }}
-            onContinue={() => {
-              setMatchAnimation(false);
-              setMatchInfo(null);
-            }}
-          />
+          <Suspense fallback={null}>
+            <MatchAnimation
+              myPhoto="https://picsum.photos/seed/me/200/200"
+              theirPhoto={matchInfo.photo}
+              theirName={matchInfo.name}
+              matchedUserId={matchedUser?.id}
+              onSendMessage={() => {
+                setMatchAnimation(false);
+                setMatchInfo(null);
+              }}
+              onContinue={() => {
+                setMatchAnimation(false);
+                setMatchInfo(null);
+              }}
+            />
+          </Suspense>
         )}
       </SafeAreaView>
     </GestureHandlerRootView>
