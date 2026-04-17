@@ -15,6 +15,7 @@ import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +36,17 @@ import { SkeletonMessage } from '../../components/SkeletonLoader';
 import { PressScale } from '../../components/PressScale';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/them/100/100';
+
+function AnimatedSendButton({ children }: { children: React.ReactNode }) {
+  const scale = useSharedValue(0);
+  useEffect(() => {
+    scale.value = withSpring(1, { damping: 8, stiffness: 300 });
+  }, []);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
+}
 
 /** Chat conversation screen */
 export default function ChatConversationScreen() {
@@ -574,14 +586,16 @@ export default function ChatConversationScreen() {
               <Ionicons name="camera-outline" size={22} color="#6b7280" />
             </Pressable>
             {inputText.trim() ? (
-              <PressScale onPress={handleSend}>
-                <View
-                  className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
-                  style={sendMessageMutation.isPending ? { opacity: 0.5 } : undefined}
-                >
-                  <Ionicons name="arrow-up" size={18} color="#ffffff" />
-                </View>
-              </PressScale>
+              <AnimatedSendButton key="send-btn">
+                <PressScale onPress={handleSend}>
+                  <View
+                    className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
+                    style={sendMessageMutation.isPending ? { opacity: 0.5 } : undefined}
+                  >
+                    <Ionicons name="arrow-up" size={18} color="#ffffff" />
+                  </View>
+                </PressScale>
+              </AnimatedSendButton>
             ) : null}
           </View>
           </>

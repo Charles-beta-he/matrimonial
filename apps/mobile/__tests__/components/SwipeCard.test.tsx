@@ -10,8 +10,10 @@ jest.mock('react-native-gesture-handler', () => {
     GestureDetector: ({ children }: any) => children,
     Gesture: {
       Pan: () => ({
+        onStart: function (this: any, _fn: any) { return this; },
         onUpdate: function (this: any, _fn: any) { return this; },
         onEnd: function (this: any, _fn: any) { return this; },
+        onFinalize: function (this: any, _fn: any) { return this; },
       }),
     },
     PanGestureHandler: View,

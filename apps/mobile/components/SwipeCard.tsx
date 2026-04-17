@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  Extrapolation,
   interpolate,
   runOnJS,
   useAnimatedStyle,
@@ -26,8 +27,12 @@ interface SwipeCardProps {
 export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, recommendReason }: SwipeCardProps) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const scale = useSharedValue(1.0);
 
   const panGesture = Gesture.Pan()
+    .onStart(() => {
+      scale.value = withSpring(1.05);
+    })
     .onUpdate((e) => {
       translateX.value = e.translationX;
       translateY.value = e.translationY * 0.3;
@@ -45,6 +50,10 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
         translateX.value = withSpring(0);
         translateY.value = withSpring(0);
       }
+      scale.value = withSpring(1.0);
+    })
+    .onFinalize(() => {
+      scale.value = withSpring(1.0);
     });
 
   const cardStyle = useAnimatedStyle(() => {
@@ -60,22 +69,23 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
       };
     }
 
-    const rotate = interpolate(translateX.value, [-SCREEN_WIDTH, SCREEN_WIDTH], [-15, 15]);
+    const rotate = interpolate(translateX.value, [-150, 0, 150], [-15, 0, 15], Extrapolation.CLAMP);
     return {
       transform: [
         { translateX: translateX.value },
         { translateY: translateY.value },
         { rotate: `${rotate}deg` },
+        { scale: scale.value },
       ],
     };
   });
 
   const likeOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], 'clamp'),
+    opacity: interpolate(translateX.value, [40, 120], [0, 1], Extrapolation.CLAMP),
   }));
 
   const skipOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp'),
+    opacity: interpolate(translateX.value, [-120, -40], [1, 0], Extrapolation.CLAMP),
   }));
 
   if (isNext) {
