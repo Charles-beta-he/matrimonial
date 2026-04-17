@@ -21,6 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
+import { ScalePressable } from '../../../components/ScalePressable';
 
 function AnimatedBanner({ color, index }: { color: string; index: number }) {
   const width = useSharedValue(0);
@@ -152,7 +153,7 @@ export default function CirclesScreen() {
 
             return (
               <StaggeredListItem index={index}>
-              <Pressable onPress={() => router.push(`/explore/circles/${item.id}` as any)}>
+              <ScalePressable onPress={() => router.push(`/explore/circles/${item.id}` as any)}>
                 <Card className="overflow-hidden">
                   {/* Color banner */}
                   <View style={{ height: 6, backgroundColor: accentColor + '30', overflow: 'hidden' }}>
@@ -202,7 +203,7 @@ export default function CirclesScreen() {
                     </View>
                   </View>
                 </Card>
-              </Pressable>
+              </ScalePressable>
               </StaggeredListItem>
             );
           }}

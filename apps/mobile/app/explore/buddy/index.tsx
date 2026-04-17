@@ -21,6 +21,7 @@ import Animated, {
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
+import { ScalePressable } from '../../../components/ScalePressable';
 
 const TYPE_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -160,7 +161,7 @@ export default function BuddyScreen() {
 
             return (
               <StaggeredListItem index={index}>
-              <Pressable onPress={() => router.push(`/explore/buddy/${item.id}` as any)}>
+              <ScalePressable onPress={() => router.push(`/explore/buddy/${item.id}` as any)}>
                 <Card>
                   <View className="p-4">
                     {/* Type badge */}
@@ -227,7 +228,7 @@ export default function BuddyScreen() {
                     </View>
                   </View>
                 </Card>
-              </Pressable>
+              </ScalePressable>
               </StaggeredListItem>
             );
           }}
