@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Card } from '@matrimonial/ui';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
+import { ScalePressable } from '../../components/ScalePressable';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -81,7 +82,7 @@ export default function ExploreTab() {
       <View className="flex-1 px-4" style={{ gap: 12 }}>
         {/* Quick Video Match */}
         <StaggeredListItem index={0}>
-          <Pressable
+          <ScalePressable
             onPress={() => router.push('/chat/quick-match')}
             style={{
               backgroundColor: '#fef2f2', borderRadius: 12,
@@ -100,7 +101,7 @@ export default function ExploreTab() {
               <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>随机匹配，3分钟视频相亲</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </Pressable>
+          </ScalePressable>
         </StaggeredListItem>
 
         {SECTIONS.map((section, i) => (
