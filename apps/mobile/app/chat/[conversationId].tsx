@@ -521,12 +521,13 @@ export default function ChatConversationScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 8, gap: 8 }}
-              className="border-t border-gray-50"
+              style={{ height: 48, borderTopWidth: 1, borderTopColor: '#f9fafb' }}
+              contentContainerStyle={{ paddingHorizontal: 12, alignItems: 'center', gap: 8 }}
             >
               {icebreakers.slice(0, 3).map((s: string, i: number) => (
                 <Pressable
                   key={i}
+                  style={{ alignSelf: 'center' }}
                   className="bg-rose-50 rounded-full px-3 py-1.5"
                   onPress={() => setInputText(s)}
                 >
