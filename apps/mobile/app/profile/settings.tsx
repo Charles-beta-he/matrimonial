@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -46,6 +52,26 @@ export default function SettingsPage() {
       });
     }
   }, [notifPrefs]);
+
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-16);
+  const contentOpacity = useSharedValue(0);
+  const contentY = useSharedValue(20);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+    contentOpacity.value = withTiming(1, { duration: 380, easing: e });
+    contentY.value = withTiming(0, { duration: 360, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentY.value }],
+  }));
 
   const toggleNotification = (key: string) => {
     const newValue = !notifications[key];
@@ -96,13 +122,14 @@ export default function SettingsPage() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="bg-white px-6 py-4 flex-row items-center">
+        <Animated.View className="bg-white px-6 py-4 flex-row items-center" style={headerStyle}>
           <Pressable onPress={() => router.back()} className="mr-4">
             <Ionicons name="chevron-back" size={24} color="#4b5563" />
           </Pressable>
           <Text className="text-lg font-bold text-gray-900">设置</Text>
-        </View>
+        </Animated.View>
 
+        <Animated.View style={contentStyle}>
         {/* 账号安全 */}
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号安全</Text>
@@ -231,6 +258,7 @@ export default function SettingsPage() {
         </View>
 
         <View className="h-12" />
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );

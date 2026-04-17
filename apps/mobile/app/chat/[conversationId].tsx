@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  Easing,
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -71,6 +72,13 @@ export default function ChatConversationScreen() {
   const inputAnimatedStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(focusProgress.value, [0, 1], ['#f3f4f6', '#fff5f5']),
     borderColor: interpolateColor(focusProgress.value, [0, 1], ['transparent', '#f43f5e']),
+  }));
+
+  const chatHeaderOpacity = useSharedValue(0);
+  const chatHeaderY = useSharedValue(-12);
+  const chatHeaderStyle = useAnimatedStyle(() => ({
+    opacity: chatHeaderOpacity.value,
+    transform: [{ translateY: chatHeaderY.value }],
   }));
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
@@ -140,11 +148,14 @@ export default function ChatConversationScreen() {
   });
   const markReadMutation = api.chat.markRead.useMutation();
 
-  // Track chat open + mark read on mount
+  // Track chat open + mark read on mount + header entrance
   useEffect(() => {
     if (!cid) return;
     track('chat_open', { conversation_id: cid });
     markReadMutation.mutate({ conversationId: cid });
+    const e = Easing.out(Easing.cubic);
+    chatHeaderOpacity.value = withTiming(1, { duration: 300, easing: e });
+    chatHeaderY.value = withTiming(0, { duration: 300, easing: e });
   }, [cid]);
 
   // Merge history + live, dedupe by id
@@ -410,7 +421,7 @@ export default function ChatConversationScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 border-b border-gray-100" style={chatHeaderStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
@@ -433,7 +444,7 @@ export default function ChatConversationScreen() {
         >
           <Ionicons name="videocam-outline" size={24} color="#374151" />
         </Pressable>
-      </View>
+      </Animated.View>
 
       <KeyboardAvoidingView
         className="flex-1"
