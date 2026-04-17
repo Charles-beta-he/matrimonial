@@ -37,6 +37,7 @@ jest.mock('@matrimonial/api-client', () => ({
     user: {
       me: { useQuery: () => ({ data: null }) },
       visitors: { useQuery: () => ({ data: [] }) },
+      cancelDeletion: { useMutation: () => ({ mutate: jest.fn(), isPending: false }) },
     },
     match: {
       likedMe: { useQuery: () => ({ data: [] }) },

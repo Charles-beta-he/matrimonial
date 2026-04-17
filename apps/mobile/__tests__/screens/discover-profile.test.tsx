@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
 const mockBack = jest.fn();
@@ -34,6 +36,9 @@ jest.mock('@matrimonial/api-client', () => ({
       getById: {
         useQuery: (_id: string, _opts: any) => mockProfileQuery,
       },
+      recordView: {
+        useMutation: () => ({ mutate: jest.fn() }),
+      },
     },
     match: {
       like: {
@@ -41,6 +46,14 @@ jest.mock('@matrimonial/api-client', () => ({
       },
       skip: {
         useMutation: () => ({ mutate: mockSkipMutate, isPending: false }),
+      },
+      recordFeedback: {
+        useMutation: () => ({ mutate: jest.fn(), isPending: false }),
+      },
+    },
+    report: {
+      create: {
+        useMutation: () => ({ mutate: jest.fn(), isPending: false }),
       },
     },
   },
@@ -90,6 +103,7 @@ jest.mock('@matrimonial/ui', () => {
 const makeProfile = (overrides: Record<string, any> = {}) => ({
   id: 'user-test-1',
   nickname: '小明',
+  age: 26,
   birthday: '1998-06-15',
   city: '北京',
   bio: '喜欢旅行',
@@ -136,8 +150,8 @@ describe('UserProfileScreen', () => {
       error: null,
       refetch: mockRefetch,
     };
-    const { getByText } = render(<UserProfileScreen />);
-    expect(getByText(/小明/)).toBeTruthy();
+    const { getAllByText } = render(<UserProfileScreen />);
+    expect(getAllByText(/小明/).length).toBeGreaterThan(0);
   });
 
   it('displays user age calculated by calculateAge', () => {
@@ -147,9 +161,9 @@ describe('UserProfileScreen', () => {
       error: null,
       refetch: mockRefetch,
     };
-    const { getByText } = render(<UserProfileScreen />);
-    // calculateAge mock returns 26; rendered as "小明, 26"
-    expect(getByText(/26/)).toBeTruthy();
+    const { getAllByText } = render(<UserProfileScreen />);
+    // calculateAge mock returns 26; rendered as "小明, 26" (main + sticky header)
+    expect(getAllByText(/26/).length).toBeGreaterThan(0);
   });
 
   it('displays user tags as Badge components', () => {
