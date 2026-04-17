@@ -136,7 +136,6 @@ export default function OnboardingScreen() {
   // Run entrance on mount and on each page change
   useEffect(() => {
     runEntrance();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {

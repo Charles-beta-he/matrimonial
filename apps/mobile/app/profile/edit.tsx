@@ -159,7 +159,6 @@ export default function ProfileEditScreen() {
     return () => {
       if (evalDebounceRef.current) clearTimeout(evalDebounceRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [promptDraft, editingPromptIdx]);
 
   const handleSave = async () => {

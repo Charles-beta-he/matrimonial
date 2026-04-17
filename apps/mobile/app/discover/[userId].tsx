@@ -109,7 +109,6 @@ export default function UserProfileScreen() {
         durationMs: Date.now() - viewStartRef.current,
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   // --- Parallax scroll tracking ---
@@ -160,7 +159,6 @@ export default function UserProfileScreen() {
   // When scrollX === i * SCREEN_WIDTH (photo is centred) → offset = 0
   // As you scroll right past it, image shifts left (reveals right side of image)
   const makePhotoParallaxStyle = (i: number) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAnimatedStyle(() => ({
       transform: [
         {
@@ -171,7 +169,6 @@ export default function UserProfileScreen() {
 
   // Dot animation: active dot expands width, scale up
   const makeDotStyle = (i: number) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAnimatedStyle(() => {
       const inputRange = [(i - 1) * SCREEN_WIDTH, i * SCREEN_WIDTH, (i + 1) * SCREEN_WIDTH];
       const scale = interpolate(scrollX.value, inputRange, [1, 1.5, 1], Extrapolation.CLAMP);

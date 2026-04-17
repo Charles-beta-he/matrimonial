@@ -40,7 +40,6 @@ export default function TabsLayout() {
     });
 
     return () => sub.remove();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <Tabs

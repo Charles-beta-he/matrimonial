@@ -32,7 +32,7 @@ const mockHandleApplyMutate = jest.fn();
 const mockRefetch = jest.fn();
 
 let mockMyPostsData: any[] = [];
-let mockListData: any = { items: [] };
+const mockListData: any = { items: [] };
 let mockPostData: any = undefined;
 let mockIsLoading = false;
 

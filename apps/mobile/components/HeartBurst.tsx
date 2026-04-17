@@ -70,8 +70,7 @@ function Particle({
     ty.value = withDelay(delay, withTiming(dy, cfg));
     scale.value = withDelay(delay, withSequence(withTiming(1, { duration: 80 }), withTiming(0, cfg)));
     opacity.value = withDelay(delay, withSequence(withTiming(1, { duration: 40 }), withTiming(0, cfg)));
-  }, [fireCount]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, [fireCount]);
   const style = useAnimatedStyle(() => ({
     transform: [{ translateX: tx.value }, { translateY: ty.value }, { scale: scale.value }],
     opacity: opacity.value,
@@ -106,8 +105,7 @@ function RingPulse({ fireCount }: { fireCount: number }) {
     opacity.value = 0.6;
     scale.value = withTiming(2.5, { duration: 500, easing: Easing.out(Easing.cubic) });
     opacity.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) });
-  }, [fireCount]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, [fireCount]);
   const style = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,

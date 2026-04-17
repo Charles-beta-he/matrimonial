@@ -39,8 +39,7 @@ export function CardStack({ children, index, totalCards: _totalCards }: CardStac
       }, entranceDone);
       return () => clearTimeout(timer);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, []);
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [

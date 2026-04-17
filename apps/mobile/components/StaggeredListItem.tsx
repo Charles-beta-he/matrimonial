@@ -23,7 +23,6 @@ export function StaggeredListItem({ children, index, style }: StaggeredListItemP
     const config = { duration: 350, easing: Easing.out(Easing.cubic) };
     translateY.value = withDelay(delay, withTiming(0, config));
     opacity.value = withDelay(delay, withTiming(1, config));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally empty — entrance animation runs once on mount
 
   const animatedStyle = useAnimatedStyle(() => ({
