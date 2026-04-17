@@ -58,6 +58,18 @@ export default function CirclesScreen() {
   const router = useRouter();
   const [category, setCategory] = useState<string | undefined>(undefined);
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   const { data, isLoading, error, refetch, isRefetching } =
     api.circle.list.useQuery({ category, limit: 20 });
 
@@ -66,12 +78,12 @@ export default function CirclesScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">兴趣圈子</Text>
-      </View>
+      </Animated.View>
 
       {/* Category tabs */}
       <ScrollView

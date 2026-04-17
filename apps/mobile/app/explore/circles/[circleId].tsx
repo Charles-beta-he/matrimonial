@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import {
   ActivityIndicator,
@@ -59,6 +60,18 @@ export default function CircleDetailScreen() {
   const { circleId } = useLocalSearchParams<{ circleId: string }>();
   const [showPostModal, setShowPostModal] = useState(false);
   const [postContent, setPostContent] = useState('');
+
+  const backBtnOpacity = useSharedValue(0);
+  const backBtnY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    backBtnOpacity.value = withTiming(1, { duration: 320, easing: e });
+    backBtnY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const backBtnStyle = useAnimatedStyle(() => ({
+    opacity: backBtnOpacity.value,
+    transform: [{ translateY: backBtnY.value }],
+  }));
 
   const utils = api.useUtils();
 
@@ -298,14 +311,14 @@ export default function CircleDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       {/* Back button overlay */}
-      <View className="absolute top-12 left-4 z-10">
+      <Animated.View className="absolute top-12 left-4 z-10" style={backBtnStyle}>
         <Pressable
           onPress={() => router.back()}
           className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
         >
           <Ionicons name="chevron-back" size={22} color="#fff" />
         </Pressable>
-      </View>
+      </Animated.View>
 
       {postsLoading && posts.length === 0 ? (
         <>

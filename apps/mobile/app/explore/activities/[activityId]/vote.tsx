@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../../../components/StaggeredListItem';
 import {
   ActivityIndicator,
@@ -69,6 +70,18 @@ export default function ActivityVoteScreen() {
   const router = useRouter();
   const { activityId } = useLocalSearchParams<{ activityId: string }>();
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   const activityQuery = api.activity.getById.useQuery(activityId ?? '');
   const participantsQuery = api.activity.votableParticipants.useQuery(
     { activityId: activityId ?? '' },
@@ -115,7 +128,7 @@ export default function ActivityVoteScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
@@ -127,7 +140,7 @@ export default function ActivityVoteScreen() {
             </Text>
           ) : null}
         </View>
-      </View>
+      </Animated.View>
 
       {/* Info banner */}
       <View className="mx-4 mt-3 mb-2 rounded-lg bg-rose-50 px-4 py-3">

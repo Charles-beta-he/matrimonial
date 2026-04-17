@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,6 +18,17 @@ import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/sha
 
 export default function BuddyCreateScreen() {
   const router = useRouter();
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
 
   const [selectedType, setSelectedType] = useState<BuddyType | null>(null);
   const [title, setTitle] = useState('');
@@ -100,12 +112,12 @@ export default function BuddyCreateScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">发布搭子帖</Text>
-      </View>
+      </Animated.View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

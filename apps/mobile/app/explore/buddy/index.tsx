@@ -15,6 +15,8 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
@@ -56,9 +58,18 @@ function formatScheduledTime(value: unknown): string {
 export default function BuddyScreen() {
   const router = useRouter();
   const [type, setType] = useState<string | undefined>(undefined);
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
   const fabScale = useSharedValue(0);
 
   useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
     fabScale.value = withSpring(1, { damping: 10, stiffness: 180 });
   }, []);
 
@@ -74,12 +85,12 @@ export default function BuddyScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">搭子广场</Text>
-      </View>
+      </Animated.View>
 
       {/* Type filter tabs */}
       <ScrollView
