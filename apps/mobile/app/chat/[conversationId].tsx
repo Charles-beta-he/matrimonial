@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -94,6 +95,14 @@ export default function ChatConversationScreen() {
       Alert.alert('错误', e?.message ?? '无法发起视频通话');
     }
   };
+
+  // Icebreakers for new conversations (shown when < 5 messages exist)
+  const otherUserId = conversationMeta?.userId ?? '';
+  const { data: icebreakersData } = api.ai.icebreakers.useQuery(
+    { targetUserId: otherUserId },
+    { enabled: !!otherUserId, staleTime: Infinity },
+  );
+  const icebreakers = icebreakersData?.suggestions ?? [];
 
   // Mutations
   const sendMessageMutation = api.chat.sendMessage.useMutation({
@@ -410,6 +419,20 @@ export default function ChatConversationScreen() {
             <Ionicons name="chatbubbles-outline" size={48} color="#9ca3af" />
             <Text className="text-base text-gray-700 mt-2">还没有消息</Text>
             <Text className="text-sm text-gray-400 mt-1">发送第一条消息打个招呼吧</Text>
+            {icebreakers.length > 0 ? (
+              <View className="mt-6 w-full" style={{ gap: 8 }}>
+                <Text className="text-xs text-gray-400 text-center">✨ AI 破冰建议</Text>
+                {icebreakers.slice(0, 3).map((s: string, i: number) => (
+                  <Pressable
+                    key={i}
+                    className="bg-rose-50 rounded-xl px-4 py-3"
+                    onPress={() => setInputText(s)}
+                  >
+                    <Text className="text-sm text-rose-700 text-center">{s}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
           </View>
         ) : (
           <FlatList
@@ -476,6 +499,25 @@ export default function ChatConversationScreen() {
           </View>
         ) : (
           /* Normal input bar */
+          <>
+          {icebreakers.length > 0 && allMessages.length < 5 && !inputText ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 8, gap: 8 }}
+              className="border-t border-gray-50"
+            >
+              {icebreakers.slice(0, 3).map((s: string, i: number) => (
+                <Pressable
+                  key={i}
+                  className="bg-rose-50 rounded-full px-3 py-1.5"
+                  onPress={() => setInputText(s)}
+                >
+                  <Text className="text-xs text-rose-600">{s}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : null}
           <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
             <Pressable
               className="w-10 h-10 items-center justify-center"
@@ -507,6 +549,7 @@ export default function ChatConversationScreen() {
               </Pressable>
             ) : null}
           </View>
+          </>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
