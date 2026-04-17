@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   NativeScrollEvent,
@@ -13,6 +13,13 @@ import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -25,7 +32,6 @@ async function setOnboardingFlag(value: string): Promise<void> {
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 
 interface OnboardingPage {
   icon: IoniconName;
@@ -58,10 +64,80 @@ const PAGES: OnboardingPage[] = [
   },
 ];
 
+const EASING = Easing.out(Easing.cubic);
+const DURATION = 500;
+
+function useEntranceAnimations() {
+  const heroOpacity = useSharedValue(0);
+  const heroTranslateY = useSharedValue(40);
+  const titleOpacity = useSharedValue(0);
+  const titleTranslateY = useSharedValue(40);
+  const descOpacity = useSharedValue(0);
+  const descTranslateY = useSharedValue(40);
+  const btnOpacity = useSharedValue(0);
+  const btnTranslateY = useSharedValue(40);
+
+  function runEntrance() {
+    // Reset
+    heroOpacity.value = 0;
+    heroTranslateY.value = 40;
+    titleOpacity.value = 0;
+    titleTranslateY.value = 40;
+    descOpacity.value = 0;
+    descTranslateY.value = 40;
+    btnOpacity.value = 0;
+    btnTranslateY.value = 40;
+
+    const timingConfig = { duration: DURATION, easing: EASING };
+
+    heroOpacity.value = withTiming(1, timingConfig);
+    heroTranslateY.value = withTiming(0, timingConfig);
+
+    titleOpacity.value = withDelay(100, withTiming(1, timingConfig));
+    titleTranslateY.value = withDelay(100, withTiming(0, timingConfig));
+
+    descOpacity.value = withDelay(200, withTiming(1, timingConfig));
+    descTranslateY.value = withDelay(200, withTiming(0, timingConfig));
+
+    btnOpacity.value = withDelay(300, withTiming(1, timingConfig));
+    btnTranslateY.value = withDelay(300, withTiming(0, timingConfig));
+  }
+
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroOpacity.value,
+    transform: [{ translateY: heroTranslateY.value }],
+  }));
+
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+    transform: [{ translateY: titleTranslateY.value }],
+  }));
+
+  const descStyle = useAnimatedStyle(() => ({
+    opacity: descOpacity.value,
+    transform: [{ translateY: descTranslateY.value }],
+  }));
+
+  const btnStyle = useAnimatedStyle(() => ({
+    opacity: btnOpacity.value,
+    transform: [{ translateY: btnTranslateY.value }],
+  }));
+
+  return { runEntrance, heroStyle, titleStyle, descStyle, btnStyle };
+}
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [currentPage, setCurrentPage] = useState(0);
+
+  const { runEntrance, heroStyle, titleStyle, descStyle, btnStyle } = useEntranceAnimations();
+
+  // Run entrance on mount and on each page change
+  useEffect(() => {
+    runEntrance();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const page = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
@@ -85,6 +161,8 @@ export default function OnboardingScreen() {
     router.replace('/(auth)/login');
   };
 
+  const page = PAGES[currentPage];
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Skip button */}
@@ -94,7 +172,7 @@ export default function OnboardingScreen() {
         </Pressable>
       </View>
 
-      {/* Swipeable pages */}
+      {/* Swipeable pages — native scroll handles left/right transition */}
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -103,26 +181,32 @@ export default function OnboardingScreen() {
         onMomentumScrollEnd={handleScroll}
         scrollEventThrottle={16}
       >
-        {PAGES.map((page) => (
+        {PAGES.map((p) => (
           <View
-            key={page.title}
+            key={p.title}
             style={{ width: SCREEN_WIDTH }}
             className="flex-1 items-center justify-center px-10"
           >
             {/* Illustration placeholder */}
-            <View
+            <Animated.View
+              style={[heroStyle, { backgroundColor: p.iconColor + '15' }]}
               className="w-48 h-48 rounded-full items-center justify-center mb-10"
-              style={{ backgroundColor: page.iconColor + '15' }}
             >
-              <Ionicons name={page.icon} size={88} color={page.iconColor} />
-            </View>
+              <Ionicons name={p.icon} size={88} color={p.iconColor} />
+            </Animated.View>
 
-            <Text className="text-2xl font-bold text-gray-900 mb-4 text-center">
-              {page.title}
-            </Text>
-            <Text className="text-sm text-gray-500 leading-6 text-center">
-              {page.description}
-            </Text>
+            <Animated.Text
+              style={titleStyle}
+              className="text-2xl font-bold text-gray-900 mb-4 text-center"
+            >
+              {p.title}
+            </Animated.Text>
+            <Animated.Text
+              style={descStyle}
+              className="text-sm text-gray-500 leading-6 text-center"
+            >
+              {p.description}
+            </Animated.Text>
           </View>
         ))}
       </ScrollView>
@@ -142,14 +226,16 @@ export default function OnboardingScreen() {
         </View>
 
         {/* Action button */}
-        <Pressable
-          className="bg-rose-500 rounded-full py-4 items-center"
-          onPress={handleNext}
-        >
-          <Text className="text-white font-bold text-base">
-            {currentPage === PAGES.length - 1 ? '开始使用' : '下一步'}
-          </Text>
-        </Pressable>
+        <Animated.View style={btnStyle}>
+          <Pressable
+            className="bg-rose-500 rounded-full py-4 items-center"
+            onPress={handleNext}
+          >
+            <Text className="text-white font-bold text-base">
+              {currentPage === PAGES.length - 1 ? '开始使用' : '下一步'}
+            </Text>
+          </Pressable>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );

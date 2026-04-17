@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Animated, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
@@ -29,7 +29,9 @@ import { EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { SwipeCard } from '../../components/SwipeCard';
+import { CardStack } from '../../components/CardStack';
 import { MatchAnimation } from '../../components/MatchAnimation';
+import { SkeletonCard } from '../../components/SkeletonLoader';
 import { useMatchStore } from '../../stores/useMatchStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
@@ -818,10 +820,7 @@ export default function DiscoverTab() {
             }}
           >
             {isLoading ? (
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator size="large" color="#f43f5e" />
-                <Text className="text-gray-500 mt-3">正在加载推荐...</Text>
-              </View>
+              <SkeletonCard />
             ) : quotaExhausted ? (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
                 <Ionicons name="moon-outline" size={48} color="#f43f5e" />
@@ -852,15 +851,21 @@ export default function DiscoverTab() {
               </View>
             ) : (
               <>
-                {nextUser && <SwipeCard user={nextUser} isNext />}
+                {nextUser && (
+                  <CardStack key={`stack-next-${nextUser.id}`} index={1} totalCards={2}>
+                    <SwipeCard user={nextUser} isNext />
+                  </CardStack>
+                )}
                 {currentUser && (
-                  <SwipeCard
-                    key={currentUser.id}
-                    user={currentUser}
-                    onSwipeLeft={handleSwipeLeft}
-                    onSwipeRight={handleSwipeRight}
-                    recommendReason={currentUser.recommendReason}
-                  />
+                  <CardStack key={`stack-${currentUser.id}`} index={0} totalCards={nextUser ? 2 : 1}>
+                    <SwipeCard
+                      key={currentUser.id}
+                      user={currentUser}
+                      onSwipeLeft={handleSwipeLeft}
+                      onSwipeRight={handleSwipeRight}
+                      recommendReason={currentUser.recommendReason}
+                    />
+                  </CardStack>
                 )}
               </>
             )}

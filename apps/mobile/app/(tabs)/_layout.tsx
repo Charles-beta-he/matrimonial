@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus, Text } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AnimatedTabIcon } from '@/components/AnimatedTabIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '@matrimonial/api-client';
 
@@ -73,10 +74,11 @@ export default function TabsLayout() {
           const set = ICONS[route.name];
           if (!set) return null;
           return (
-            <Ionicons
+            <AnimatedTabIcon
               name={focused ? set.focused : set.unfocused}
-              size={size ?? 24}
+              focused={focused}
               color={color}
+              size={size ?? 24}
             />
           );
         },

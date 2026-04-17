@@ -24,6 +24,8 @@ import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
 import type { ChatMessage } from '../../stores/useChatStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { AnimatedMessageBubble } from '../../components/AnimatedMessageBubble';
+import { SkeletonMessage } from '../../components/SkeletonLoader';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/them/100/100';
 
@@ -133,6 +135,17 @@ export default function ChatConversationScreen() {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
   }, [historyQuery.data, liveMessages]);
+
+  // Track the count of messages present on initial load to drive entrance animations
+  const initialMessageCountRef = useRef<number | null>(null);
+
+  // Set the initial count once history finishes loading so we know which messages are "new"
+  useEffect(() => {
+    if (!historyQuery.isLoading && initialMessageCountRef.current === null && allMessages.length > 0) {
+      // Animate the last 8 messages on first render (staggered entrance)
+      initialMessageCountRef.current = Math.max(0, allMessages.length - 8);
+    }
+  }, [historyQuery.isLoading, allMessages.length]);
 
   // Emit socket read event when messages change (user is viewing them)
   const prevMessageCountRef = useRef(0);
@@ -300,12 +313,14 @@ export default function ChatConversationScreen() {
     const timestamp = formatTime(item.createdAt);
     const prev = allMessages[index - 1];
     const showTime = index === 0 || (prev && formatTime(prev.createdAt) !== timestamp);
+    const isNew = initialMessageCountRef.current !== null && index >= initialMessageCountRef.current;
 
     return (
       <View className="px-4 mb-2">
         {showTime && (
           <Text className="text-xs text-gray-400 text-center mb-2">{timestamp}</Text>
         )}
+        <AnimatedMessageBubble isOwn={isMe} index={index} isNew={isNew}>
         <View className={`flex-row ${isMe ? 'justify-end' : 'justify-start'}`}>
           {!isMe && (
             <Avatar
@@ -357,6 +372,7 @@ export default function ChatConversationScreen() {
         {isMe && canSeeReadReceipts && otherReadAt && new Date(item.createdAt) <= new Date(otherReadAt) && item.status !== 'sending' && item.status !== 'failed' && (
           <Text className="text-xs text-gray-400 mt-0.5 text-right mr-1">已读</Text>
         )}
+        </AnimatedMessageBubble>
       </View>
     );
   };
@@ -400,9 +416,9 @@ export default function ChatConversationScreen() {
       >
         {/* Message list */}
         {historyQuery.isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#f43f5e" />
-            <Text className="text-sm text-gray-500 mt-2">正在加载消息...</Text>
+          <View className="flex-1 pt-4">
+            <SkeletonMessage />
+            <SkeletonMessage />
           </View>
         ) : historyQuery.isError ? (
           <View className="flex-1 items-center justify-center px-8">

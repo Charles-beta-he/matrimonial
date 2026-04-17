@@ -12,6 +12,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -105,6 +112,40 @@ export default function UserProfileScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  // --- Parallax scroll tracking ---
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  // Hero photo translates up at 0.4x scroll rate
+  const heroImageStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [0, 200],
+          [0, -80],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }));
+
+  // Black overlay becomes more opaque as user scrolls
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [0, 150], [0, 0.7], Extrapolation.CLAMP),
+  }));
+
+  // Sticky name header fades in after photo is scrolled past
+  const stickyHeaderStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [250, 320], [0, 1], Extrapolation.CLAMP),
+  }));
+  // ---------------------------------
+
   const handlePhotoScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
     setPhotoIndex(idx);
@@ -185,9 +226,14 @@ export default function UserProfileScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Photo carousel */}
-        <View style={{ height: SCREEN_WIDTH * 1.2 }}>
+      <Animated.ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        {/* Photo carousel — fixed height container clips parallax overflow */}
+        <View style={{ height: SCREEN_WIDTH * 1.2, overflow: 'hidden' }}>
           <ScrollView
             horizontal
             pagingEnabled
@@ -195,16 +241,36 @@ export default function UserProfileScreen() {
             onMomentumScrollEnd={handlePhotoScroll}
           >
             {user.photos.map((photo, i) => (
-              <View
+              /* Animated.View is taller than the container to allow upward parallax travel */
+              <Animated.View
                 key={i}
-                style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 }}
+                style={[
+                  { width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 + 80 },
+                  heroImageStyle,
+                ]}
                 className="bg-gray-200 items-center justify-center"
               >
                 <Ionicons name="person" size={72} color="#9ca3af" />
                 <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
-              </View>
+              </Animated.View>
             ))}
           </ScrollView>
+
+          {/* Fade overlay — darkens as user scrolls down */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: '#000000',
+              },
+              overlayStyle,
+            ]}
+          />
 
           {/* Dot indicators */}
           <View className="absolute bottom-4 flex-row self-center" style={{ gap: 6 }}>
@@ -303,7 +369,7 @@ export default function UserProfileScreen() {
         </View>
 
         <View className="h-24" />
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Bottom fixed action bar */}
       <SafeAreaView
@@ -333,6 +399,30 @@ export default function UserProfileScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
+
+      {/* Sticky name header — fades in once photo is scrolled past */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.55)',
+            zIndex: 10,
+          },
+          stickyHeaderStyle,
+        ]}
+      >
+        <SafeAreaView edges={['top']}>
+          <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+            <Text style={{ color: '#ffffff', fontSize: 17, fontWeight: '600' }}>
+              {user.nickname}, {user.age}
+            </Text>
+          </View>
+        </SafeAreaView>
+      </Animated.View>
 
       {/* Report modal */}
       <Modal
