@@ -29,6 +29,7 @@ import { EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { HeartBurst } from '../../components/HeartBurst';
+import { StarBurst } from '../../components/StarBurst';
 import { SwipeCard } from '../../components/SwipeCard';
 import { CardStack } from '../../components/CardStack';
 import { MatchAnimation } from '../../components/MatchAnimation';
@@ -898,24 +899,8 @@ export default function DiscoverTab() {
 
             <HeartBurst onPress={handleSwipeRight} />
 
-            <View style={{ position: 'relative' }}>
-              <Pressable
-                onPress={handleSuperLike}
-                disabled={credits?.superLikes === 0}
-                style={({ pressed }) => ({
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  backgroundColor: '#fef3c7',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  ...shadowStyle({ color: '#f59e0b', y: 4, blur: 8, opacity: 0.15, elevation: 3 }),
-                  opacity: credits?.superLikes === 0 ? 0.4 : pressed ? 0.85 : 1,
-                  transform: [{ scale: pressed ? 0.96 : 1 }],
-                })}
-              >
-                <Ionicons name="star" size={26} color="#f59e0b" />
-              </Pressable>
+            <View style={{ position: 'relative', opacity: credits?.superLikes === 0 ? 0.4 : 1 }}>
+              <StarBurst onPress={handleSuperLike} size={56} />
               {credits?.superLikes !== undefined && (
                 <View style={{
                   position: 'absolute', top: -4, right: -4,

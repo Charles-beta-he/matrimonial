@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState } from '@matrimonial/ui';
+import { StaggeredListItem } from '@/components/StaggeredListItem';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 
@@ -41,14 +42,15 @@ export default function LikedMeScreen() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 10 }}>
-          {data.map((like: any) => {
+          {data.map((like: any, index: number) => {
             const user = like.fromUser;
             if (!user) return null;
             const age = user.birthday ? calculateAge(new Date(user.birthday)) : null;
             const avatarUrl = user.photos?.[0]?.url ?? FALLBACK_AVATAR;
 
             return (
-              <Card key={like.id}>
+              <StaggeredListItem key={like.id} index={index}>
+              <Card>
                 <Pressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
@@ -86,6 +88,7 @@ export default function LikedMeScreen() {
                   </View>
                 </Pressable>
               </Card>
+              </StaggeredListItem>
             );
           })}
         </ScrollView>

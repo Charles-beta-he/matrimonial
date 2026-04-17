@@ -19,8 +19,8 @@ import { Text, View } from 'react-native';
 import Animated, {
   Easing,
   runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -40,9 +40,14 @@ interface SplashScreenProps {
 function Counter({ progress }: { progress: Animated.SharedValue<number> }) {
   const [value, setValue] = React.useState(0);
 
-  useDerivedValue(() => {
-    runOnJS(setValue)(Math.round(progress.value * 100));
-  });
+  useAnimatedReaction(
+    () => Math.round(progress.value * 100),
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue) {
+        runOnJS(setValue)(currentValue);
+      }
+    },
+  );
 
   return (
     <Text

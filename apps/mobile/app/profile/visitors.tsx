@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState } from '@matrimonial/ui';
+import { StaggeredListItem } from '@/components/StaggeredListItem';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 
@@ -60,7 +61,8 @@ export default function VisitorsScreen() {
             const avatarUrl = visitor.photos?.[0]?.url ?? FALLBACK_AVATAR;
 
             return (
-              <Card key={`${visitor.id}-${idx}`}>
+              <StaggeredListItem key={`${visitor.id}-${idx}`} index={idx}>
+              <Card>
                 <Pressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
@@ -93,6 +95,7 @@ export default function VisitorsScreen() {
                   </View>
                 </Pressable>
               </Card>
+              </StaggeredListItem>
             );
           })}
         </ScrollView>
