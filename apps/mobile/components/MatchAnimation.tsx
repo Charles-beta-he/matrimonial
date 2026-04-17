@@ -47,8 +47,8 @@ interface ParticleData {
 
 const PARTICLES: ParticleData[] = Array.from({ length: 16 }, (_, i) => ({
   angle: (i / 16) * 360 + Math.random() * 22.5,
-  distance: 210 + Math.random() * 160,
-  size: 5 + Math.random() * 6,
+  distance: 260 + Math.random() * 200,
+  size: 6 + Math.random() * 7,
   color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
 }));
 
@@ -88,6 +88,19 @@ export function MatchAnimation({
   const ringOpacity4 = useSharedValue(0);
   const ringScale5 = useSharedValue(1);
   const ringOpacity5 = useSharedValue(0);
+  // Ring 6 — outermost thin halo
+  const ringScale6 = useSharedValue(1);
+  const ringOpacity6 = useSharedValue(0);
+  // Shockwave fill disc
+  const shockwaveScale = useSharedValue(1);
+  const shockwaveOpacity = useSharedValue(0);
+  // Echo wave — second pulse at ~1400ms
+  const echoRingScale1 = useSharedValue(1);
+  const echoRingOpacity1 = useSharedValue(0);
+  const echoRingScale2 = useSharedValue(1);
+  const echoRingOpacity2 = useSharedValue(0);
+  const echoRingScale3 = useSharedValue(1);
+  const echoRingOpacity3 = useSharedValue(0);
 
   // Central white flash
   const flashOpacity = useSharedValue(0);
@@ -106,7 +119,7 @@ export function MatchAnimation({
     // Ring 1 — immediate, thick, expands wide
     ringScale.value = 1;
     ringOpacity.value = 0.65;
-    ringScale.value = withTiming(9.0, { duration: 1100, easing: Easing.out(Easing.cubic) });
+    ringScale.value = withTiming(11.0, { duration: 1100, easing: Easing.out(Easing.cubic) });
     ringOpacity.value = withTiming(0, { duration: 1100, easing: Easing.out(Easing.cubic) });
 
     // Ring 2 — 120ms delay
@@ -156,6 +169,52 @@ export function MatchAnimation({
         withTiming(0, { duration: 850, easing: Easing.out(Easing.cubic) }),
       ),
     );
+
+    // Ring 6 — outermost halo at 900ms
+    ringScale6.value = 1;
+    ringOpacity6.value = 0;
+    ringScale6.value = withDelay(900, withTiming(12.0, { duration: 1200, easing: Easing.out(Easing.cubic) }));
+    ringOpacity6.value = withDelay(
+      900,
+      withSequence(
+        withTiming(0.25, { duration: 0 }),
+        withTiming(0, { duration: 1200, easing: Easing.out(Easing.cubic) }),
+      ),
+    );
+
+    // Shockwave fill disc — immediate filled bloom
+    shockwaveScale.value = 1;
+    shockwaveOpacity.value = 0;
+    shockwaveScale.value = withTiming(10, { duration: 700, easing: Easing.out(Easing.cubic) });
+    shockwaveOpacity.value = withSequence(
+      withTiming(0.1, { duration: 0 }),
+      withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+    );
+
+    // Echo wave — second pulse rings at 1400ms
+    echoRingScale1.value = 1;
+    echoRingOpacity1.value = 0;
+    echoRingScale1.value = withDelay(1400, withTiming(7, { duration: 800, easing: Easing.out(Easing.cubic) }));
+    echoRingOpacity1.value = withDelay(1400, withSequence(
+      withTiming(0.4, { duration: 0 }),
+      withTiming(0, { duration: 800, easing: Easing.out(Easing.cubic) }),
+    ));
+
+    echoRingScale2.value = 1;
+    echoRingOpacity2.value = 0;
+    echoRingScale2.value = withDelay(1560, withTiming(6, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    echoRingOpacity2.value = withDelay(1560, withSequence(
+      withTiming(0.3, { duration: 0 }),
+      withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+    ));
+
+    echoRingScale3.value = 1;
+    echoRingOpacity3.value = 0;
+    echoRingScale3.value = withDelay(1720, withTiming(5, { duration: 600, easing: Easing.out(Easing.cubic) }));
+    echoRingOpacity3.value = withDelay(1720, withSequence(
+      withTiming(0.22, { duration: 0 }),
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) }),
+    ));
 
     // Particle burst
     PARTICLES.forEach((_, i) => {
@@ -259,6 +318,31 @@ export function MatchAnimation({
     transform: [{ scale: ringScale5.value }],
   }));
 
+  const ringStyle6 = useAnimatedStyle(() => ({
+    opacity: ringOpacity6.value,
+    transform: [{ scale: ringScale6.value }],
+  }));
+
+  const shockwaveStyle = useAnimatedStyle(() => ({
+    opacity: shockwaveOpacity.value,
+    transform: [{ scale: shockwaveScale.value }],
+  }));
+
+  const echoRingStyle1 = useAnimatedStyle(() => ({
+    opacity: echoRingOpacity1.value,
+    transform: [{ scale: echoRingScale1.value }],
+  }));
+
+  const echoRingStyle2 = useAnimatedStyle(() => ({
+    opacity: echoRingOpacity2.value,
+    transform: [{ scale: echoRingScale2.value }],
+  }));
+
+  const echoRingStyle3 = useAnimatedStyle(() => ({
+    opacity: echoRingOpacity3.value,
+    transform: [{ scale: echoRingScale3.value }],
+  }));
+
   const flashStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
   }));
@@ -346,6 +430,32 @@ export function MatchAnimation({
           },
           ringStyle5,
         ]}
+      />
+
+      {/* Ring 6 — outermost thin halo, 900ms */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }, ringStyle6]}
+      />
+
+      {/* Shockwave fill disc — immediate filled bloom */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(244,63,94,0.15)' }, shockwaveStyle]}
+      />
+
+      {/* Echo rings — second pulse at 1400ms */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#f43f5e' }, echoRingStyle1]}
+      />
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1.5, borderColor: '#fb7185' }, echoRingStyle2]}
+      />
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(251,113,133,0.5)' }, echoRingStyle3]}
       />
 
       {/* Central white flash */}

@@ -23,6 +23,9 @@ interface AnimatedTabIconProps {
 export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 0 }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
   const dotScale = useSharedValue(focused ? 1 : 0);
+  // Soft fill disc — filled circle bloom behind icon
+  const glowFillScale = useSharedValue(0);
+  const glowFillOpacity = useSharedValue(0);
   // Inner crisp ring — expands to 1.6× and fades
   const innerRingScale = useSharedValue(0);
   const innerRingOpacity = useSharedValue(0);
@@ -42,6 +45,16 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
       return;
     }
     if (focused) {
+      // Soft glow fill — wide bloom fill disc
+      glowFillScale.value = withSequence(
+        withTiming(0, { duration: 0 }),
+        withTiming(2.8, { duration: 550, easing: Easing.out(Easing.cubic) }),
+      );
+      glowFillOpacity.value = withSequence(
+        withTiming(0.22, { duration: 0 }),
+        withTiming(0, { duration: 580, easing: Easing.out(Easing.cubic) }),
+      );
+
       // Icon bounce
       scale.value = withSequence(
         withSpring(1.3, { damping: 7, stiffness: 220 }),
@@ -81,6 +94,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
       );
     } else {
       dotScale.value = withTiming(0, { duration: 150 });
+      glowFillOpacity.value = withTiming(0, { duration: 150 });
       innerRingOpacity.value = withTiming(0, { duration: 150 });
       outerBloomOpacity.value = withTiming(0, { duration: 150 });
       burstRingOpacity.value = withTiming(0, { duration: 150 });
@@ -105,6 +119,10 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
   const dotStyle = useAnimatedStyle(() => ({
     transform: [{ scale: dotScale.value }],
   }));
+  const glowFillStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: glowFillScale.value }],
+    opacity: glowFillOpacity.value,
+  }));
   const innerRingStyle = useAnimatedStyle(() => ({
     transform: [{ scale: innerRingScale.value }],
     opacity: innerRingOpacity.value,
@@ -124,6 +142,17 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        {/* Soft glow fill disc — filled bloom behind icon */}
+        <Animated.View
+          pointerEvents="none"
+          style={[{
+            position: 'absolute',
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: 'rgba(244,63,94,0.30)',
+          }, glowFillStyle]}
+        />
         {/* Outer bloom — wide soft halo, 8px border for diffuse look */}
         <Animated.View
           pointerEvents="none"
