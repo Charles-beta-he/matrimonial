@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,15 +17,17 @@ interface AnimatedTabIconProps {
   focused: boolean;
   color: string;
   size?: number;
+  badgeCount?: number;
 }
 
-export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTabIconProps) {
+export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 0 }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
   const dotScale = useSharedValue(focused ? 1 : 0);
   const glowScale = useSharedValue(0);
   const glowOpacity = useSharedValue(0);
   const outerRingScale = useSharedValue(0);
   const outerRingOpacity = useSharedValue(0);
+  const badgeScale = useSharedValue(badgeCount > 0 ? 1 : 0);
 
   // Track whether this is the initial mount to skip animation
   const mounted = useSharedValue(false);
@@ -61,6 +63,22 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
       outerRingOpacity.value = withTiming(0, { duration: 150 });
     }
   }, [focused]);
+
+  useEffect(() => {
+    if (badgeCount > 0) {
+      badgeScale.value = withSequence(
+        withTiming(0, { duration: 0 }),
+        withSpring(1.3, { damping: 6, stiffness: 300 }),
+        withSpring(1.0, { damping: 10, stiffness: 200 }),
+      );
+    } else {
+      badgeScale.value = withTiming(0, { duration: 150 });
+    }
+  }, [badgeCount]);
+
+  const badgeStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: badgeScale.value }],
+  }));
 
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -108,6 +126,26 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
         <Animated.View style={iconStyle}>
           <Ionicons name={name} size={size} color={color} />
         </Animated.View>
+        {badgeCount > 0 && (
+          <Animated.View
+            style={[{
+              position: 'absolute',
+              top: -4,
+              right: -6,
+              minWidth: 16,
+              height: 16,
+              borderRadius: 8,
+              backgroundColor: '#f43f5e',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 3,
+            }, badgeStyle]}
+          >
+            <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700', lineHeight: 11 }}>
+              {badgeCount > 99 ? '99+' : badgeCount}
+            </Text>
+          </Animated.View>
+        )}
       </View>
       <Animated.View
         style={[

@@ -18,6 +18,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -70,6 +72,7 @@ const DURATION = 500;
 function useEntranceAnimations() {
   const heroOpacity = useSharedValue(0);
   const heroTranslateY = useSharedValue(40);
+  const pageOffset = useSharedValue(0);
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(40);
   const descOpacity = useSharedValue(0);
@@ -105,7 +108,7 @@ function useEntranceAnimations() {
 
   const heroStyle = useAnimatedStyle(() => ({
     opacity: heroOpacity.value,
-    transform: [{ translateY: heroTranslateY.value }],
+    transform: [{ translateY: heroTranslateY.value + pageOffset.value * 0.5 }],
   }));
 
   const titleStyle = useAnimatedStyle(() => ({
@@ -123,7 +126,7 @@ function useEntranceAnimations() {
     transform: [{ translateY: btnTranslateY.value }],
   }));
 
-  return { runEntrance, heroStyle, titleStyle, descStyle, btnStyle };
+  return { runEntrance, pageOffset, heroStyle, titleStyle, descStyle, btnStyle };
 }
 
 export default function OnboardingScreen() {
@@ -131,11 +134,12 @@ export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const { runEntrance, heroStyle, titleStyle, descStyle, btnStyle } = useEntranceAnimations();
+  const { runEntrance, pageOffset, heroStyle, titleStyle, descStyle, btnStyle } = useEntranceAnimations();
 
   // Run entrance on mount and on each page change
   useEffect(() => {
     runEntrance();
+    pageOffset.value = withSequence(withTiming(30, { duration: 0 }), withSpring(0, { damping: 14, stiffness: 120 }));
   }, [currentPage]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {

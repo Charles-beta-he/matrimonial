@@ -26,6 +26,8 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
   const updateLastActiveMut = api.user.updateLastActive.useMutation();
+  const chatListQuery = api.chat.list.useQuery(undefined, { refetchInterval: 30_000 });
+  const unreadCount = ((chatListQuery.data ?? []) as any[]).filter((c) => (c.unreadCount ?? 0) > 0).length;
   const appState = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export default function TabsLayout() {
               focused={focused}
               color={color}
               size={size ?? 24}
+              badgeCount={route.name === 'messages' ? unreadCount : 0}
             />
           );
         },
