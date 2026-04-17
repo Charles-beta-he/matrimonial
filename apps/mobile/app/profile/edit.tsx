@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -60,11 +60,14 @@ export default function ProfileEditScreen() {
   const utils = api.useUtils();
   const updateMut = api.user.updateProfile.useMutation();
   const updatePromptsMut = api.user.updatePrompts.useMutation();
+  const evaluatePromptMut = api.ai.evaluatePrompt.useMutation();
   const user: any = meQuery.data ?? storeUser;
 
   // Prompt editing state
   const [editingPromptIdx, setEditingPromptIdx] = useState<number | null>(null);
   const [promptDraft, setPromptDraft] = useState('');
+  const [promptEval, setPromptEval] = useState<{ score: number; suggestion?: string } | null>(null);
+  const evalDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [avatarUrl, setAvatarUrl] = useState<string>(
     (user as any)?.photos?.[0]?.url ??
@@ -137,6 +140,26 @@ export default function ProfileEditScreen() {
     }
     if (u.photos?.[0]?.url) setAvatarUrl(u.photos[0].url);
   }, [meQuery.data]);
+
+  // Debounced prompt quality evaluation
+  useEffect(() => {
+    setPromptEval(null);
+    if (editingPromptIdx === null || promptDraft.length < 20) return;
+    if (evalDebounceRef.current) clearTimeout(evalDebounceRef.current);
+    evalDebounceRef.current = setTimeout(() => {
+      const questionText =
+        PROMPT_QUESTIONS.find((q) => q.id === prompts[editingPromptIdx]?.questionId)?.text ?? '';
+      if (!questionText) return;
+      evaluatePromptMut.mutate(
+        { question: questionText, answer: promptDraft },
+        { onSuccess: (data) => setPromptEval(data) },
+      );
+    }, 2000);
+    return () => {
+      if (evalDebounceRef.current) clearTimeout(evalDebounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptDraft, editingPromptIdx]);
 
   const handleSave = async () => {
     const payload: Record<string, any> = {};
@@ -351,7 +374,7 @@ export default function ProfileEditScreen() {
           visible={editingPromptIdx !== null}
           transparent
           animationType="slide"
-          onRequestClose={() => setEditingPromptIdx(null)}
+          onRequestClose={() => { setEditingPromptIdx(null); setPromptEval(null); }}
         >
           <View className="flex-1 justify-end bg-black/40">
             <View className="bg-white rounded-t-2xl p-6">
@@ -369,10 +392,35 @@ export default function ProfileEditScreen() {
                     maxLength={500}
                     textAlignVertical="top"
                   />
+                  {/* AI quality feedback */}
+                  {evaluatePromptMut.isPending && (
+                    <View className="flex-row items-center mt-2" style={{ gap: 6 }}>
+                      <ActivityIndicator size="small" color="#f43f5e" />
+                      <Text className="text-xs text-gray-400">AI 评估中...</Text>
+                    </View>
+                  )}
+                  {promptEval && !evaluatePromptMut.isPending && (
+                    <View
+                      className="mt-2 rounded-xl px-3 py-2"
+                      style={{ backgroundColor: promptEval.score >= 7 ? '#f0fdf4' : promptEval.score >= 4 ? '#fffbeb' : '#fff1f2' }}
+                    >
+                      <View className="flex-row items-center" style={{ gap: 6 }}>
+                        <Text
+                          className="text-xs font-semibold"
+                          style={{ color: promptEval.score >= 7 ? '#16a34a' : promptEval.score >= 4 ? '#d97706' : '#e11d48' }}
+                        >
+                          吸引力评分 {promptEval.score}/10
+                        </Text>
+                      </View>
+                      {promptEval.suggestion ? (
+                        <Text className="text-xs text-gray-500 mt-0.5">{promptEval.suggestion}</Text>
+                      ) : null}
+                    </View>
+                  )}
                   <View className="flex-row mt-4" style={{ gap: 12 }}>
                     <Pressable
                       className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
-                      onPress={() => setEditingPromptIdx(null)}
+                      onPress={() => { setEditingPromptIdx(null); setPromptEval(null); }}
                     >
                       <Text className="text-sm text-gray-600">取消</Text>
                     </Pressable>
@@ -397,6 +445,7 @@ export default function ProfileEditScreen() {
                           toast.error(err?.message ?? '保存失败');
                         }
                         setEditingPromptIdx(null);
+                        setPromptEval(null);
                       }}
                     >
                       {updatePromptsMut.isPending ? (

@@ -3,11 +3,13 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -71,7 +73,22 @@ export default function UserProfileScreen() {
   const skipMutation = api.match.skip.useMutation();
   const { mutate: recordView } = api.user.recordView.useMutation();
   const { mutate: recordFeedback } = api.match.recordFeedback.useMutation();
+  const reportMut = api.report.create.useMutation({
+    onSuccess: () => {
+      setShowReportModal(false);
+      setReportReason('');
+      setReportDescription('');
+      Alert.alert('举报已提交', '我们会尽快处理，感谢你的反馈');
+    },
+    onError: (e: any) => {
+      Alert.alert('提交失败', e?.message ?? '请稍后重试');
+    },
+  });
   const viewStartRef = useRef(Date.now());
+
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDescription, setReportDescription] = useState('');
 
   // Fire profile view + start timing on mount
   useEffect(() => {
@@ -212,7 +229,7 @@ export default function UserProfileScreen() {
               </Pressable>
               <Pressable
                 className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
-                onPress={() => Alert.alert('举报', '确定要举报该用户吗？')}
+                onPress={() => setShowReportModal(true)}
               >
                 <Ionicons name="ellipsis-horizontal" size={20} color="#ffffff" />
               </Pressable>
@@ -316,6 +333,85 @@ export default function UserProfileScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
+
+      {/* Report modal */}
+      <Modal
+        visible={showReportModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowReportModal(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-2xl p-6">
+            <Text className="text-base font-bold text-gray-900 mb-4">举报该用户</Text>
+            {[
+              { value: 'FAKE_PROFILE', label: '虚假资料' },
+              { value: 'HARASSMENT', label: '骚扰行为' },
+              { value: 'SCAM', label: '诈骗' },
+              { value: 'INAPPROPRIATE_CONTENT', label: '不当内容' },
+              { value: 'OTHER', label: '其他' },
+            ].map((opt) => (
+              <Pressable
+                key={opt.value}
+                className="flex-row items-center py-2.5"
+                style={{ gap: 10 }}
+                onPress={() => setReportReason(opt.value)}
+              >
+                <View
+                  className="w-5 h-5 rounded-full border-2 items-center justify-center"
+                  style={{ borderColor: reportReason === opt.value ? '#f43f5e' : '#d1d5db' }}
+                >
+                  {reportReason === opt.value ? (
+                    <View className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                  ) : null}
+                </View>
+                <Text className="text-sm text-gray-700">{opt.label}</Text>
+              </Pressable>
+            ))}
+            <TextInput
+              className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 mt-3 min-h-[64px]"
+              placeholder="请简述举报原因（至少10个字）"
+              placeholderTextColor="#9ca3af"
+              value={reportDescription}
+              onChangeText={setReportDescription}
+              multiline
+              maxLength={500}
+              textAlignVertical="top"
+            />
+            <View className="flex-row mt-4" style={{ gap: 10 }}>
+              <Pressable
+                className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
+                onPress={() => { setShowReportModal(false); setReportReason(''); setReportDescription(''); }}
+              >
+                <Text className="text-sm text-gray-600">取消</Text>
+              </Pressable>
+              <Pressable
+                className="flex-1 py-3 rounded-xl bg-rose-500 items-center"
+                disabled={!reportReason || reportDescription.length < 10 || reportMut.isPending}
+                onPress={() => {
+                  if (!userId || !reportReason) return;
+                  reportMut.mutate({
+                    reportedId: userId,
+                    reason: reportReason as any,
+                    description: reportDescription,
+                  });
+                }}
+              >
+                {reportMut.isPending ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text
+                    className="text-sm font-medium"
+                    style={{ color: !reportReason || reportDescription.length < 10 ? '#fca5a5' : '#fff' }}
+                  >
+                    提交举报
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

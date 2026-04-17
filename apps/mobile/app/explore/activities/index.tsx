@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -65,19 +66,41 @@ export default function ActivitiesScreen() {
     isRefetching,
   } = api.activity.list.useQuery({ category });
 
+  const { data: activityMatches } = api.activity.activityMatches.useQuery();
+  const { data: mySignups, refetch: refetchMySignups } = api.activity.mySignups.useQuery();
+
   const signupMut = api.activity.signup.useMutation({
     onSuccess: () => {
       toast.success('报名成功');
       refetch();
+      refetchMySignups();
     },
     onError: (e) => {
       toast.error(e?.message ?? '报名失败');
     },
   });
 
+  const cancelSignupMut = api.activity.cancelSignup.useMutation({
+    onSuccess: () => {
+      toast.success('已取消报名');
+      refetchMySignups();
+      refetch();
+    },
+    onError: (e) => {
+      toast.error(e?.message ?? '取消失败');
+    },
+  });
+
   const handleSignup = (activityId: string, _title: string) => {
     track('activity_signup', { activity_id: activityId });
     signupMut.mutate({ activityId });
+  };
+
+  const handleCancelSignup = (activityId: string) => {
+    Alert.alert('取消报名', '确定要取消报名吗？', [
+      { text: '返回', style: 'cancel' },
+      { text: '确认取消', style: 'destructive', onPress: () => cancelSignupMut.mutate({ activityId }) },
+    ]);
   };
 
   return (
@@ -117,6 +140,55 @@ export default function ActivitiesScreen() {
           );
         })}
       </ScrollView>
+
+      {/* My signups section */}
+      {mySignups && mySignups.filter((s: any) => s.status !== 'CANCELLED').length > 0 ? (
+        <View className="mx-4 mb-3">
+          <Text className="text-sm font-semibold text-gray-700 mb-2">我的报名</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {mySignups.filter((s: any) => s.status !== 'CANCELLED').map((signup: any) => (
+              <View key={signup.id} className="bg-white rounded-xl px-3 py-2.5 border border-gray-100" style={{ minWidth: 160 }}>
+                <Text className="text-sm font-medium text-gray-800" numberOfLines={1}>
+                  {signup.activity?.title ?? '未命名活动'}
+                </Text>
+                <View className="flex-row items-center justify-between mt-1">
+                  <Text className="text-xs text-gray-400">
+                    {signup.status === 'CONFIRMED' ? '已确认' : '待确认'}
+                  </Text>
+                  {signup.activity?.status === 'UPCOMING' ? (
+                    <Pressable onPress={() => handleCancelSignup(signup.activityId)}>
+                      <Text className="text-xs text-rose-400">取消</Text>
+                    </Pressable>
+                  ) : signup.activity?.status === 'COMPLETED' ? (
+                    <Pressable onPress={() => router.push(`/explore/activities/${signup.activityId}/vote` as any)}>
+                      <Text className="text-xs text-rose-500 font-medium">去互评</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
+
+      {/* Activity matches banner */}
+      {activityMatches && activityMatches.length > 0 ? (
+        <Pressable
+          className="mx-4 mb-3 rounded-xl bg-rose-50 px-4 py-3 flex-row items-center justify-between"
+          onPress={() => router.push('/explore/activities/matches' as any)}
+        >
+          <View className="flex-row items-center" style={{ gap: 8 }}>
+            <Ionicons name="heart-circle" size={22} color="#f43f5e" />
+            <View>
+              <Text className="text-sm font-semibold text-rose-700">
+                你有 {activityMatches.length} 位活动缘分
+              </Text>
+              <Text className="text-xs text-rose-400">活动中双方互相欣赏的人</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#f43f5e" />
+        </Pressable>
+      ) : null}
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

@@ -60,7 +60,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
             create: { userId, type: check.type, name: def.name, description: def.description },
             update: {},
           })
-          .catch((err) => logger.error('achievement upsert failed', { userId, type: check.type, err }));
+          .catch((err: unknown) => logger.error('achievement upsert failed', { userId, type: check.type, err }));
       }
     }
   }
@@ -68,7 +68,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
   // circle_member: check if user has joined any circle
   const circleCount = await prisma.circleMember.count({
     where: { userId },
-  }).catch((err) => { logger.warn('circleMember count failed', { userId, err }); return 0; });
+  }).catch((err: unknown) => { logger.warn('circleMember count failed', { userId, err }); return 0; });
   if (circleCount > 0) {
     const def = ACHIEVEMENT_DEFS.find((d) => d.type === 'circle_member');
     if (def) {
@@ -78,7 +78,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
           create: { userId, type: 'circle_member', name: def.name, description: def.description },
           update: {},
         })
-        .catch((err) => logger.error('achievement upsert failed', { userId, type: 'circle_member', err }));
+        .catch((err: unknown) => logger.error('achievement upsert failed', { userId, type: 'circle_member', err }));
     }
   }
 
@@ -89,7 +89,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
         participants: { some: { userId } },
         status: 'ENDED',
       },
-    }).catch((err) => { logger.warn('videoRoom count failed', { userId, err }); return 0; });
+    }).catch((err: unknown) => { logger.warn('videoRoom count failed', { userId, err }); return 0; });
     if (videoCount > 0) {
       const def = ACHIEVEMENT_DEFS.find((d) => d.type === 'first_video');
       if (def) {
@@ -99,7 +99,7 @@ async function checkAndGrantAchievements(prisma: any, userId: string) {
             create: { userId, type: 'first_video', name: def.name, description: def.description },
             update: {},
           })
-          .catch((err) => logger.error('achievement upsert failed', { userId, type: 'first_video', err }));
+          .catch((err: unknown) => logger.error('achievement upsert failed', { userId, type: 'first_video', err }));
       }
     }
   } catch {

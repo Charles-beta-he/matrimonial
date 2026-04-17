@@ -342,13 +342,36 @@ export const activityRouter = router({
         },
       });
       if (reciprocal && reciprocal.rating >= 3) {
-        mutuals.push({
-          activityId: vote.activityId,
-          userId: vote.votedId,
-        });
+        mutuals.push({ activityId: vote.activityId, userId: vote.votedId });
       }
     }
 
-    return mutuals;
+    // Enrich with user + activity details in batch
+    const uniqueUserIds = [...new Set(mutuals.map((m) => m.userId))];
+    const [users, activities] = await Promise.all([
+      ctx.prisma.user.findMany({
+        where: { id: { in: uniqueUserIds } },
+        select: {
+          id: true,
+          nickname: true,
+          birthday: true,
+          city: true,
+          photos: { where: { isAvatar: true }, take: 1, select: { url: true } },
+        },
+      }),
+      ctx.prisma.activity.findMany({
+        where: { id: { in: mutuals.map((m) => m.activityId) } },
+        select: { id: true, title: true },
+      }),
+    ]);
+
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    const activityMap = new Map(activities.map((a) => [a.id, a]));
+
+    return mutuals.map((m) => ({
+      activityId: m.activityId,
+      activityTitle: activityMap.get(m.activityId)?.title ?? null,
+      user: userMap.get(m.userId) ?? null,
+    }));
   }),
 });

@@ -231,8 +231,8 @@ export default function BuddyPostDetailScreen() {
             >
               <Avatar
                 source={
-                  post.author.avatar
-                    ? { uri: post.author.avatar }
+                  (post.author as any).photos?.[0]?.url
+                    ? { uri: (post.author as any).photos[0].url }
                     : { uri: FALLBACK_AVATAR }
                 }
                 size={48}
@@ -242,11 +242,8 @@ export default function BuddyPostDetailScreen() {
                   {post.author.nickname}
                 </Text>
                 <View className="flex-row items-center mt-1" style={{ gap: 8 }}>
-                  {post.author.age ? (
-                    <Text className="text-sm text-gray-400">{post.author.age}岁</Text>
-                  ) : null}
-                  {post.author.city ? (
-                    <Text className="text-sm text-gray-400">{post.author.city}</Text>
+                  {(post.author as any).city ? (
+                    <Text className="text-sm text-gray-400">{(post.author as any).city}</Text>
                   ) : null}
                 </View>
               </View>
