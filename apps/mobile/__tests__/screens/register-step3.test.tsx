@@ -35,12 +35,15 @@ jest.mock('@matrimonial/api-client', () => ({
 }));
 
 jest.mock('@matrimonial/ui', () => {
-  const { TouchableOpacity, Text } = require('react-native');
+  const { TouchableOpacity, Text, View } = require('react-native');
   return {
     Button: ({ title, onPress, disabled }: { title: string; onPress?: () => void; disabled?: boolean }) => (
       <TouchableOpacity onPress={onPress} disabled={disabled} testID={`btn-${title}`}>
         <Text>{title}</Text>
       </TouchableOpacity>
+    ),
+    AnimatedProgressBar: ({ step, total }: { step: number; total: number }) => (
+      <View testID="progress-bar" accessibilityLabel={`${step}/${total}`} />
     ),
     toast: { error: jest.fn(), success: jest.fn() },
   };
