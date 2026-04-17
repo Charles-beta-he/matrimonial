@@ -3,6 +3,12 @@ import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { Avatar, EmptyState, ListItem } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { formatLastActive } from '@matrimonial/shared';
@@ -21,6 +27,13 @@ export default function MessagesTab() {
   const currentUser = useAppStore((s) => s.user);
   const { track } = useAnalytics();
 
+  const headerOpacity = useSharedValue(0);
+  const headerTranslateY = useSharedValue(-20);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerTranslateY.value }],
+  }));
+
   const conversationsQuery = api.chat.list.useQuery(undefined, {
     refetchInterval: 5000,
     refetchOnWindowFocus: true,
@@ -31,6 +44,9 @@ export default function MessagesTab() {
 
   useEffect(() => {
     track('screen_view', { screen_name: 'messages' });
+    const cfg = { duration: 400, easing: Easing.out(Easing.cubic) };
+    headerOpacity.value = withTiming(1, cfg);
+    headerTranslateY.value = withTiming(0, cfg);
   }, [track]);
 
   // Normalize conversations from server shape
@@ -129,9 +145,9 @@ export default function MessagesTab() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="px-4 py-3">
+      <Animated.View style={headerStyle} className="px-4 py-3">
         <Text className="text-2xl font-bold text-gray-900">消息</Text>
-      </View>
+      </Animated.View>
 
       {/* New matches section */}
       {newMatches.length > 0 && (

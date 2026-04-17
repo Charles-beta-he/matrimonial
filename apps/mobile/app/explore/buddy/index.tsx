@@ -8,11 +8,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, EmptyState } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 
 const TYPE_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -50,6 +56,15 @@ function formatScheduledTime(value: unknown): string {
 export default function BuddyScreen() {
   const router = useRouter();
   const [type, setType] = useState<string | undefined>(undefined);
+  const fabScale = useSharedValue(0);
+
+  useEffect(() => {
+    fabScale.value = withSpring(1, { damping: 10, stiffness: 180 });
+  }, []);
+
+  const fabStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }],
+  }));
 
   const { data, isLoading, error, refetch, isRefetching } =
     api.buddy.list.useQuery({ type, limit: 20 });
@@ -127,12 +142,13 @@ export default function BuddyScreen() {
             gap: 12,
             paddingBottom: 100,
           }}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const typeInfo = getBuddyTypeInfo(item.type);
             const timeText = formatScheduledTime(item.scheduledAt);
             const applyCount = item.applyCount ?? 0;
 
             return (
+              <StaggeredListItem index={index}>
               <Pressable onPress={() => router.push(`/explore/buddy/${item.id}` as any)}>
                 <Card>
                   <View className="p-4">
@@ -201,25 +217,34 @@ export default function BuddyScreen() {
                   </View>
                 </Card>
               </Pressable>
+              </StaggeredListItem>
             );
           }}
         />
       )}
 
       {/* FAB — create new buddy post */}
-      <Pressable
-        className="absolute bottom-8 right-5 w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
-        style={{
-          shadowColor: '#f43f5e',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-        onPress={() => router.push('/explore/buddy/create' as any)}
+      <Animated.View
+        style={[{
+          position: 'absolute',
+          bottom: 32,
+          right: 20,
+        }, fabStyle]}
       >
-        <Ionicons name="add" size={28} color="#fff" />
-      </Pressable>
+        <Pressable
+          className="w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
+          style={{
+            shadowColor: '#f43f5e',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+          onPress={() => router.push('/explore/buddy/create' as any)}
+        >
+          <Ionicons name="add" size={28} color="#fff" />
+        </Pressable>
+      </Animated.View>
     </SafeAreaView>
   );
 }

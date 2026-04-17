@@ -13,6 +13,7 @@ import { Badge, Card, EmptyState } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 
 const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -110,11 +111,12 @@ export default function CirclesScreen() {
             gap: 12,
             paddingBottom: 24,
           }}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const catInfo = CIRCLE_CATEGORIES.find((c) => c.id === item.category);
             const accentColor = CATEGORY_COLORS[item.category] ?? '#6b7280';
 
             return (
+              <StaggeredListItem index={index}>
               <Pressable onPress={() => router.push(`/explore/circles/${item.id}` as any)}>
                 <Card className="overflow-hidden">
                   {/* Color banner */}
@@ -166,6 +168,7 @@ export default function CirclesScreen() {
                   </View>
                 </Card>
               </Pressable>
+              </StaggeredListItem>
             );
           }}
         />
