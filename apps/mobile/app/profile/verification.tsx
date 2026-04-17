@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, toast } from '@matrimonial/ui';
+import { StaggeredListItem } from '../../components/StaggeredListItem';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 import { VERIFICATION_LEVEL_LABELS } from '@matrimonial/shared';
@@ -164,8 +165,9 @@ export default function VerificationScreen() {
         </View>
 
         <View className="px-4 mt-4" style={{ gap: 12 }}>
-          {levels.map((item) => (
-            <Card key={item.level} className="p-4">
+          {levels.map((item, i) => (
+            <StaggeredListItem key={item.level} index={i}>
+            <Card className="p-4">
               <View className="flex-row items-start">
                 <View
                   className="w-12 h-12 rounded-2xl items-center justify-center mr-4"
@@ -206,6 +208,7 @@ export default function VerificationScreen() {
                 </View>
               </View>
             </Card>
+            </StaggeredListItem>
           ))}
         </View>
 

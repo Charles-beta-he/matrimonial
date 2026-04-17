@@ -4,6 +4,9 @@ import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withDelay, withSpring, Easing,
+} from 'react-native-reanimated';
 import { toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -28,9 +31,19 @@ export default function InvitePage() {
     },
   });
 
+  const heroOpacity = useSharedValue(0);
+  const heroY = useSharedValue(24);
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroOpacity.value,
+    transform: [{ translateY: heroY.value }],
+  }));
+
   useEffect(() => {
     track('screen_view', { screen_name: 'invite' });
-  }, [track]);
+    const cfg = { duration: 420, easing: Easing.out(Easing.cubic) };
+    heroOpacity.value = withDelay(80, withTiming(1, cfg));
+    heroY.value = withDelay(80, withTiming(0, cfg));
+  }, [track, heroOpacity, heroY]);
 
   const myCode = codeQuery.data?.code ?? '------';
   const inviteCount = statsQuery.data?.inviteCount ?? 0;
@@ -79,9 +92,11 @@ export default function InvitePage() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* My invite code card */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-6 items-center"
-          style={{ shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}
-        >
+        <Animated.View style={[heroStyle, {
+          backgroundColor: '#fff', marginHorizontal: 16, marginTop: 16,
+          borderRadius: 16, padding: 24, alignItems: 'center',
+          shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
+        }]}>
           <View className="w-16 h-16 rounded-full bg-pink-50 items-center justify-center mb-3">
             <Ionicons name="gift" size={32} color="#ec4899" />
           </View>
@@ -109,7 +124,7 @@ export default function InvitePage() {
               <Text className="text-sm font-medium text-white ml-1.5">分享</Text>
             </Pressable>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Rewards info */}
         <View className="bg-white mx-4 mt-3 rounded-2xl p-5">
