@@ -5,6 +5,7 @@ import Animated, {
   useSharedValue,
   withDelay,
   withRepeat,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -17,6 +18,8 @@ interface CardStackProps {
 export function CardStack({ children, index, totalCards: _totalCards }: CardStackProps) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(60);
+  // Entrance scale — top card pops from 0.92→1, others from 0.96→1
+  const entranceScale = useSharedValue(index === 0 ? 0.92 : 0.96);
   // Breathing scale — only animated for the top card (index 0)
   const breathScale = useSharedValue(1);
 
@@ -26,13 +29,14 @@ export function CardStack({ children, index, totalCards: _totalCards }: CardStac
 
     opacity.value = withDelay(delay, withTiming(1, { duration: 400, easing }));
     translateY.value = withDelay(delay, withTiming(0, { duration: 400, easing }));
+    entranceScale.value = withDelay(delay, withSpring(1, { damping: 14, stiffness: 160 }));
 
     if (index === 0) {
       // Start breathing loop after the entrance animation finishes
       const entranceDone = delay + 400;
       const timer = setTimeout(() => {
         breathScale.value = withRepeat(
-          withTiming(1.005, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(1.008, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
           -1,
           true,
         );
@@ -44,7 +48,7 @@ export function CardStack({ children, index, totalCards: _totalCards }: CardStac
     opacity: opacity.value,
     transform: [
       { translateY: translateY.value },
-      ...(index === 0 ? [{ scale: breathScale.value }] : []),
+      { scale: entranceScale.value * (index === 0 ? breathScale.value : 1) },
     ],
   }));
 
