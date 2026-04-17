@@ -145,7 +145,7 @@ export default function ActivitiesScreen() {
       {mySignups && mySignups.filter((s: any) => s.status !== 'CANCELLED').length > 0 ? (
         <View className="mx-4 mb-3">
           <Text className="text-sm font-semibold text-gray-700 mb-2">我的报名</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 72 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
             {mySignups.filter((s: any) => s.status !== 'CANCELLED').map((signup: any) => (
               <View key={signup.id} className="bg-white rounded-xl px-3 py-2.5 border border-gray-100" style={{ minWidth: 160 }}>
                 <Text className="text-sm font-medium text-gray-800" numberOfLines={1}>
