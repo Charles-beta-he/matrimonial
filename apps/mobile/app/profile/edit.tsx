@@ -9,6 +9,7 @@ import { ALL_TAGS, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
+import { PressScale } from '../../components/PressScale';
 
 const EDUCATION_LABEL_TO_ENUM: Record<string, 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD'> = {
   '高中': 'HIGH_SCHOOL',
@@ -207,13 +208,13 @@ export default function ProfileEditScreen() {
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">编辑资料</Text>
-        <Pressable onPress={handleSave} disabled={updateMut.isPending}>
+        <PressScale onPress={handleSave}>
           {updateMut.isPending ? (
             <ActivityIndicator size="small" color="#f43f5e" />
           ) : (
             <Text className="text-rose-500 font-medium">保存</Text>
           )}
-        </Pressable>
+        </PressScale>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -424,9 +425,8 @@ export default function ProfileEditScreen() {
                     >
                       <Text className="text-sm text-gray-600">取消</Text>
                     </Pressable>
-                    <Pressable
-                      className="flex-1 py-3 rounded-xl bg-rose-500 items-center"
-                      disabled={updatePromptsMut.isPending}
+                    <PressScale
+                      style={{ flex: 1 }}
                       onPress={async () => {
                         const updated = prompts.map((p, i) =>
                           i === editingPromptIdx ? { ...p, answerText: promptDraft } : p,
@@ -448,12 +448,14 @@ export default function ProfileEditScreen() {
                         setPromptEval(null);
                       }}
                     >
-                      {updatePromptsMut.isPending ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                      ) : (
-                        <Text className="text-sm text-white font-medium">保存</Text>
-                      )}
-                    </Pressable>
+                      <View className="py-3 rounded-xl bg-rose-500 items-center">
+                        {updatePromptsMut.isPending ? (
+                          <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                          <Text className="text-sm text-white font-medium">保存</Text>
+                        )}
+                      </View>
+                    </PressScale>
                   </View>
                 </>
               )}

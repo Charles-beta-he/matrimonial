@@ -28,6 +28,7 @@ import type { ProfileCardUser } from '@matrimonial/ui';
 import { EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
+import { HeartBurst } from '../../components/HeartBurst';
 import { SwipeCard } from '../../components/SwipeCard';
 import { CardStack } from '../../components/CardStack';
 import { MatchAnimation } from '../../components/MatchAnimation';
@@ -895,22 +896,7 @@ export default function DiscoverTab() {
               <Ionicons name="close" size={28} color="#ef4444" />
             </Pressable>
 
-            <Pressable
-              onPress={handleSwipeRight}
-              style={({ pressed }) => ({
-                width: 68,
-                height: 68,
-                borderRadius: 34,
-                backgroundColor: '#f43f5e',
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...shadowStyle({ color: '#f43f5e', y: 6, blur: 12, opacity: 0.35, elevation: 6 }),
-                opacity: pressed ? 0.9 : 1,
-                transform: [{ scale: pressed ? 0.96 : 1 }],
-              })}
-            >
-              <Ionicons name="heart" size={32} color="#ffffff" />
-            </Pressable>
+            <HeartBurst onPress={handleSwipeRight} />
 
             <View style={{ position: 'relative' }}>
               <Pressable

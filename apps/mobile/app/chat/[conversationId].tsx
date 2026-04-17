@@ -26,6 +26,7 @@ import type { ChatMessage } from '../../stores/useChatStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { AnimatedMessageBubble } from '../../components/AnimatedMessageBubble';
 import { SkeletonMessage } from '../../components/SkeletonLoader';
+import { PressScale } from '../../components/PressScale';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/them/100/100';
 
@@ -556,13 +557,14 @@ export default function ChatConversationScreen() {
               <Ionicons name="camera-outline" size={22} color="#6b7280" />
             </Pressable>
             {inputText.trim() ? (
-              <Pressable
-                className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
-                onPress={handleSend}
-                disabled={sendMessageMutation.isPending}
-              >
-                <Ionicons name="arrow-up" size={18} color="#ffffff" />
-              </Pressable>
+              <PressScale onPress={handleSend}>
+                <View
+                  className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
+                  style={sendMessageMutation.isPending ? { opacity: 0.5 } : undefined}
+                >
+                  <Ionicons name="arrow-up" size={18} color="#ffffff" />
+                </View>
+              </PressScale>
             ) : null}
           </View>
           </>

@@ -7,7 +7,6 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -146,6 +145,41 @@ export default function UserProfileScreen() {
   }));
   // ---------------------------------
 
+  // --- Horizontal photo parallax ---
+  const scrollX = useSharedValue(0);
+
+  const horizontalScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
+
+  // Returns an animated style for the inner image layer of photo at index `i`
+  // translateX = (i * SCREEN_WIDTH - scrollX) * -0.3
+  // When scrollX === i * SCREEN_WIDTH (photo is centred) → offset = 0
+  // As you scroll right past it, image shifts left (reveals right side of image)
+  const makePhotoParallaxStyle = (i: number) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useAnimatedStyle(() => ({
+      transform: [
+        {
+          translateX: (i * SCREEN_WIDTH - scrollX.value) * -0.3,
+        },
+      ],
+    }));
+
+  // Dot animation: active dot expands width, scale up
+  const makeDotStyle = (i: number) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useAnimatedStyle(() => {
+      const inputRange = [(i - 1) * SCREEN_WIDTH, i * SCREEN_WIDTH, (i + 1) * SCREEN_WIDTH];
+      const scale = interpolate(scrollX.value, inputRange, [1, 1.5, 1], Extrapolation.CLAMP);
+      const width = interpolate(scrollX.value, inputRange, [8, 20, 8], Extrapolation.CLAMP);
+      const opacity = interpolate(scrollX.value, inputRange, [0.5, 1, 0.5], Extrapolation.CLAMP);
+      return { transform: [{ scale }], width, opacity };
+    });
+  // ----------------------------------
+
   const handlePhotoScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
     setPhotoIndex(idx);
@@ -234,27 +268,47 @@ export default function UserProfileScreen() {
       >
         {/* Photo carousel — fixed height container clips parallax overflow */}
         <View style={{ height: SCREEN_WIDTH * 1.2, overflow: 'hidden' }}>
-          <ScrollView
+          <Animated.ScrollView
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={horizontalScrollHandler}
             onMomentumScrollEnd={handlePhotoScroll}
           >
-            {user.photos.map((photo, i) => (
-              /* Animated.View is taller than the container to allow upward parallax travel */
-              <Animated.View
-                key={i}
-                style={[
-                  { width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 + 80 },
-                  heroImageStyle,
-                ]}
-                className="bg-gray-200 items-center justify-center"
-              >
-                <Ionicons name="person" size={72} color="#9ca3af" />
-                <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
-              </Animated.View>
-            ))}
-          </ScrollView>
+            {user.photos.map((photo, i) => {
+              const parallaxStyle = makePhotoParallaxStyle(i);
+              return (
+                /* Outer cell: fixed page size, clips the shifted inner layer */
+                <View
+                  key={i}
+                  style={{
+                    width: SCREEN_WIDTH,
+                    height: SCREEN_WIDTH * 1.2 + 80,
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Inner layer: wider than container so parallax shift never shows a gap */}
+                  {/* Vertical parallax (heroImageStyle) applied here too so both axes work */}
+                  <Animated.View
+                    style={[
+                      {
+                        width: SCREEN_WIDTH * 1.3,
+                        height: SCREEN_WIDTH * 1.2 + 80,
+                        marginLeft: -(SCREEN_WIDTH * 0.15),
+                      },
+                      heroImageStyle,
+                      parallaxStyle,
+                    ]}
+                    className="bg-gray-200 items-center justify-center"
+                  >
+                    <Ionicons name="person" size={72} color="#9ca3af" />
+                    <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
+                  </Animated.View>
+                </View>
+              );
+            })}
+          </Animated.ScrollView>
 
           {/* Fade overlay — darkens as user scrolls down */}
           <Animated.View
@@ -272,16 +326,20 @@ export default function UserProfileScreen() {
             ]}
           />
 
-          {/* Dot indicators */}
+          {/* Dot indicators — active dot expands width and brightens */}
           <View className="absolute bottom-4 flex-row self-center" style={{ gap: 6 }}>
-            {user.photos.map((_, i) => (
-              <View
-                key={i}
-                className={`w-2 h-2 rounded-full ${
-                  i === photoIndex ? 'bg-white' : 'bg-white/50'
-                }`}
-              />
-            ))}
+            {user.photos.map((_, i) => {
+              const dotStyle = makeDotStyle(i);
+              return (
+                <Animated.View
+                  key={i}
+                  style={[
+                    { height: 8, borderRadius: 4, backgroundColor: '#ffffff' },
+                    dotStyle,
+                  ]}
+                />
+              );
+            })}
           </View>
 
           {/* Back button */}
