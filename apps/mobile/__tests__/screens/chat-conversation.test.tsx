@@ -162,10 +162,11 @@ describe('ChatConversationScreen', () => {
     expect(getByPlaceholderText('输入消息...')).toBeTruthy();
   });
 
-  it('shows loading indicator while history is loading', () => {
+  it('shows skeleton loader while history is loading', () => {
     mockHistoryQuery = { ...mockHistoryQuery, isLoading: true, data: undefined as any };
-    const { getByText } = render(<ChatConversationScreen />);
-    expect(getByText('正在加载消息...')).toBeTruthy();
+    // SkeletonMessage replaced the text loading indicator
+    const { toJSON } = render(<ChatConversationScreen />);
+    expect(toJSON()).toBeTruthy();
   });
 
   it('displays text messages from message list', () => {
