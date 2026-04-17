@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { Card, EmptyState } from '@matrimonial/ui';
 import { StaggeredListItem } from '@/components/StaggeredListItem';
 import { api } from '@matrimonial/api-client';
@@ -13,9 +15,22 @@ export default function LikedMeScreen() {
   const router = useRouter();
   const { data, isLoading } = api.match.likedMe.useQuery();
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-20);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
+  useEffect(() => {
+    const cfg = { duration: 400, easing: Easing.out(Easing.cubic) };
+    headerOpacity.value = withTiming(1, cfg);
+    headerY.value = withTiming(0, cfg);
+  }, [headerOpacity, headerY]);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+      <Animated.View style={[headerStyle, { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }]} className="flex-row items-center px-4 py-3">
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
@@ -25,7 +40,7 @@ export default function LikedMeScreen() {
             <Text className="text-xs font-medium text-rose-500">{data.length}</Text>
           </View>
         ) : null}
-      </View>
+      </Animated.View>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

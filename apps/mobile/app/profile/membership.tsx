@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated';
 import { Button } from '@matrimonial/ui';
 import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
@@ -21,6 +29,24 @@ const PRODUCT_ID_BY_PLAN: Record<string, string> = {
   QUARTERLY: 'MEMBERSHIP_QUARTERLY',
   YEARLY: 'MEMBERSHIP_YEARLY',
 };
+
+function PlanCardWrapper({ children, index }: { children: React.ReactNode; index: number }) {
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.9);
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+    flex: 1,
+  }));
+
+  useEffect(() => {
+    const delay = 200 + index * 80;
+    opacity.value = withDelay(delay, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
+    scale.value = withDelay(delay, withSpring(1, { damping: 14, stiffness: 200 }));
+  }, [index, opacity, scale]);
+
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
 
 const FEATURE_COMPARISON = [
   { feature: '每日喜欢次数', free: '10次', paid: '无限' },
@@ -45,9 +71,18 @@ export default function MembershipScreen() {
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const expiresAt = (membershipQuery.data as any)?.expiry;
 
+  const heroScale = useSharedValue(0.88);
+  const heroOpacity = useSharedValue(0);
+  const heroStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heroScale.value }],
+    opacity: heroOpacity.value,
+  }));
+
   useEffect(() => {
     track('membership_view', {});
-  }, [track]);
+    heroScale.value = withSpring(1, { damping: 14, stiffness: 160 });
+    heroOpacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
+  }, [track, heroScale, heroOpacity]);
 
   const handleSubscribe = () => {
     const productId = PRODUCT_ID_BY_PLAN[selectedPlan];
@@ -106,7 +141,7 @@ export default function MembershipScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Current plan */}
-        <View className="bg-white px-4 py-6 items-center">
+        <Animated.View style={[heroStyle, { backgroundColor: '#fff' }]} className="px-4 py-6 items-center">
           <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-2">
             <Ionicons name="diamond" size={32} color="#f59e0b" />
           </View>
@@ -120,15 +155,15 @@ export default function MembershipScreen() {
           ) : (
             <Text className="text-sm text-gray-400 mt-1">开通会员，解锁全部功能</Text>
           )}
-        </View>
+        </Animated.View>
 
         {/* Plan cards */}
         <View className="flex-row px-4 mt-4" style={{ gap: 10 }}>
-          {MEMBERSHIP_PLAN_DETAILS.map((plan) => {
+          {MEMBERSHIP_PLAN_DETAILS.map((plan, i) => {
             const isSelected = selectedPlan === plan.plan;
             return (
+              <PlanCardWrapper key={plan.plan} index={i}>
               <Pressable
-                key={plan.plan}
                 className={`flex-1 rounded-2xl border-2 p-3 items-center ${
                   isSelected ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
                 }`}
@@ -147,6 +182,7 @@ export default function MembershipScreen() {
                   ¥{plan.originalPrice}
                 </Text>
               </Pressable>
+              </PlanCardWrapper>
             );
           })}
         </View>
