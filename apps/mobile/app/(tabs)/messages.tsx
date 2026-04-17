@@ -47,7 +47,7 @@ export default function MessagesTab() {
     const cfg = { duration: 400, easing: Easing.out(Easing.cubic) };
     headerOpacity.value = withTiming(1, cfg);
     headerTranslateY.value = withTiming(0, cfg);
-  }, [track]);
+  }, [track, headerOpacity, headerTranslateY]);
 
   // Normalize conversations from server shape
   const conversations = useMemo(() => {

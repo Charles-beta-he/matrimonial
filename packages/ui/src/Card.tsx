@@ -1,5 +1,10 @@
 import React from 'react';
 import { Platform, Pressable, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 
 export interface CardProps {
   children: React.ReactNode;
@@ -25,23 +30,41 @@ const shadowStyle = Platform.select({
   default: {},
 });
 
-export function Card({ children, className = '', onPress, shadow = true }: CardProps) {
-  const baseClass = `bg-white rounded-2xl overflow-hidden ${className}`;
+const SPRING = { damping: 15, stiffness: 300 };
 
-  if (onPress) {
-    return (
+function PressableCard({ children, className = '', onPress, shadow = true }: CardProps) {
+  const scale = useSharedValue(1);
+  const scaleStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return (
+    <Animated.View style={scaleStyle}>
       <Pressable
         onPress={onPress}
-        className={baseClass}
+        onPressIn={() => { scale.value = withSpring(0.97, SPRING); }}
+        onPressOut={() => { scale.value = withSpring(1, SPRING); }}
+        className={`bg-white rounded-2xl overflow-hidden ${className}`}
         style={shadow ? shadowStyle : undefined}
       >
         {children}
       </Pressable>
+    </Animated.View>
+  );
+}
+
+export function Card({ children, className = '', onPress, shadow = true }: CardProps) {
+  if (onPress) {
+    return (
+      <PressableCard className={className} onPress={onPress} shadow={shadow}>
+        {children}
+      </PressableCard>
     );
   }
 
   return (
-    <View className={baseClass} style={shadow ? shadowStyle : undefined}>
+    <View
+      className={`bg-white rounded-2xl overflow-hidden ${className}`}
+      style={shadow ? shadowStyle : undefined}
+    >
       {children}
     </View>
   );

@@ -6,6 +6,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -47,6 +48,13 @@ export default function ProfileTab() {
     transform: [{ scale: breathe.value }],
   }));
 
+  const headerOpacity = useSharedValue(0);
+  const headerTranslateY = useSharedValue(-20);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerTranslateY.value }],
+  }));
+
   useEffect(() => {
     breathe.value = withRepeat(
       withSequence(
@@ -56,7 +64,10 @@ export default function ProfileTab() {
       -1,
       true,
     );
-  }, []);
+    const cfg = { duration: 400, easing: Easing.out(Easing.cubic) };
+    headerOpacity.value = withTiming(1, cfg);
+    headerTranslateY.value = withTiming(0, cfg);
+  }, [breathe, headerOpacity, headerTranslateY]);
 
   const meQuery = api.user.me.useQuery(undefined, {
     staleTime: 30_000,
@@ -170,7 +181,7 @@ export default function ProfileTab() {
         )}
 
         {/* Header profile area */}
-        <View className="bg-white px-6 pt-6 pb-6 items-center">
+        <Animated.View style={[headerStyle, { backgroundColor: '#fff' }]} className="px-6 pt-6 pb-6 items-center">
           <Animated.View style={breatheStyle}>
             <Avatar
               source={{ uri: avatarUrl }}
@@ -202,7 +213,7 @@ export default function ProfileTab() {
           >
             <Text className="text-rose-500 font-medium text-sm">编辑资料</Text>
           </Pressable>
-        </View>
+        </Animated.View>
 
         {/* Daily check-in card */}
         <Pressable
