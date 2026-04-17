@@ -9,5 +9,12 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Resolve workspace packages from source (dist/ is not committed to git)
+    '^@matrimonial/shared$': '<rootDir>/../../packages/shared/src/index.ts',
+    '^@matrimonial/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
+    '^@matrimonial/ui$': '<rootDir>/../../packages/ui/src/index.ts',
+    '^@matrimonial/ui/(.*)$': '<rootDir>/../../packages/ui/src/$1',
+    '^@matrimonial/api-client$': '<rootDir>/../../packages/api-client/src/index.ts',
+    '^@matrimonial/api-client/(.*)$': '<rootDir>/../../packages/api-client/src/$1',
   },
 };
