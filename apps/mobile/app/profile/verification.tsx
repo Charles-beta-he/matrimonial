@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +24,18 @@ export default function VerificationScreen() {
   const submitEduMut = api.verification.submitEduVerify.useMutation();
 
   const [modal, setModal] = useState<Modals>(null);
+
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
 
   // L2 modal state
   const [realName, setRealName] = useState('');
@@ -141,12 +154,12 @@ export default function VerificationScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center px-4 py-3 bg-white">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-lg font-semibold text-gray-900">认证中心</Text>
-      </View>
+      </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="bg-white px-4 py-6 items-center">

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Platform, Text, TextInput, View } from 'react-native';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export interface InputProps {
   label?: string;
@@ -31,20 +32,45 @@ export const Input = React.forwardRef<TextInput, InputProps>(
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
+    const focusProgress = useSharedValue(0);
 
-    const borderClass = error
-      ? 'border-red-500'
-      : focused
-        ? 'border-rose-500'
-        : 'border-gray-200';
+    const handleFocus = useCallback(() => {
+      setFocused(true);
+      focusProgress.value = withTiming(1, { duration: 180 });
+    }, [focusProgress]);
+
+    const handleBlur = useCallback(() => {
+      setFocused(false);
+      focusProgress.value = withTiming(0, { duration: 180 });
+    }, [focusProgress]);
+
+    const borderStyle = useAnimatedStyle(() => {
+      const borderColor = error
+        ? '#ef4444'
+        : interpolateColor(focusProgress.value, [0, 1], ['#e5e7eb', '#f43f5e']);
+      return { borderColor };
+    });
 
     return (
       <View className="w-full">
         {label ? <Text className="text-sm text-gray-600 mb-1">{label}</Text> : null}
-        <View
-          className={`flex-row items-center bg-gray-50 border rounded-xl px-4 ${borderClass} ${multiline ? 'h-24 items-start pt-3' : 'h-12'}`}
+        <Animated.View
+          style={[
+            {
+              flexDirection: 'row',
+              alignItems: multiline ? 'flex-start' : 'center',
+              backgroundColor: '#f9fafb',
+              borderWidth: 1,
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              height: multiline ? undefined : 48,
+              minHeight: multiline ? 96 : undefined,
+              paddingTop: multiline ? 12 : undefined,
+            },
+            borderStyle,
+          ]}
         >
-          {leftIcon ? <View className="mr-2">{leftIcon}</View> : null}
+          {leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
           <TextInput
             ref={ref}
             className="flex-1 text-base text-gray-900"
@@ -57,11 +83,11 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             multiline={multiline}
             maxLength={maxLength}
             textAlignVertical={multiline ? 'top' : 'center'}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
-          {rightIcon ? <View className="ml-2">{rightIcon}</View> : null}
-        </View>
+          {rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
+        </Animated.View>
         {error ? <Text className="text-red-500 text-xs mt-1">{error}</Text> : null}
       </View>
     );

@@ -8,6 +8,8 @@ import Animated, {
   useAnimatedStyle,
   withDelay,
   withSpring,
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
@@ -86,6 +88,18 @@ export default function CheckinScreen() {
     },
   });
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   useEffect(() => {
     track('screen_view', { screen_name: 'checkin' });
   }, [track]);
@@ -116,12 +130,12 @@ export default function CheckinScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-100">
+      <Animated.View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#111827" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900">签到中心</Text>
-      </View>
+      </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Streak & Check-in card */}
