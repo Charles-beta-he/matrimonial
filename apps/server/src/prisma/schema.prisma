@@ -256,6 +256,7 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+  @@index([senderId])
 }
 
 // ========== 支付 ==========

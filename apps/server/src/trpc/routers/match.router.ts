@@ -339,6 +339,28 @@ export const matchRouter = router({
         });
       }
 
+      // Enforce daily swipe quota for free users (same check as recommendations)
+      const currentUserForQuota = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+        select: { membership: true },
+      });
+      const isFreeUser =
+        !currentUserForQuota?.membership ||
+        currentUserForQuota.membership === 'FREE';
+      if (isFreeUser) {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const swipeCount = await ctx.prisma.like.count({
+          where: { fromUserId: userId, createdAt: { gte: todayStart } },
+        });
+        if (swipeCount >= FREE_DAILY_SWIPES) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: '今日滑动次数已用完，明天再来吧',
+          });
+        }
+      }
+
       // Verify target user exists
       const targetUser = await ctx.prisma.user.findUnique({
         where: { id: input.toUserId },
@@ -510,6 +532,7 @@ export const matchRouter = router({
         },
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
   }),
 

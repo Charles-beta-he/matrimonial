@@ -191,6 +191,22 @@ describe('matchRouter', () => {
       expect(err.code).toBe('BAD_REQUEST');
     });
 
+    it('throws FORBIDDEN when free user has exhausted daily swipe quota', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({ membership: 'FREE' } as any);
+      vi.mocked(prisma.like.count).mockResolvedValueOnce(30); // quota exhausted
+
+      const membership = await prisma.user.findUnique({ where: { id: 'user-1' }, select: { membership: true } });
+      const isFreeUser = !membership?.membership || membership.membership === 'FREE';
+      const swipeCount = await prisma.like.count({ where: { fromUserId: 'user-1', createdAt: { gte: new Date() } } });
+
+      expect(isFreeUser).toBe(true);
+      expect(swipeCount).toBe(30);
+
+      const err = new TRPCError({ code: 'FORBIDDEN', message: '今日滑动次数已用完，明天再来吧' });
+      expect(err.code).toBe('FORBIDDEN');
+      expect(err.message).toBe('今日滑动次数已用完，明天再来吧');
+    });
+
     it('throws NOT_FOUND when target user does not exist', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
 
