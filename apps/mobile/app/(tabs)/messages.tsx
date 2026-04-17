@@ -140,7 +140,8 @@ export default function MessagesTab() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
+            style={{ height: 90 }}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 16, alignItems: 'center' }}
           >
             {newMatches.map((match) => (
               <Pressable

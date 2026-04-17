@@ -11,6 +11,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,6 +53,12 @@ export default function ChatConversationScreen() {
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const canSeeReadReceipts = currentPlan === 'QUARTERLY' || currentPlan === 'YEARLY';
   const [inputText, setInputText] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const focusProgress = useSharedValue(0);
+  const inputAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(focusProgress.value, [0, 1], ['#f3f4f6', '#fff5f5']),
+    borderColor: interpolateColor(focusProgress.value, [0, 1], ['transparent', '#f43f5e']),
+  }));
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
 
@@ -543,7 +555,9 @@ export default function ChatConversationScreen() {
             >
               <Ionicons name="mic-outline" size={22} color="#6b7280" />
             </Pressable>
-            <View className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 min-h-[40px] justify-center">
+            <Animated.View
+              style={[inputAnimatedStyle, { borderWidth: 1.5, flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
+            >
               <TextInput
                 className="text-base text-gray-900"
                 placeholder="输入消息..."
@@ -552,8 +566,10 @@ export default function ChatConversationScreen() {
                 onChangeText={handleChangeText}
                 multiline
                 maxLength={500}
+                onFocus={() => { setIsFocused(true); focusProgress.value = withTiming(1, { duration: 200 }); }}
+                onBlur={() => { setIsFocused(false); focusProgress.value = withTiming(0, { duration: 200 }); }}
               />
-            </View>
+            </Animated.View>
             <Pressable className="w-10 h-10 items-center justify-center">
               <Ionicons name="camera-outline" size={22} color="#6b7280" />
             </Pressable>

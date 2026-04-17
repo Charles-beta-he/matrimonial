@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +41,22 @@ export default function ProfileTab() {
   const storeUser = useAppStore((s) => s.user);
   const clearAuth = useAppStore((s) => s.clearAuth);
   const { track, clearUser } = useAnalytics();
+
+  const breathe = useSharedValue(1);
+  const breatheStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: breathe.value }],
+  }));
+
+  useEffect(() => {
+    breathe.value = withRepeat(
+      withSequence(
+        withTiming(1.025, { duration: 2800 }),
+        withTiming(1.0, { duration: 2800 }),
+      ),
+      -1,
+      true,
+    );
+  }, []);
 
   const meQuery = api.user.me.useQuery(undefined, {
     staleTime: 30_000,
@@ -148,13 +171,15 @@ export default function ProfileTab() {
 
         {/* Header profile area */}
         <View className="bg-white px-6 pt-6 pb-6 items-center">
-          <Avatar
-            source={{ uri: avatarUrl }}
-            size={80}
-            verified={!!verificationLevel}
-            verificationLevel={verificationLevel ?? 'L1'}
-            online
-          />
+          <Animated.View style={breatheStyle}>
+            <Avatar
+              source={{ uri: avatarUrl }}
+              size={80}
+              verified={!!verificationLevel}
+              verificationLevel={verificationLevel ?? 'L1'}
+              online
+            />
+          </Animated.View>
           <Text className="text-xl font-bold text-gray-900 mt-3">
             {user?.nickname ?? '用户'}
           </Text>

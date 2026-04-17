@@ -758,7 +758,8 @@ export default function DiscoverTab() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+            style={{ height: 120 }}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 10, alignItems: 'center' }}
           >
             {dailyPicksQuery.isLoading ? (
               <Text className="text-xs text-gray-400 px-2 py-6">加载中…</Text>
