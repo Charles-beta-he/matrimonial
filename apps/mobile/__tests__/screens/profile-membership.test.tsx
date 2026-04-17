@@ -40,6 +40,9 @@ jest.mock('@matrimonial/api-client', () => ({
         useQuery: () => ({ data: mockMembershipData }),
         invalidate: jest.fn(),
       },
+      getOrders: {
+        useQuery: () => ({ data: [] }),
+      },
     },
     useUtils: () => ({
       payment: { membershipStatus: { invalidate: jest.fn() } },

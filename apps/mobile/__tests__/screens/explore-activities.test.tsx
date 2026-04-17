@@ -71,6 +71,15 @@ jest.mock('@matrimonial/api-client', () => ({
           isPending: false,
         }),
       },
+      cancelSignup: {
+        useMutation: () => ({ mutate: jest.fn(), isPending: false }),
+      },
+      activityMatches: {
+        useQuery: () => ({ data: [] }),
+      },
+      mySignups: {
+        useQuery: () => ({ data: [] }),
+      },
     },
   },
 }));

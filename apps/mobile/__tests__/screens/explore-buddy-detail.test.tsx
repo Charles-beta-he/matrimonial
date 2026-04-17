@@ -33,6 +33,7 @@ const mockRefetch = jest.fn();
 
 let mockMyPostsData: any[] = [];
 let mockListData: any = { items: [] };
+let mockPostData: any = undefined;
 let mockIsLoading = false;
 
 jest.mock('@matrimonial/api-client', () => ({
@@ -41,6 +42,13 @@ jest.mock('@matrimonial/api-client', () => ({
       myPosts: {
         useQuery: (_args: any, _opts: any) => ({
           data: mockMyPostsData,
+        }),
+      },
+      detail: {
+        useQuery: (_id: any, _opts: any) => ({
+          data: mockPostData,
+          isLoading: mockIsLoading,
+          refetch: mockRefetch,
         }),
       },
       list: {
@@ -136,7 +144,7 @@ describe('BuddyPostDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMyPostsData = [];
-    mockListData = { items: [] };
+    mockPostData = undefined;
     mockIsLoading = false;
   });
 
@@ -149,43 +157,43 @@ describe('BuddyPostDetailScreen', () => {
 
   it('shows empty state when post is not found', () => {
     mockIsLoading = false;
-    mockListData = { items: [] };
+    mockPostData = undefined;
     const { getByTestId } = render(<BuddyDetailScreen />);
     expect(getByTestId('empty-state')).toBeTruthy();
   });
 
   it('renders post title when data loads', () => {
-    mockListData = { items: [makePost()] };
+    mockPostData = makePost();
     const { getByText } = render(<BuddyDetailScreen />);
     expect(getByText('周末爬山伙伴')).toBeTruthy();
   });
 
   it('renders post description', () => {
-    mockListData = { items: [makePost()] };
+    mockPostData = makePost();
     const { getByText } = render(<BuddyDetailScreen />);
     expect(getByText('寻找一起爬山的朋友')).toBeTruthy();
   });
 
   it('shows 帖子详情 header title', () => {
-    mockListData = { items: [makePost()] };
+    mockPostData = makePost();
     const { getAllByText } = render(<BuddyDetailScreen />);
     expect(getAllByText('帖子详情').length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows apply button for open post (non-owner)', () => {
-    mockListData = { items: [makePost({ status: 'OPEN' })] };
+    mockPostData = makePost({ status: 'OPEN' });
     const { getByTestId } = render(<BuddyDetailScreen />);
     expect(getByTestId('btn-我要参加')).toBeTruthy();
   });
 
   it('shows disabled button for closed post', () => {
-    mockListData = { items: [makePost({ status: 'CLOSED' })] };
+    mockPostData = makePost({ status: 'CLOSED' });
     const { getByTestId } = render(<BuddyDetailScreen />);
     expect(getByTestId('btn-报名已关闭')).toBeTruthy();
   });
 
   it('calls router.back when back button pressed', () => {
-    mockListData = { items: [makePost()] };
+    mockPostData = makePost();
     const { UNSAFE_getAllByType } = render(<BuddyDetailScreen />);
     const { Pressable } = require('react-native');
     fireEvent.press(UNSAFE_getAllByType(Pressable)[0]);
@@ -193,7 +201,7 @@ describe('BuddyPostDetailScreen', () => {
   });
 
   it('tapping 我要参加 shows the apply input area', () => {
-    mockListData = { items: [makePost({ status: 'OPEN' })] };
+    mockPostData = makePost({ status: 'OPEN' });
     const { getByTestId } = render(<BuddyDetailScreen />);
     fireEvent.press(getByTestId('btn-我要参加'));
     // After press, apply input UI appears with 确认报名 button
@@ -201,7 +209,7 @@ describe('BuddyPostDetailScreen', () => {
   });
 
   it('shows author nickname', () => {
-    mockListData = { items: [makePost()] };
+    mockPostData = makePost();
     const { getByText } = render(<BuddyDetailScreen />);
     expect(getByText('小明')).toBeTruthy();
   });
