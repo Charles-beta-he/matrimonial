@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { AnimatedCounter } from '../../components/AnimatedCounter';
+import { PressScale } from '../../components/PressScale';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import Animated, {
   useAnimatedStyle,
@@ -219,12 +220,11 @@ export default function ProfileTab() {
             )}
           </View>
 
-          <Pressable
-            className="mt-4 bg-rose-50 rounded-full px-6 py-2"
-            onPress={() => router.push('/profile/edit')}
-          >
-            <Text className="text-rose-500 font-medium text-sm">编辑资料</Text>
-          </Pressable>
+          <PressScale onPress={() => router.push('/profile/edit')} style={{ marginTop: 16 }}>
+            <View className="bg-rose-50 rounded-full px-6 py-2">
+              <Text className="text-rose-500 font-medium text-sm">编辑资料</Text>
+            </View>
+          </PressScale>
         </Animated.View>
 
         {/* Daily check-in card */}

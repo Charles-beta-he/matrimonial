@@ -28,6 +28,7 @@ import { Badge, EmptyState, PromptCard } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ChromaTransition } from '../../components/ChromaTransition';
+import { PressScale } from '../../components/PressScale';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -450,26 +451,24 @@ export default function UserProfileScreen() {
         className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100"
       >
         <View className="flex-row items-center justify-center py-3 px-6" style={{ gap: 16 }}>
-          <Pressable
-            onPress={handleSkip}
-            className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center"
-          >
-            <Ionicons name="close" size={24} color="#6b7280" />
-          </Pressable>
-          <Pressable
-            onPress={handleLike}
-            className="flex-1 h-12 rounded-full bg-rose-500 flex-row items-center justify-center"
-            style={{ gap: 6 }}
-          >
-            <Ionicons name="heart" size={20} color="#ffffff" />
-            <Text className="text-white font-semibold text-base">喜欢</Text>
-          </Pressable>
-          <Pressable
-            onPress={handleSuperLike}
-            className="w-12 h-12 rounded-full bg-amber-100 items-center justify-center"
-          >
-            <Ionicons name="star" size={22} color="#f59e0b" />
-          </Pressable>
+          <PressScale onPress={handleSkip} scale={0.9}>
+            <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center">
+              <Ionicons name="close" size={24} color="#6b7280" />
+            </View>
+          </PressScale>
+          <View style={{ flex: 1 }}>
+            <PressScale onPress={handleLike} scale={0.96}>
+              <View className="h-12 rounded-full bg-rose-500 flex-row items-center justify-center" style={{ gap: 6 }}>
+                <Ionicons name="heart" size={20} color="#ffffff" />
+                <Text className="text-white font-semibold text-base">喜欢</Text>
+              </View>
+            </PressScale>
+          </View>
+          <PressScale onPress={handleSuperLike} scale={0.9}>
+            <View className="w-12 h-12 rounded-full bg-amber-100 items-center justify-center">
+              <Ionicons name="star" size={22} color="#f59e0b" />
+            </View>
+          </PressScale>
         </View>
       </SafeAreaView>
 
