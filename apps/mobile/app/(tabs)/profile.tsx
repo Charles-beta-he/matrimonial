@@ -92,9 +92,9 @@ export default function ProfileTab() {
   };
 
   const stats = [
-    { label: '获赞', value: likedMeQuery.data?.length ?? 0 },
-    { label: '匹配', value: matchesQuery.data?.length ?? 0 },
-    { label: '来访', value: visitorsQuery.data?.length ?? 0 },
+    { label: '获赞', value: likedMeQuery.data?.length ?? 0, route: '/profile/liked-me' as const },
+    { label: '匹配', value: matchesQuery.data?.length ?? 0, route: null },
+    { label: '来访', value: visitorsQuery.data?.length ?? 0, route: '/profile/visitors' as const },
   ];
 
   return (
@@ -163,13 +163,27 @@ export default function ProfileTab() {
         {/* Stats row */}
         <View className="bg-white mt-2 flex-row py-4">
           {stats.map((stat, i) => (
-            <View key={stat.label} className="flex-1 items-center">
-              {i > 0 && (
-                <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
-              )}
-              <Text className="text-xl font-bold text-gray-900">{stat.value}</Text>
-              <Text className="text-xs text-gray-500 mt-0.5">{stat.label}</Text>
-            </View>
+            stat.route ? (
+              <Pressable
+                key={stat.label}
+                className="flex-1 items-center"
+                onPress={() => router.push(stat.route as any)}
+              >
+                {i > 0 && (
+                  <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
+                )}
+                <Text className="text-xl font-bold text-gray-900">{stat.value}</Text>
+                <Text className="text-xs text-rose-500 mt-0.5">{stat.label}</Text>
+              </Pressable>
+            ) : (
+              <View key={stat.label} className="flex-1 items-center">
+                {i > 0 && (
+                  <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
+                )}
+                <Text className="text-xl font-bold text-gray-900">{stat.value}</Text>
+                <Text className="text-xs text-gray-500 mt-0.5">{stat.label}</Text>
+              </View>
+            )
           ))}
         </View>
 

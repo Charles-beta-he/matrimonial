@@ -191,6 +191,20 @@ export default function SettingsPage() {
           </View>
         </View>
 
+        {/* 我的举报 */}
+        <View className="mt-3">
+          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">举报记录</Text>
+          <View className="bg-white">
+            <Pressable
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={() => router.push('/profile/my-reports' as any)}
+            >
+              <Text className="text-base text-gray-900">我提交的举报</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* 账号 */}
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号</Text>
