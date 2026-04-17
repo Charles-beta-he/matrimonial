@@ -28,6 +28,7 @@ import type { ProfileCardUser } from '@matrimonial/ui';
 import { EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
+import { ChromaTransition } from '../../components/ChromaTransition';
 import { HeartBurst } from '../../components/HeartBurst';
 import { StarBurst } from '../../components/StarBurst';
 import { SwipeCard } from '../../components/SwipeCard';
@@ -377,6 +378,7 @@ export default function DiscoverTab() {
   const quotaExhausted = quotaExhaustedFromApi || (quotaData?.quotaExhausted ?? false);
 
   return (
+    <ChromaTransition>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 bg-gray-50">
         {/* Header */}
@@ -935,5 +937,6 @@ export default function DiscoverTab() {
         )}
       </SafeAreaView>
     </GestureHandlerRootView>
+    </ChromaTransition>
   );
 }

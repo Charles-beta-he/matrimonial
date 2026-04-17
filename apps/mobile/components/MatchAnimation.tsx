@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   SharedValue,
@@ -47,7 +47,7 @@ interface ParticleData {
 
 const PARTICLES: ParticleData[] = Array.from({ length: 16 }, (_, i) => ({
   angle: (i / 16) * 360 + Math.random() * 22.5,
-  distance: 80 + Math.random() * 80,
+  distance: 130 + Math.random() * 120,
   size: 6 + Math.random() * 4,
   color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
 }));
@@ -84,6 +84,17 @@ export function MatchAnimation({
   const ringOpacity2 = useSharedValue(0);
   const ringScale3 = useSharedValue(1);
   const ringOpacity3 = useSharedValue(0);
+  const ringScale4 = useSharedValue(1);
+  const ringOpacity4 = useSharedValue(0);
+  const ringScale5 = useSharedValue(1);
+  const ringOpacity5 = useSharedValue(0);
+
+  // Central white flash
+  const flashOpacity = useSharedValue(0);
+
+  // Avatar entrance rotation
+  const rotL = useSharedValue(-15);
+  const rotR = useSharedValue(15);
 
   const { data: icebreakersData, isLoading: icebreakersLoading } = useIcebreakers(
     matchedUserId ?? '',
@@ -95,30 +106,54 @@ export function MatchAnimation({
     // Ring 1 — immediate
     ringScale.value = 1;
     ringOpacity.value = 0.5;
-    ringScale.value = withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) });
-    ringOpacity.value = withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) });
+    ringScale.value = withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) });
+    ringOpacity.value = withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) });
 
     // Ring 2 — 150ms delay
     ringScale2.value = 1;
     ringOpacity2.value = 0;
-    ringScale2.value = withDelay(150, withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    ringScale2.value = withDelay(150, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
     ringOpacity2.value = withDelay(
       150,
       withSequence(
         withTiming(0.5, { duration: 0 }),
-        withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
     // Ring 3 — 300ms delay
     ringScale3.value = 1;
     ringOpacity3.value = 0;
-    ringScale3.value = withDelay(300, withTiming(2.8, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    ringScale3.value = withDelay(300, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
     ringOpacity3.value = withDelay(
       300,
       withSequence(
         withTiming(0.5, { duration: 0 }),
-        withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
+      ),
+    );
+
+    // Ring 4 — 500ms delay, gold
+    ringScale4.value = 1;
+    ringOpacity4.value = 0;
+    ringScale4.value = withDelay(500, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringOpacity4.value = withDelay(
+      500,
+      withSequence(
+        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
+      ),
+    );
+
+    // Ring 5 — 700ms delay, faint gold
+    ringScale5.value = 1;
+    ringOpacity5.value = 0;
+    ringScale5.value = withDelay(700, withTiming(4.5, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    ringOpacity5.value = withDelay(
+      700,
+      withSequence(
+        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 900, easing: Easing.out(Easing.cubic) }),
       ),
     );
 
@@ -127,7 +162,7 @@ export function MatchAnimation({
       particleProgress[i].value = 0;
       particleProgress[i].value = withDelay(
         i * 20,
-        withTiming(1, { duration: 800, easing: Easing.out(Easing.quad) }),
+        withTiming(1, { duration: 1100, easing: Easing.out(Easing.quad) }),
       );
     });
   }
@@ -137,15 +172,21 @@ export function MatchAnimation({
     leftX.value = withSpring(-40, { damping: 12 });
     rightX.value = withSpring(40, { damping: 12 });
     textScale.value = withDelay(400, withSpring(1, { damping: 10 }));
+    flashOpacity.value = withSequence(
+      withTiming(0.7, { duration: 80 }),
+      withTiming(0, { duration: 400, easing: Easing.out(Easing.cubic) }),
+    );
+    rotL.value = withSpring(0, { damping: 10 });
+    rotR.value = withSpring(0, { damping: 10 });
     triggerParticles();
   }, []);
 
   const leftStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: leftX.value }],
+    transform: [{ translateX: leftX.value }, { rotate: `${rotL.value}deg` }],
   }));
 
   const rightStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: rightX.value }],
+    transform: [{ translateX: rightX.value }, { rotate: `${rotR.value}deg` }],
   }));
 
   const textStyle = useAnimatedStyle(() => ({
@@ -189,6 +230,20 @@ export function MatchAnimation({
   const ringStyle3 = useAnimatedStyle(() => ({
     opacity: ringOpacity3.value,
     transform: [{ scale: ringScale3.value }],
+  }));
+
+  const ringStyle4 = useAnimatedStyle(() => ({
+    opacity: ringOpacity4.value,
+    transform: [{ scale: ringScale4.value }],
+  }));
+
+  const ringStyle5 = useAnimatedStyle(() => ({
+    opacity: ringOpacity5.value,
+    transform: [{ scale: ringScale5.value }],
+  }));
+
+  const flashStyle = useAnimatedStyle(() => ({
+    opacity: flashOpacity.value,
   }));
 
   return (
@@ -242,6 +297,44 @@ export function MatchAnimation({
           },
           ringStyle3,
         ]}
+      />
+
+      {/* Ring pulse — ring 4 (gold) */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: '#fde68a',
+          },
+          ringStyle4,
+        ]}
+      />
+
+      {/* Ring pulse — ring 5 (faint gold) */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: 'rgba(253,230,138,0.3)',
+          },
+          ringStyle5,
+        ]}
+      />
+
+      {/* Central white flash */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: '#ffffff' }, flashStyle]}
       />
 
       {/* Particle burst */}

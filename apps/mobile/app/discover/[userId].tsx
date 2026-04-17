@@ -24,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Badge, EmptyState, PromptCard } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
+import { ChromaTransition } from '../../components/ChromaTransition';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -259,6 +260,7 @@ export default function UserProfileScreen() {
   };
 
   return (
+    <ChromaTransition>
     <View className="flex-1 bg-white">
       <Animated.ScrollView
         className="flex-1"
@@ -561,5 +563,6 @@ export default function UserProfileScreen() {
         </View>
       </Modal>
     </View>
+    </ChromaTransition>
   );
 }

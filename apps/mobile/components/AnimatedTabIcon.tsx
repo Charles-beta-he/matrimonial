@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
   withSequence,
   withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -23,6 +24,8 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
   const dotScale = useSharedValue(focused ? 1 : 0);
   const glowScale = useSharedValue(0);
   const glowOpacity = useSharedValue(0);
+  const outerRingScale = useSharedValue(0);
+  const outerRingOpacity = useSharedValue(0);
 
   // Track whether this is the initial mount to skip animation
   const mounted = useSharedValue(false);
@@ -42,13 +45,21 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
         withSpring(1.8, { damping: 6, stiffness: 150 }),
         withSpring(1.2, { damping: 12, stiffness: 200 }),
       );
-      glowOpacity.value = withTiming(0.25, { duration: 150 });
+      glowOpacity.value = withTiming(0.35, { duration: 150 });
+      outerRingScale.value = withSequence(
+        withTiming(3.0, { duration: 400, easing: Easing.out(Easing.cubic) }),
+        withTiming(2.4, { duration: 200 }),
+      );
+      outerRingOpacity.value = withSequence(
+        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) }),
+      );
     } else {
       dotScale.value = withTiming(0, { duration: 150 });
       glowScale.value = withTiming(0, { duration: 200 });
       glowOpacity.value = withTiming(0, { duration: 200 });
+      outerRingOpacity.value = withTiming(0, { duration: 150 });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focused]);
 
   const iconStyle = useAnimatedStyle(() => ({
@@ -64,9 +75,24 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
     opacity: glowOpacity.value,
   }));
 
+  const outerRingStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: outerRingScale.value }],
+    opacity: outerRingOpacity.value,
+  }));
+
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Animated.View
+          style={[{
+            position: 'absolute',
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            borderWidth: 1.5,
+            borderColor: '#f43f5e',
+          }, outerRingStyle]}
+        />
         <Animated.View
           style={[
             {
@@ -74,7 +100,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24 }: AnimatedTab
               width: 44,
               height: 44,
               borderRadius: 22,
-              backgroundColor: '#f43f5e',
+              backgroundColor: '#fb7185',
             },
             glowStyle,
           ]}
