@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { StaggeredListItem } from '../../../../components/StaggeredListItem';
 import {
   ActivityIndicator,
   Alert,
@@ -154,13 +155,14 @@ export default function ActivityVoteScreen() {
           numColumns={2}
           contentContainerStyle={{ padding: 12, gap: 12 }}
           columnWrapperStyle={{ gap: 12 }}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const age = calculateAge(item.birthday);
             const currentRating =
               localRatings[item.id] ?? item.myRating ?? 0;
             const hasVoted = item.myRating !== null || !!localRatings[item.id];
 
             return (
+              <StaggeredListItem index={index} style={{ flex: 1 }}>
               <Card className="flex-1 overflow-hidden">
                 {/* Avatar */}
                 <View className="items-center pt-4 pb-2">
@@ -217,6 +219,7 @@ export default function ActivityVoteScreen() {
                   ) : null}
                 </View>
               </Card>
+              </StaggeredListItem>
             );
           }}
         />

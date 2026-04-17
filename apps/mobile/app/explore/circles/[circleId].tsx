@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import {
   ActivityIndicator,
   FlatList,
@@ -239,7 +240,8 @@ export default function CircleDetailScreen() {
     </View>
   );
 
-  const renderPost = ({ item }: { item: (typeof posts)[number] }) => (
+  const renderPost = ({ item, index }: { item: (typeof posts)[number]; index: number }) => (
+    <StaggeredListItem index={index}>
     <View className="px-4 py-3 border-b border-gray-100">
       {/* Author row */}
       <View className="flex-row items-center mb-2" style={{ gap: 10 }}>
@@ -290,6 +292,7 @@ export default function CircleDetailScreen() {
         <Text className="text-xs text-gray-400">{(item as any).likeCount ?? 0}</Text>
       </View>
     </View>
+    </StaggeredListItem>
   );
 
   return (
