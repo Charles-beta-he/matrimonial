@@ -45,18 +45,14 @@ export function ChromaText({ text, style, trigger }: ChromaTextProps) {
     );
   }
 
-  // Always fire on mount
   useEffect(() => {
     runGlitch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fire whenever trigger flips to true
   useEffect(() => {
     if (trigger) {
       runGlitch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trigger]);
 
   const redAnimStyle = useAnimatedStyle(() => ({
