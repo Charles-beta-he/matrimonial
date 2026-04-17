@@ -128,6 +128,11 @@ jest.mock('@matrimonial/api-client', () => ({
         useMutation: () => ({ mutateAsync: jest.fn() }),
       },
     },
+    ai: {
+      icebreakers: {
+        useQuery: () => ({ data: { suggestions: [] }, isLoading: false }),
+      },
+    },
   },
 }));
 

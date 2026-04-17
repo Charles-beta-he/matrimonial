@@ -64,6 +64,9 @@ jest.mock('@matrimonial/api-client', () => ({
       skip: {
         useMutation: () => ({ mutate: mockSkipMutate, isPending: false }),
       },
+      recordFeedback: {
+        useMutation: () => ({ mutate: jest.fn(), isPending: false }),
+      },
       remainingSwipes: {
         useQuery: () => ({ data: undefined }),
       },
