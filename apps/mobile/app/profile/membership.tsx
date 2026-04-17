@@ -40,6 +40,7 @@ export default function MembershipScreen() {
   const { pay, processing } = usePayment();
   const { track } = useAnalytics();
   const membershipQuery = api.payment.membershipStatus.useQuery();
+  const ordersQuery = api.payment.getOrders.useQuery();
   const utils = api.useUtils();
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const expiresAt = (membershipQuery.data as any)?.expiry;
@@ -184,7 +185,7 @@ export default function MembershipScreen() {
         </View>
 
         {/* CTA */}
-        <View className="px-4 mt-6 mb-8">
+        <View className="px-4 mt-6">
           <Button
             title={processing ? '支付中...' : '立即开通'}
             variant="primary"
@@ -194,6 +195,33 @@ export default function MembershipScreen() {
             onPress={handleSubscribe}
           />
         </View>
+
+        {/* Order history */}
+        {(ordersQuery.data?.length ?? 0) > 0 && (
+          <View className="bg-white mx-4 mt-4 mb-8 rounded-2xl p-4">
+            <Text className="text-base font-semibold text-gray-900 mb-3">购买记录</Text>
+            {ordersQuery.data!.map((order: any) => (
+              <View key={order.id} className="flex-row items-center justify-between py-2 border-b border-gray-50">
+                <View>
+                  <Text className="text-sm text-gray-800">{order.productType}</Text>
+                  <Text className="text-xs text-gray-400 mt-0.5">
+                    {new Date(order.createdAt).toLocaleDateString('zh-CN')} · {order.channel}
+                  </Text>
+                </View>
+                <View className="items-end">
+                  <Text className="text-sm font-semibold text-gray-900">¥{Number(order.amount).toFixed(2)}</Text>
+                  <Text className={`text-xs mt-0.5 ${order.status === 'PAID' ? 'text-green-500' : order.status === 'PENDING' ? 'text-amber-500' : 'text-gray-400'}`}>
+                    {order.status === 'PAID' ? '已支付' : order.status === 'PENDING' ? '待支付' : order.status}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {(ordersQuery.data?.length ?? 0) === 0 && !ordersQuery.isLoading && (
+          <View className="mb-8" />
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react';
+import { AppState, type AppStateStatus, Text } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { api } from '@matrimonial/api-client';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -22,6 +24,23 @@ const LABELS: Record<string, string> = {
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
+  const updateLastActiveMut = api.user.updateLastActive.useMutation();
+  const appState = useRef<AppStateStatus>(AppState.currentState);
+
+  useEffect(() => {
+    // Call once on mount (app is in foreground)
+    updateLastActiveMut.mutate();
+
+    const sub = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        updateLastActiveMut.mutate();
+      }
+      appState.current = nextState;
+    });
+
+    return () => sub.remove();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Tabs
       screenOptions={({ route }) => ({
