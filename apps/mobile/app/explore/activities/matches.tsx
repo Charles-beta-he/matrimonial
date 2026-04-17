@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScalePressable } from '../../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -74,7 +75,7 @@ export default function ActivityMatchesScreen() {
 
             return (
               <Card key={`${match.activityId}-${user.id}-${idx}`}>
-                <Pressable
+                <ScalePressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
                   onPress={() => router.push(`/profile/${user.id}` as any)}
@@ -105,7 +106,7 @@ export default function ActivityMatchesScreen() {
                     ) : null}
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
-                </Pressable>
+                </ScalePressable>
               </Card>
             );
           })}

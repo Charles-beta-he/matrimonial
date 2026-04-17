@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { Card, EmptyState } from '@matrimonial/ui';
 import { StaggeredListItem } from '@/components/StaggeredListItem';
+import { ScalePressable } from '@/components/ScalePressable';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 
@@ -66,7 +67,7 @@ export default function LikedMeScreen() {
             return (
               <StaggeredListItem key={like.id} index={index}>
               <Card>
-                <Pressable
+                <ScalePressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
                   onPress={() => router.push(`/discover/${user.id}` as any)}
@@ -101,7 +102,7 @@ export default function LikedMeScreen() {
                     <Ionicons name="heart" size={20} color="#f43f5e" />
                     <Ionicons name="chevron-forward" size={16} color="#d1d5db" />
                   </View>
-                </Pressable>
+                </ScalePressable>
               </Card>
               </StaggeredListItem>
             );

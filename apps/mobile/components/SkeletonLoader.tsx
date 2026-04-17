@@ -18,33 +18,47 @@ interface ShimmerProps {
 }
 
 export function Shimmer({ width, height, borderRadius = 8, style }: ShimmerProps) {
-  const opacity = useSharedValue(0.4);
+  const sweep = useSharedValue(-300);
 
   useEffect(() => {
-    opacity.value = withRepeat(
-      withTiming(0.9, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+    sweep.value = withRepeat(
+      withTiming(300, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
       -1,
-      true,
     );
-  }, [opacity]);
+  }, [sweep]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
+  const sweepStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: sweep.value }],
   }));
 
   return (
-    <Animated.View
+    <View
       style={[
         {
           width,
           height,
           borderRadius,
           backgroundColor: '#e5e7eb',
+          overflow: 'hidden',
         },
-        animatedStyle,
         style,
       ]}
-    />
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            width: 120,
+            backgroundColor: 'rgba(255,255,255,0.45)',
+            // Soft edges via narrow gradient-like taper using skewX
+          },
+          sweepStyle,
+        ]}
+      />
+    </View>
   );
 }
 
