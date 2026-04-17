@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,17 @@ const DELETION_ITEMS = [
 
 export default function DeleteAccountPage() {
   const router = useRouter();
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
   const { token, refreshToken, user, setAuth } = useAppStore((s) => ({
     token: s.token,
     refreshToken: s.refreshToken,
@@ -90,12 +102,12 @@ export default function DeleteAccountPage() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="bg-white px-6 py-4 flex-row items-center">
+        <Animated.View className="bg-white px-6 py-4 flex-row items-center" style={headerStyle}>
           <Pressable onPress={() => router.back()} className="mr-4">
             <Ionicons name="chevron-back" size={24} color="#4b5563" />
           </Pressable>
           <Text className="text-lg font-bold text-gray-900">注销账号</Text>
-        </View>
+        </Animated.View>
 
         {/* Warning */}
         <View className="mx-6 mt-6 bg-red-50 rounded-xl p-4">
