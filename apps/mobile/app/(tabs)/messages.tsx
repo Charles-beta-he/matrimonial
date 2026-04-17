@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { Avatar, EmptyState, ListItem } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { formatLastActive } from '@matrimonial/shared';
@@ -159,21 +160,22 @@ export default function MessagesTab() {
             style={{ height: 90 }}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 16, alignItems: 'center' }}
           >
-            {newMatches.map((match) => (
-              <Pressable
-                key={match.id}
-                className="items-center"
-                onPress={() => router.push(`/discover/${match.id}`)}
-              >
-                <Avatar
-                  source={{ uri: match.avatarUrl }}
-                  size={64}
-                  online={isUserOnline(match.id) || match.isOnline}
-                />
-                <Text className="text-xs text-gray-700 mt-1" numberOfLines={1}>
-                  {match.nickname}
-                </Text>
-              </Pressable>
+            {newMatches.map((match, i) => (
+              <StaggeredListItem key={match.id} index={i} style={{ alignItems: 'center' }}>
+                <Pressable
+                  className="items-center"
+                  onPress={() => router.push(`/discover/${match.id}`)}
+                >
+                  <Avatar
+                    source={{ uri: match.avatarUrl }}
+                    size={64}
+                    online={isUserOnline(match.id) || match.isOnline}
+                  />
+                  <Text className="text-xs text-gray-700 mt-1" numberOfLines={1}>
+                    {match.nickname}
+                  </Text>
+                </Pressable>
+              </StaggeredListItem>
             ))}
           </ScrollView>
         </View>

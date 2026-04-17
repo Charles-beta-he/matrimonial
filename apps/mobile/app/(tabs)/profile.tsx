@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { AnimatedCounter } from '../../components/AnimatedCounter';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -254,7 +255,7 @@ export default function ProfileTab() {
                 {i > 0 && (
                   <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
                 )}
-                <Text className="text-xl font-bold text-gray-900">{stat.value}</Text>
+                <AnimatedCounter value={stat.value} className="text-xl font-bold text-gray-900" />
                 <Text className="text-xs text-rose-500 mt-0.5">{stat.label}</Text>
               </Pressable>
             ) : (
@@ -262,7 +263,7 @@ export default function ProfileTab() {
                 {i > 0 && (
                   <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
                 )}
-                <Text className="text-xl font-bold text-gray-900">{stat.value}</Text>
+                <AnimatedCounter value={stat.value} className="text-xl font-bold text-gray-900" />
                 <Text className="text-xs text-gray-500 mt-0.5">{stat.label}</Text>
               </View>
             )
