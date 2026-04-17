@@ -25,6 +25,7 @@ export default function MessagesTab() {
   const isUserOnline = useSocketStore((s) => s.isUserOnline);
   // Subscribe to onlineUsers to trigger re-render when presence updates
   useSocketStore((s) => s.onlineUsers);
+  const socket = useSocketStore((s) => s.socket);
   const currentUser = useAppStore((s) => s.user);
   const { track } = useAnalytics();
 
@@ -36,12 +37,24 @@ export default function MessagesTab() {
   }));
 
   const conversationsQuery = api.chat.list.useQuery(undefined, {
-    refetchInterval: 5000,
+    refetchInterval: 30_000,
     refetchOnWindowFocus: true,
   });
   const matchesQuery = api.match.matches.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
+
+  // Push-driven refetch: socket new_message event replaces tight polling
+  useEffect(() => {
+    if (!socket) return;
+    const refetch = () => { void conversationsQuery.refetch(); };
+    socket.on('new_message', refetch);
+    socket.on('chat:message', refetch);
+    return () => {
+      socket.off('new_message', refetch);
+      socket.off('chat:message', refetch);
+    };
+  }, [socket, conversationsQuery]);
 
   useEffect(() => {
     track('screen_view', { screen_name: 'messages' });
@@ -116,29 +129,31 @@ export default function MessagesTab() {
     return result;
   }, [matchesQuery.data, conversations, currentUser?.id]);
 
-  const renderConversation = ({ item }: { item: (typeof conversations)[number] }) => (
-    <ListItem
-      left={
-        <Avatar
-          source={{ uri: item.avatarUrl }}
-          size={50}
-          online={isUserOnline(item.userId) || item.isOnline}
-        />
-      }
-      title={item.nickname}
-      subtitle={item.lastContent}
-      right={
-        <View className="items-end">
-          <Text className="text-xs text-gray-400 mb-1">
-            {item.lastAt ? formatLastActive(item.lastAt) : ''}
-          </Text>
-          {item.isUnread && (
-            <View className="bg-rose-500 rounded-full min-w-[10px] h-2.5 px-1" />
-          )}
-        </View>
-      }
-      onPress={() => router.push(`/chat/${item.id}`)}
-    />
+  const renderConversation = ({ item, index }: { item: (typeof conversations)[number]; index: number }) => (
+    <StaggeredListItem index={index}>
+      <ListItem
+        left={
+          <Avatar
+            source={{ uri: item.avatarUrl }}
+            size={50}
+            online={isUserOnline(item.userId) || item.isOnline}
+          />
+        }
+        title={item.nickname}
+        subtitle={item.lastContent}
+        right={
+          <View className="items-end">
+            <Text className="text-xs text-gray-400 mb-1">
+              {item.lastAt ? formatLastActive(item.lastAt) : ''}
+            </Text>
+            {item.isUnread && (
+              <View className="bg-rose-500 rounded-full min-w-[10px] h-2.5 px-1" />
+            )}
+          </View>
+        }
+        onPress={() => router.push(`/chat/${item.id}`)}
+      />
+    </StaggeredListItem>
   );
 
   const isLoading = conversationsQuery.isLoading;

@@ -1,5 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AnimatedProgressBar, Button, TagSelector, toast } from '@matrimonial/ui';
@@ -22,6 +29,26 @@ export default function RegisterStep5Tags() {
   const { track } = useAnalytics();
   const utils = api.useUtils();
   const updateMut = api.user.updateProfile.useMutation();
+
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(-16);
+  const formOpacity = useSharedValue(0);
+  const formY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headingY.value = withTiming(0, { duration: 320, easing: e });
+    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
+    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
+  }, []);
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+  const formStyle = useAnimatedStyle(() => ({
+    opacity: formOpacity.value,
+    transform: [{ translateY: formY.value }],
+  }));
 
   const handleToggle = (tag: string) => {
     setSelectedTags((prev) =>
@@ -49,12 +76,15 @@ export default function RegisterStep5Tags() {
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
         <AnimatedProgressBar step={4} total={4} />
 
-        <Text className="text-2xl font-bold text-gray-900 mb-1">选择你的标签</Text>
-        <Text className="text-sm text-gray-400 mb-2">选择3-5个最能代表你的标签</Text>
-        <Text className="text-sm text-rose-500 font-medium mb-6">
-          已选 {selectedTags.length}/5
-        </Text>
+        <Animated.View style={headingStyle}>
+          <Text className="text-2xl font-bold text-gray-900 mb-1">选择你的标签</Text>
+          <Text className="text-sm text-gray-400 mb-2">选择3-5个最能代表你的标签</Text>
+          <Text className="text-sm text-rose-500 font-medium mb-6">
+            已选 {selectedTags.length}/5
+          </Text>
+        </Animated.View>
 
+        <Animated.View style={formStyle}>
         {Object.entries(TAG_CATEGORIES).map(([key, tags]) => (
           <View key={key} className="mb-6">
             <Text className="text-base font-semibold text-gray-900 mb-3">
@@ -77,6 +107,7 @@ export default function RegisterStep5Tags() {
           disabled={selectedTags.length < 3 || updateMut.isPending}
           onPress={handleComplete}
         />
+        </Animated.View>
 
         <View className="h-8" />
       </ScrollView>

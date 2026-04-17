@@ -1,5 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +29,26 @@ export default function RegisterStep3Photos() {
   const updatePhotosMut = api.user.updatePhotos.useMutation();
 
   const photoCount = photos.filter(Boolean).length;
+
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(-16);
+  const formOpacity = useSharedValue(0);
+  const formY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headingY.value = withTiming(0, { duration: 320, easing: e });
+    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
+    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
+  }, []);
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+  const formStyle = useAnimatedStyle(() => ({
+    opacity: formOpacity.value,
+    transform: [{ translateY: formY.value }],
+  }));
 
   const handleNext = async () => {
     if (photoCount < 2) return;
@@ -109,9 +136,12 @@ export default function RegisterStep3Photos() {
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
         <AnimatedProgressBar step={2} total={4} />
 
-        <Text className="text-2xl font-bold text-gray-900 mb-1">上传照片</Text>
-        <Text className="text-sm text-gray-400 mb-6">至少上传2张真人照片</Text>
+        <Animated.View style={headingStyle}>
+          <Text className="text-2xl font-bold text-gray-900 mb-1">上传照片</Text>
+          <Text className="text-sm text-gray-400 mb-6">至少上传2张真人照片</Text>
+        </Animated.View>
 
+        <Animated.View style={formStyle}>
         {/* Photo grid: first row has 1 large + 2 small, second row has 3 small */}
         <View className="flex-row mb-3" style={{ gap: 8 }}>
           {/* Main photo slot */}
@@ -150,6 +180,7 @@ export default function RegisterStep3Photos() {
           disabled={photoCount < 2 || uploading || updatePhotosMut.isPending}
           onPress={handleNext}
         />
+        </Animated.View>
 
         <View className="h-8" />
       </ScrollView>

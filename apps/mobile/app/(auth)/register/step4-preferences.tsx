@@ -1,5 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AnimatedProgressBar, Button, Input, toast } from '@matrimonial/ui';
@@ -29,6 +36,26 @@ export default function RegisterStep4Preferences() {
   const mountedAtRef = useRef(Date.now());
   const { track } = useAnalytics();
   const updatePreferencesMut = api.user.updatePreferences.useMutation();
+
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(-16);
+  const formOpacity = useSharedValue(0);
+  const formY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headingY.value = withTiming(0, { duration: 320, easing: e });
+    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
+    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
+  }, []);
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+  const formStyle = useAnimatedStyle(() => ({
+    opacity: formOpacity.value,
+    transform: [{ translateY: formY.value }],
+  }));
 
   const parseIntOrUndef = (s: string): number | undefined => {
     const n = parseInt(s, 10);
@@ -65,9 +92,12 @@ export default function RegisterStep4Preferences() {
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
         <AnimatedProgressBar step={3} total={4} />
 
-        <Text className="text-2xl font-bold text-gray-900 mb-2">择偶偏好</Text>
-        <Text className="text-sm text-gray-400 mb-8">帮助我们为你推荐合适的人</Text>
+        <Animated.View style={headingStyle}>
+          <Text className="text-2xl font-bold text-gray-900 mb-2">择偶偏好</Text>
+          <Text className="text-sm text-gray-400 mb-8">帮助我们为你推荐合适的人</Text>
+        </Animated.View>
 
+        <Animated.View style={formStyle}>
         {/* Age range */}
         <Text className="text-sm text-gray-600 mb-2 font-medium">年龄范围</Text>
         <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
@@ -148,6 +178,7 @@ export default function RegisterStep4Preferences() {
           disabled={updatePreferencesMut.isPending}
           onPress={handleNext}
         />
+        </Animated.View>
 
         <View className="h-8" />
       </ScrollView>

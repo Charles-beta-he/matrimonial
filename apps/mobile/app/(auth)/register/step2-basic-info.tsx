@@ -1,5 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +32,26 @@ export default function RegisterStep2BasicInfo() {
     gender !== null &&
     /^\d{4}-\d{2}-\d{2}$/.test(birthday) &&
     city.length > 0;
+
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(-16);
+  const formOpacity = useSharedValue(0);
+  const formY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headingY.value = withTiming(0, { duration: 320, easing: e });
+    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
+    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
+  }, []);
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+  const formStyle = useAnimatedStyle(() => ({
+    opacity: formOpacity.value,
+    transform: [{ translateY: formY.value }],
+  }));
 
   const handleNext = async () => {
     if (!isValid) return;
@@ -60,9 +87,12 @@ export default function RegisterStep2BasicInfo() {
         <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
           <AnimatedProgressBar step={1} total={4} />
 
-          <Text className="text-2xl font-bold text-gray-900 mb-2">基本资料</Text>
-          <Text className="text-sm text-gray-400 mb-8">让我们更好地了解你</Text>
+          <Animated.View style={headingStyle}>
+            <Text className="text-2xl font-bold text-gray-900 mb-2">基本资料</Text>
+            <Text className="text-sm text-gray-400 mb-8">让我们更好地了解你</Text>
+          </Animated.View>
 
+          <Animated.View style={formStyle}>
           {/* Nickname */}
           <View className="mb-4">
             <Input
@@ -148,6 +178,7 @@ export default function RegisterStep2BasicInfo() {
             disabled={!isValid || updateMut.isPending}
             onPress={handleNext}
           />
+          </Animated.View>
 
           <View className="h-8" />
         </ScrollView>
