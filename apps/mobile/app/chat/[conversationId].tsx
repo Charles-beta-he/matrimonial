@@ -32,6 +32,7 @@ import { useSocketStore } from '../../stores/useSocketStore';
 import type { ChatMessage } from '../../stores/useChatStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { AnimatedMessageBubble } from '../../components/AnimatedMessageBubble';
+import { AnimatedTypingIndicator } from '../../components/AnimatedTypingIndicator';
 import { SkeletonMessage } from '../../components/SkeletonLoader';
 import { PressScale } from '../../components/PressScale';
 
@@ -499,8 +500,8 @@ export default function ChatConversationScreen() {
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
-          <View className="px-4 pb-1">
-            <Text className="text-xs text-gray-400">对方正在输入...</Text>
+          <View className="px-4 pb-2">
+            <AnimatedTypingIndicator />
           </View>
         )}
 

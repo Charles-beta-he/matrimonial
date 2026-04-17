@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withDelay, Easing } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
@@ -54,6 +55,36 @@ const MBTI_OPTIONS = [
 /** Profile edit screen */
 export default function ProfileEditScreen() {
   const router = useRouter();
+
+  // Entrance animations
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-16);
+  const avatarScale = useSharedValue(0.85);
+  const avatarOpacity = useSharedValue(0);
+  const contentOpacity = useSharedValue(0);
+  const contentY = useSharedValue(24);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 300, easing: e });
+    headerY.value = withTiming(0, { duration: 300, easing: e });
+    avatarScale.value = withDelay(80, withSpring(1, { damping: 14, stiffness: 180 }));
+    avatarOpacity.value = withDelay(80, withTiming(1, { duration: 250 }));
+    contentOpacity.value = withDelay(180, withTiming(1, { duration: 350, easing: e }));
+    contentY.value = withDelay(180, withTiming(0, { duration: 350, easing: e }));
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+  const avatarStyle = useAnimatedStyle(() => ({
+    opacity: avatarOpacity.value,
+    transform: [{ scale: avatarScale.value }],
+  }));
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentY.value }],
+  }));
+
   const storeUser = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => (s as any).setUser);
   const { pickAndUpload, uploading } = useUpload();
@@ -202,7 +233,7 @@ export default function ProfileEditScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 bg-white">
+      <Animated.View className="flex-row items-center justify-between px-4 py-3 bg-white" style={headerStyle}>
         <Pressable onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
@@ -214,11 +245,11 @@ export default function ProfileEditScreen() {
             <Text className="text-rose-500 font-medium">保存</Text>
           )}
         </PressScale>
-      </View>
+      </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Avatar */}
-        <View className="items-center py-6 bg-white">
+        <Animated.View className="items-center py-6 bg-white" style={avatarStyle}>
           <Pressable onPress={handleChangeAvatar} disabled={uploading}>
             <Avatar source={{ uri: avatarUrl }} size={80} />
             <View className="absolute bottom-0 right-0 bg-rose-500 rounded-full w-7 h-7 items-center justify-center border-2 border-white">
@@ -229,8 +260,9 @@ export default function ProfileEditScreen() {
               )}
             </View>
           </Pressable>
-        </View>
+        </Animated.View>
 
+        <Animated.View style={contentStyle}>
         {/* Photo grid placeholder */}
         <View className="bg-white mt-2 p-4">
           <Text className="text-base font-semibold text-gray-900 mb-3">照片</Text>
@@ -487,6 +519,7 @@ export default function ProfileEditScreen() {
         </View>
 
         <View className="h-8" />
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
