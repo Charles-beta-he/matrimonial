@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { StaggeredListItem } from '../../components/StaggeredListItem';
 import {
   ActivityIndicator,
   Alert,
@@ -200,7 +201,8 @@ export default function VideoHallScreen() {
               }
               refreshing={roomsQuery.isFetching}
               onRefresh={() => roomsQuery.refetch()}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
+                <StaggeredListItem index={index}>
                 <Card className="p-4">
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
@@ -222,6 +224,7 @@ export default function VideoHallScreen() {
                     </Pressable>
                   </View>
                 </Card>
+                </StaggeredListItem>
               )}
             />
           )}

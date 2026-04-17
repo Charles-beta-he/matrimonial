@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { formatPrice } from '@matrimonial/shared';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 
 const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -54,9 +56,18 @@ export default function ActivitiesScreen() {
   const { track } = useAnalytics();
   const [category, setCategory] = useState<string | undefined>(undefined);
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
   useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
     track('screen_view', { screen_name: 'explore_activities' });
   }, [track]);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
 
   const {
     data: activities,
@@ -105,12 +116,12 @@ export default function ActivitiesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center px-4 py-3">
+      <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">线下活动</Text>
-      </View>
+      </Animated.View>
 
       {/* Category tabs */}
       <ScrollView
@@ -221,7 +232,7 @@ export default function ActivitiesScreen() {
             gap: 12,
             paddingBottom: 24,
           }}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const maxMale = Number(item.maxMale ?? 0);
             const maxFemale = Number(item.maxFemale ?? 0);
             // No gender breakdown in list response — use total signupCount
@@ -232,6 +243,7 @@ export default function ActivitiesScreen() {
             const isUpcoming = item.status === 'UPCOMING';
 
             return (
+              <StaggeredListItem index={index}>
               <Card className="overflow-hidden">
                 {item.coverUrl ? (
                   <Image
@@ -311,6 +323,7 @@ export default function ActivitiesScreen() {
                   </View>
                 </View>
               </Card>
+              </StaggeredListItem>
             );
           }}
         />

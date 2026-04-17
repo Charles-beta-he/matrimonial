@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { ActivityIndicator, Pressable, Text, type GestureResponderEvent } from 'react-native';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -45,20 +46,34 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
     const s = sizeClasses[size];
     const isDisabled = disabled || loading;
 
+    const scale = useSharedValue(1);
+    const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+    const handlePressIn = useCallback(() => {
+      scale.value = withSpring(0.94, { damping: 15, stiffness: 300 });
+    }, [scale]);
+    const handlePressOut = useCallback(() => {
+      scale.value = withSpring(1, { damping: 12, stiffness: 250 });
+    }, [scale]);
+
     return (
-      <Pressable
-        ref={ref}
-        accessibilityRole="button"
-        disabled={isDisabled}
-        onPress={onPress}
-        className={`flex-row items-center justify-center ${v.container} ${s.container} ${fullWidth ? 'w-full' : ''} ${isDisabled ? 'opacity-50' : ''}`}
-      >
-        {loading ? (
-          <ActivityIndicator size="small" color={loaderColor[variant]} />
-        ) : (
-          <Text className={`font-semibold ${v.text} ${s.text}`}>{title}</Text>
-        )}
-      </Pressable>
+      <Animated.View style={[animStyle, fullWidth ? { width: '100%' } : undefined]}>
+        <Pressable
+          ref={ref}
+          accessibilityRole="button"
+          disabled={isDisabled}
+          onPress={onPress}
+          onPressIn={isDisabled ? undefined : handlePressIn}
+          onPressOut={isDisabled ? undefined : handlePressOut}
+          className={`flex-row items-center justify-center ${v.container} ${s.container} ${fullWidth ? 'w-full' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color={loaderColor[variant]} />
+          ) : (
+            <Text className={`font-semibold ${v.text} ${s.text}`}>{title}</Text>
+          )}
+        </Pressable>
+      </Animated.View>
     );
   },
 );
