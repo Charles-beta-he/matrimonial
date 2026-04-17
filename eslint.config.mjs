@@ -25,4 +25,20 @@ export default tseslint.config(
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+  {
+    files: ['**/public/sw.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Event: 'readonly',
+        FetchEvent: 'readonly',
+        ExtendableEvent: 'readonly',
+      },
+    },
+  },
 );

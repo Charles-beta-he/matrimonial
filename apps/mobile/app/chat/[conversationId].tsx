@@ -511,8 +511,9 @@ export default function ChatConversationScreen() {
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
-          <View className="px-4 pb-2">
+          <View className="px-4 pb-2 flex-row items-center" style={{ gap: 8 }}>
             <AnimatedTypingIndicator />
+            <Text className="text-xs text-gray-400">对方正在输入...</Text>
           </View>
         )}
 

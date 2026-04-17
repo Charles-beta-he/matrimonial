@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
-  useSharedValue, useAnimatedStyle, withTiming, withDelay, withSpring, Easing,
+  useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing,
 } from 'react-native-reanimated';
 import { toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
@@ -31,6 +31,13 @@ export default function InvitePage() {
     },
   });
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   const heroOpacity = useSharedValue(0);
   const heroY = useSharedValue(24);
   const heroStyle = useAnimatedStyle(() => ({
@@ -40,7 +47,10 @@ export default function InvitePage() {
 
   useEffect(() => {
     track('screen_view', { screen_name: 'invite' });
-    const cfg = { duration: 420, easing: Easing.out(Easing.cubic) };
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+    const cfg = { duration: 420, easing: e };
     heroOpacity.value = withDelay(80, withTiming(1, cfg));
     heroY.value = withDelay(80, withTiming(0, cfg));
   }, [track, heroOpacity, heroY]);
@@ -82,13 +92,13 @@ export default function InvitePage() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100">
+      <Animated.View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100" style={headerStyle}>
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={24} color="#111827" />
         </Pressable>
         <Text className="flex-1 text-center text-lg font-bold text-gray-900">邀请好友</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* My invite code card */}
