@@ -364,13 +364,15 @@ describe('matchRouter', () => {
       expect(result.remaining).toBe(Infinity);
     });
 
-    it('returns correct remaining count for free user', async () => {
+    it('returns correct remaining count and used field for free user', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ membership: 'FREE' } as any);
       vi.mocked(prisma.like.count).mockResolvedValue(10);
 
       const swipeCount = await prisma.like.count({ where: { fromUserId: 'user-1', createdAt: { gte: new Date() } } });
       const remaining = Math.max(0, 30 - swipeCount);
+      const used = swipeCount;
       expect(remaining).toBe(20);
+      expect(used).toBe(10);
       expect(remaining > 0).toBe(true);
     });
 

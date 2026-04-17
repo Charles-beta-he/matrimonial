@@ -266,6 +266,7 @@ export default function DiscoverTab() {
 
   const likeMutation = api.match.like.useMutation();
   const skipMutation = api.match.skip.useMutation();
+  const feedbackMutation = api.match.recordFeedback.useMutation();
 
   // Backend returns { users, meta, quotaExhausted } or legacy User[]
   const rawData = recommendationsQuery.data as any;
@@ -302,6 +303,7 @@ export default function DiscoverTab() {
   const handleSwipeRight = useCallback(() => {
     const user = recommendations[localIndex];
     if (!user) return;
+    feedbackMutation.mutate({ targetUserId: user.id, action: 'view', durationMs: Date.now() - cardShownAtRef.current });
     track('card_like', { target_user_id: user.id, type: 'normal' });
     likeMutation.mutate(
       { toUserId: user.id, type: 'NORMAL' },
@@ -348,9 +350,11 @@ export default function DiscoverTab() {
   const handleSwipeLeft = useCallback(() => {
     const user = recommendations[localIndex];
     if (!user) return;
+    const durationMs = Date.now() - cardShownAtRef.current;
+    feedbackMutation.mutate({ targetUserId: user.id, action: 'view', durationMs });
     track('card_skip', {
       target_user_id: user.id,
-      view_duration_ms: Date.now() - cardShownAtRef.current,
+      view_duration_ms: durationMs,
     });
     skipMutation.mutate({ toUserId: user.id });
     setLocalIndex((i) => i + 1);

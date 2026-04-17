@@ -57,23 +57,14 @@ export default function BuddyPostDetailScreen() {
   const [applyMessage, setApplyMessage] = useState('');
   const [showApplyInput, setShowApplyInput] = useState(false);
 
-  // We reuse buddy.list and find the post, or ideally there'd be a buddy.detail query.
-  // For now, use myPosts to check ownership, and list to get the post.
-  const {
-    data: myPostsData,
-  } = api.buddy.myPosts.useQuery(undefined, { enabled: !!postId });
+  const { data: myPostsData } = api.buddy.myPosts.useQuery(undefined, { enabled: !!postId });
 
-  // Check if current user owns this post
-  const myPost = myPostsData?.find((p: any) => p.id === postId);
-  const isOwner = !!myPost;
+  // Check ownership via myPosts (client-side, no extra RTT)
+  const isOwner = !!(myPostsData?.find((p: any) => p.id === postId));
 
-  // For non-owners, get post from list query (the post data should be cached from the list screen)
-  const { data: listData, isLoading, refetch } = api.buddy.list.useQuery(
-    { limit: 50 },
-    { enabled: !!postId },
-  );
-  const listPost = (listData as any)?.items?.find((p: any) => p.id === postId);
-  const post = myPost ?? listPost;
+  const { data: post, isLoading, refetch } = api.buddy.detail.useQuery(postId!, {
+    enabled: !!postId,
+  });
 
   const applyMut = api.buddy.applyPost.useMutation({
     onSuccess: () => {

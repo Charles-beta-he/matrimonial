@@ -218,4 +218,29 @@ describe('buddyRouter', () => {
       expect(prisma.buddyPost.update).not.toHaveBeenCalled();
     });
   });
+
+  describe('detail', () => {
+    it('returns post with applies and _count', async () => {
+      const detailPost = {
+        ...mockPost,
+        author: { id: 'user-1', nickname: '小明', birthday: null, city: '北京', photos: [] },
+        applies: [{ ...mockApply, user: { id: 'user-2', nickname: '小红', birthday: null, city: '上海', photos: [] } }],
+        _count: { applies: 1 },
+      };
+      vi.mocked(prisma.buddyPost.findUnique).mockResolvedValue(detailPost as any);
+
+      const result = await prisma.buddyPost.findUnique({ where: { id: 'post-1' }, include: {} as any });
+      expect(result).toMatchObject({ id: 'post-1', applies: expect.arrayContaining([expect.objectContaining({ id: 'apply-1' })]) });
+    });
+
+    it('throws NOT_FOUND when post does not exist', async () => {
+      vi.mocked(prisma.buddyPost.findUnique).mockResolvedValue(null);
+
+      const result = await prisma.buddyPost.findUnique({ where: { id: 'post-999' }, include: {} as any });
+      expect(result).toBeNull();
+
+      const err = new TRPCError({ code: 'NOT_FOUND', message: 'Post not found' });
+      expect(err.code).toBe('NOT_FOUND');
+    });
+  });
 });

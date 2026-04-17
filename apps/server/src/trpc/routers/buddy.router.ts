@@ -51,6 +51,45 @@ export const buddyRouter = router({
       };
     }),
 
+  /** Get a single buddy post by ID (with applies for owner) */
+  detail: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const post = await ctx.prisma.buddyPost.findUnique({
+        where: { id: input },
+        include: {
+          author: {
+            select: {
+              id: true,
+              nickname: true,
+              birthday: true,
+              city: true,
+              photos: { where: { isAvatar: true }, take: 1, select: { url: true } },
+            },
+          },
+          applies: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  nickname: true,
+                  birthday: true,
+                  city: true,
+                  photos: { where: { isAvatar: true }, take: 1, select: { url: true } },
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          _count: { select: { applies: true } },
+        },
+      });
+      if (!post) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Post not found' });
+      }
+      return post;
+    }),
+
   /** Create a buddy post */
   create: protectedProcedure
     .input(

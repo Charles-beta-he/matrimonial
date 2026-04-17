@@ -680,6 +680,7 @@ export const matchRouter = router({
     const remaining = Math.max(0, FREE_DAILY_SWIPES - swipeCount);
 
     return {
+      used: swipeCount,
       remaining,
       total: FREE_DAILY_SWIPES,
       quotaExhausted: remaining === 0,

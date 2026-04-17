@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -69,6 +69,24 @@ export default function UserProfileScreen() {
   });
   const likeMutation = api.match.like.useMutation();
   const skipMutation = api.match.skip.useMutation();
+  const { mutate: recordView } = api.user.recordView.useMutation();
+  const { mutate: recordFeedback } = api.match.recordFeedback.useMutation();
+  const viewStartRef = useRef(Date.now());
+
+  // Fire profile view + start timing on mount
+  useEffect(() => {
+    if (!userId) return;
+    recordView({ viewedId: userId });
+    viewStartRef.current = Date.now();
+    return () => {
+      recordFeedback({
+        targetUserId: userId,
+        action: 'detail_view',
+        durationMs: Date.now() - viewStartRef.current,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const handlePhotoScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
