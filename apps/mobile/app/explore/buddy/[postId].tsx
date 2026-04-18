@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
 import { ScalePressable } from '../../../components/ScalePressable';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/buddy/100/100';
 
@@ -182,6 +183,7 @@ export default function BuddyPostDetailScreen() {
         contentContainerStyle={{ paddingBottom: showApplyInput ? 200 : 100 }}
       >
         {/* Main content card */}
+        <StaggeredListItem index={0}>
         <Card className="mx-4 mt-4">
           <View className="p-4">
             {/* Type badge */}
@@ -232,9 +234,11 @@ export default function BuddyPostDetailScreen() {
             </View>
           </View>
         </Card>
+        </StaggeredListItem>
 
         {/* Author card */}
         {post.author ? (
+          <StaggeredListItem index={1}>
           <Card className="mx-4 mt-3">
             <ScalePressable
               className="p-4 flex-row items-center"
@@ -262,16 +266,19 @@ export default function BuddyPostDetailScreen() {
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </ScalePressable>
           </Card>
+          </StaggeredListItem>
         ) : null}
 
         {/* Applicant list (owner only) */}
         {isOwner && applicants.length > 0 ? (
+          <StaggeredListItem index={2}>
           <View className="mx-4 mt-4">
             <Text className="text-base font-semibold text-gray-900 mb-3">
               报名列表 ({applicants.length})
             </Text>
-            {applicants.map((apply: any) => (
-              <Card key={apply.id} className="mb-2">
+            {applicants.map((apply: any, idx: number) => (
+              <StaggeredListItem key={apply.id} index={idx + 3}>
+              <Card className="mb-2">
                 <View className="p-3 flex-row items-center" style={{ gap: 10 }}>
                   <Avatar
                     source={
@@ -315,8 +322,10 @@ export default function BuddyPostDetailScreen() {
                   )}
                 </View>
               </Card>
+              </StaggeredListItem>
             ))}
           </View>
+          </StaggeredListItem>
         ) : null}
 
         {isOwner && applicants.length === 0 ? (
