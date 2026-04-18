@@ -11,13 +11,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { Avatar } from '@matrimonial/ui';
-import { Button } from '@matrimonial/ui';
+import { Avatar, ChromaText, Button } from '@matrimonial/ui';
 import { useIcebreakers } from '@matrimonial/api-client';
 
-const PARTICLE_COLORS = ['#f43f5e', '#f59e0b', '#ffffff', '#fb7185'];
+const PARTICLE_COLORS = ['#f43f5e', '#f59e0b', '#ffffff', '#fb7185', '#fde68a', '#c084fc'];
 
-/** Hooks-compliant: always calls useSharedValue exactly 16 times. */
+/** Hooks-compliant: always calls useSharedValue exactly 24 times. */
 function useParticleSharedValues(): SharedValue<number>[] {
   const v0 = useSharedValue(0);
   const v1 = useSharedValue(0);
@@ -35,7 +34,15 @@ function useParticleSharedValues(): SharedValue<number>[] {
   const v13 = useSharedValue(0);
   const v14 = useSharedValue(0);
   const v15 = useSharedValue(0);
-  return [v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15];
+  const v16 = useSharedValue(0);
+  const v17 = useSharedValue(0);
+  const v18 = useSharedValue(0);
+  const v19 = useSharedValue(0);
+  const v20 = useSharedValue(0);
+  const v21 = useSharedValue(0);
+  const v22 = useSharedValue(0);
+  const v23 = useSharedValue(0);
+  return [v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23];
 }
 
 interface ParticleData {
@@ -45,10 +52,10 @@ interface ParticleData {
   color: string;
 }
 
-const PARTICLES: ParticleData[] = Array.from({ length: 16 }, (_, i) => ({
-  angle: (i / 16) * 360 + Math.random() * 22.5,
-  distance: 260 + Math.random() * 200,
-  size: 6 + Math.random() * 7,
+const PARTICLES: ParticleData[] = Array.from({ length: 24 }, (_, i) => ({
+  angle: (i / 24) * 360 + (i % 3) * 5,
+  distance: 300 + (i % 3) * 120,
+  size: 5 + (i % 4) * 3,
   color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
 }));
 
@@ -108,6 +115,9 @@ export function MatchAnimation({
   // Avatar entrance rotation
   const rotL = useSharedValue(-15);
   const rotR = useSharedValue(15);
+
+  // Content group scale-in
+  const contentScale = useSharedValue(0.82);
 
   const { data: icebreakersData, isLoading: icebreakersLoading } = useIcebreakers(
     matchedUserId ?? '',
@@ -220,8 +230,8 @@ export function MatchAnimation({
     PARTICLES.forEach((_, i) => {
       particleProgress[i].value = 0;
       particleProgress[i].value = withDelay(
-        i * 20,
-        withTiming(1, { duration: 1100, easing: Easing.out(Easing.quad) }),
+        i * 15,
+        withTiming(1, { duration: 1300, easing: Easing.out(Easing.quad) }),
       );
     });
   }
@@ -254,6 +264,7 @@ export function MatchAnimation({
     );
     rotL.value = withSpring(0, { damping: 9 });
     rotR.value = withSpring(0, { damping: 9 });
+    contentScale.value = withDelay(200, withSpring(1, { damping: 10, stiffness: 130 }));
     triggerParticles();
   }, []);
 
@@ -275,22 +286,30 @@ export function MatchAnimation({
   }));
 
   const particleStyles = [
-    useAnimatedStyle(() => { const prog = particleProgress[0].value; const rad = (PARTICLES[0].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[0].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[0].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[1].value; const rad = (PARTICLES[1].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[1].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[1].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[2].value; const rad = (PARTICLES[2].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[2].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[2].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[3].value; const rad = (PARTICLES[3].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[3].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[3].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[4].value; const rad = (PARTICLES[4].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[4].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[4].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[5].value; const rad = (PARTICLES[5].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[5].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[5].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[6].value; const rad = (PARTICLES[6].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[6].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[6].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[7].value; const rad = (PARTICLES[7].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[7].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[7].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[8].value; const rad = (PARTICLES[8].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[8].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[8].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[9].value; const rad = (PARTICLES[9].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[9].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[9].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[10].value; const rad = (PARTICLES[10].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[10].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[10].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[11].value; const rad = (PARTICLES[11].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[11].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[11].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[12].value; const rad = (PARTICLES[12].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[12].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[12].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[13].value; const rad = (PARTICLES[13].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[13].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[13].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[14].value; const rad = (PARTICLES[14].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[14].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[14].distance * prog }] }; }),
-    useAnimatedStyle(() => { const prog = particleProgress[15].value; const rad = (PARTICLES[15].angle * Math.PI) / 180; return { opacity: 1 - prog, transform: [{ translateX: Math.cos(rad) * PARTICLES[15].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[15].distance * prog }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[0].value; const rad = (PARTICLES[0].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[0].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[0].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[1].value; const rad = (PARTICLES[1].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[1].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[1].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[2].value; const rad = (PARTICLES[2].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[2].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[2].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[3].value; const rad = (PARTICLES[3].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[3].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[3].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[4].value; const rad = (PARTICLES[4].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[4].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[4].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[5].value; const rad = (PARTICLES[5].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[5].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[5].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[6].value; const rad = (PARTICLES[6].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[6].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[6].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[7].value; const rad = (PARTICLES[7].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[7].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[7].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[8].value; const rad = (PARTICLES[8].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[8].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[8].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[9].value; const rad = (PARTICLES[9].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[9].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[9].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[10].value; const rad = (PARTICLES[10].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[10].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[10].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[11].value; const rad = (PARTICLES[11].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[11].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[11].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[12].value; const rad = (PARTICLES[12].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[12].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[12].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[13].value; const rad = (PARTICLES[13].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[13].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[13].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[14].value; const rad = (PARTICLES[14].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[14].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[14].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[15].value; const rad = (PARTICLES[15].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[15].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[15].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[16].value; const rad = (PARTICLES[16].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[16].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[16].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[17].value; const rad = (PARTICLES[17].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[17].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[17].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[18].value; const rad = (PARTICLES[18].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[18].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[18].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[19].value; const rad = (PARTICLES[19].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[19].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[19].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[20].value; const rad = (PARTICLES[20].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[20].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[20].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[21].value; const rad = (PARTICLES[21].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[21].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[21].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[22].value; const rad = (PARTICLES[22].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[22].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[22].distance * prog }, { scale: sc }] }; }),
+    useAnimatedStyle(() => { const prog = particleProgress[23].value; const rad = (PARTICLES[23].angle * Math.PI) / 180; const sc = 1 + prog * 1.4 * (1 - prog) * 2; return { opacity: Math.max(0, 1 - prog * 1.2), transform: [{ translateX: Math.cos(rad) * PARTICLES[23].distance * prog }, { translateY: Math.sin(rad) * PARTICLES[23].distance * prog }, { scale: sc }] }; }),
   ];
 
   const ringStyle = useAnimatedStyle(() => ({
@@ -345,6 +364,10 @@ export function MatchAnimation({
 
   const flashStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
+  }));
+
+  const contentScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: contentScale.value }],
   }));
 
   return (
@@ -482,22 +505,29 @@ export function MatchAnimation({
         />
       ))}
 
-      {/* Avatars */}
-      <View className="flex-row items-center mb-8">
-        <Animated.View style={leftStyle}>
-          <Avatar source={{ uri: myPhoto }} size={100} />
-        </Animated.View>
-        <Animated.View style={rightStyle}>
-          <Avatar source={{ uri: theirPhoto }} size={100} />
-        </Animated.View>
-      </View>
+      {/* Avatars + content — scale-in together */}
+      <Animated.View style={[{ alignItems: 'center', width: '100%' }, contentScaleStyle]}>
+        <View className="flex-row items-center mb-8">
+          <Animated.View style={leftStyle}>
+            <Avatar source={{ uri: myPhoto }} size={100} />
+          </Animated.View>
+          <Animated.View style={rightStyle}>
+            <Avatar source={{ uri: theirPhoto }} size={100} />
+          </Animated.View>
+        </View>
 
-      {/* Match text */}
-      <Animated.View style={textStyle} className="items-center mb-8">
-        <Text className="text-white text-3xl font-bold mb-2">It's a Match!</Text>
-        <Text className="text-white/80 text-base">
-          你和 {theirName} 互相喜欢了对方
-        </Text>
+        {/* Match text with chromatic aberration */}
+        <Animated.View style={textStyle} className="items-center mb-8">
+          <View style={{ position: 'relative', height: 44, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+            <ChromaText
+              text="It's a Match!"
+              style={{ fontSize: 30, fontWeight: '700', color: 'white' }}
+            />
+          </View>
+          <Text className="text-white/80 text-base">
+            你和 {theirName} 互相喜欢了对方
+          </Text>
+        </Animated.View>
       </Animated.View>
 
       {/* AI Icebreaker suggestions */}
