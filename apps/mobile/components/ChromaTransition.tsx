@@ -17,22 +17,22 @@ export function ChromaTransition({ children }: ChromaTransitionProps) {
 
   useEffect(() => {
     glitchProgress.value = withTiming(0, {
-      duration: 320,
+      duration: 420,
       easing: Easing.out(Easing.cubic),
     });
     contentOpacity.value = withTiming(1, {
-      duration: 250,
+      duration: 320,
     });
   }, []);
 
   const redOverlayStyle = useAnimatedStyle(() => ({
-    opacity: glitchProgress.value * 0.3,
-    transform: [{ translateX: glitchProgress.value * -10 }],
+    opacity: glitchProgress.value * 0.45,
+    transform: [{ translateX: glitchProgress.value * -18 }],
   }));
 
   const blueOverlayStyle = useAnimatedStyle(() => ({
-    opacity: glitchProgress.value * 0.25,
-    transform: [{ translateX: glitchProgress.value * 10 }],
+    opacity: glitchProgress.value * 0.38,
+    transform: [{ translateX: glitchProgress.value * 18 }],
   }));
 
   const contentStyle = useAnimatedStyle(() => ({

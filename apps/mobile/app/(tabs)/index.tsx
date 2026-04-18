@@ -811,9 +811,9 @@ export default function DiscoverTab() {
               </View>
             ) : (
               dailyPicks.map((user) => (
-                <Pressable
+                <ScalePressable
                   key={user.id}
-                  className="w-20 items-center"
+                  style={{ width: 80, alignItems: 'center' }}
                   onPress={() => router.push(`/discover/${user.id}`)}
                 >
                   <View className="w-20 h-24 rounded-2xl overflow-hidden bg-gray-200 relative">
@@ -835,7 +835,7 @@ export default function DiscoverTab() {
                   <Text className="text-xs text-center text-gray-800 mt-1.5 font-medium" numberOfLines={1}>
                     {user.nickname}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               ))
             )}
           </ScrollView>

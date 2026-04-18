@@ -102,6 +102,21 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
     opacity: interpolate(translateX.value, [-100, -20], [0.7, 0], Extrapolation.CLAMP),
   }));
 
+  // Ghost trail — lags at 45% translateX with fading opacity
+  const ghostStyle = useAnimatedStyle(() => {
+    const drag = Math.abs(translateX.value);
+    const rotate = interpolate(translateX.value, [-150, 0, 150], [-8, 0, 8], Extrapolation.EXTEND);
+    return {
+      opacity: interpolate(drag, [0, 60], [0, 0.18], Extrapolation.CLAMP),
+      transform: [
+        { translateX: translateX.value * 0.45 },
+        { translateY: translateY.value * 0.3 },
+        { rotate: `${rotate}deg` },
+        { scale: 0.97 },
+      ],
+    };
+  });
+
   // Decision flash — bright white pulse on commit swipe
   const isRight = useAnimatedStyle(() => ({
     opacity: translateX.value > 0 ? decisionFlash.value : 0,
@@ -135,6 +150,12 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
   }
 
   return (
+    <>
+      {/* Ghost trail — card silhouette that lags behind during drag */}
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFillObject, styles.ghostCard, ghostStyle]}
+      />
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[StyleSheet.absoluteFillObject, { zIndex: 1 }, cardStyle]}>
         <ProfileCard user={user} />
@@ -193,10 +214,16 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
         </Animated.View>
       </Animated.View>
     </GestureDetector>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  ghostCard: {
+    borderRadius: 24,
+    backgroundColor: '#e5e7eb',
+    zIndex: 0,
+  },
   glowOverlay: {
     borderRadius: 24,
   },
