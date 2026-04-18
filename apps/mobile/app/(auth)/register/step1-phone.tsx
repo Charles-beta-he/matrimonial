@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { ScalePressable } from '../../../components/ScalePressable';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -23,14 +24,14 @@ function Checkbox({
   onToggle: () => void;
 }) {
   return (
-    <Pressable
+    <ScalePressable
       onPress={onToggle}
       className={`w-5 h-5 rounded border-2 items-center justify-center ${
         checked ? 'bg-rose-500 border-rose-500' : 'border-gray-300 bg-white'
       }`}
     >
       {checked && <Ionicons name="checkmark" size={14} color="#ffffff" />}
-    </Pressable>
+    </ScalePressable>
   );
 }
 
@@ -182,7 +183,7 @@ export default function RegisterStep1Phone() {
                 onChangeText={setCode}
                 maxLength={6}
                 rightIcon={
-                  <Pressable
+                  <ScalePressable
                     onPress={handleSendCode}
                     disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
                   >
@@ -197,7 +198,7 @@ export default function RegisterStep1Phone() {
                           ? '发送中...'
                           : '发送验证码'}
                     </Text>
-                  </Pressable>
+                  </ScalePressable>
                 }
               />
             </View>

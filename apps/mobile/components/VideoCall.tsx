@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Pressable, Text, View, ActivityIndicator } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { ScalePressable } from './ScalePressable';
 
 interface Props {
   roomName: string;
@@ -75,26 +76,26 @@ export function VideoCall({ roomName, token, wsUrl, userName, onEnd }: Props) {
 
       {/* Controls */}
       <View className="flex-row items-center justify-around pb-12 pt-6 bg-black/30">
-        <Pressable
+        <ScalePressable
           onPress={() => setMuted(!muted)}
           className={`w-14 h-14 rounded-full items-center justify-center ${muted ? 'bg-white' : 'bg-white/20'}`}
         >
           <Ionicons name={muted ? 'mic-off' : 'mic'} size={26} color={muted ? '#1f2937' : '#ffffff'} />
-        </Pressable>
+        </ScalePressable>
 
-        <Pressable
+        <ScalePressable
           onPress={onEnd}
           className="w-16 h-16 rounded-full bg-red-500 items-center justify-center"
         >
           <Ionicons name="call" size={30} color="#ffffff" style={{ transform: [{ rotate: '135deg' }] }} />
-        </Pressable>
+        </ScalePressable>
 
-        <Pressable
+        <ScalePressable
           onPress={() => setVideoOff(!videoOff)}
           className={`w-14 h-14 rounded-full items-center justify-center ${videoOff ? 'bg-white' : 'bg-white/20'}`}
         >
           <Ionicons name={videoOff ? 'videocam-off' : 'videocam'} size={26} color={videoOff ? '#1f2937' : '#ffffff'} />
-        </Pressable>
+        </ScalePressable>
       </View>
     </View>
   );

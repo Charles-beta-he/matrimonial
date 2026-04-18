@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { ScalePressable } from '../../../components/ScalePressable';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -107,7 +108,7 @@ export default function RegisterStep2BasicInfo() {
           {/* Gender */}
           <Text className="text-sm text-gray-600 mb-2">性别</Text>
           <View className="flex-row mb-4" style={{ gap: 12 }}>
-            <Pressable
+            <ScalePressable
               className={`flex-1 h-24 rounded-2xl items-center justify-center border-2 ${
                 gender === 'MALE' ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-gray-50'
               }`}
@@ -126,8 +127,8 @@ export default function RegisterStep2BasicInfo() {
               >
                 男
               </Text>
-            </Pressable>
-            <Pressable
+            </ScalePressable>
+            <ScalePressable
               className={`flex-1 h-24 rounded-2xl items-center justify-center border-2 ${
                 gender === 'FEMALE' ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-gray-50'
               }`}
@@ -146,7 +147,7 @@ export default function RegisterStep2BasicInfo() {
               >
                 女
               </Text>
-            </Pressable>
+            </ScalePressable>
           </View>
 
           {/* Birthday */}

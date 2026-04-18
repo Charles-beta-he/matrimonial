@@ -8,10 +8,11 @@ interface ScalePressableProps {
   className?: string;
   style?: ViewStyle;
   containerStyle?: ViewStyle;
-  children: ReactNode;
+  hitSlop?: number | { top?: number; right?: number; bottom?: number; left?: number };
+  children?: ReactNode;
 }
 
-export function ScalePressable({ onPress, disabled, className, style, containerStyle, children }: ScalePressableProps) {
+export function ScalePressable({ onPress, disabled, className, style, containerStyle, hitSlop, children }: ScalePressableProps) {
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -31,6 +32,7 @@ export function ScalePressable({ onPress, disabled, className, style, containerS
         onPressOut={disabled ? undefined : handlePressOut}
         className={className}
         style={style}
+        hitSlop={hitSlop}
       >
         {children}
       </Pressable>

@@ -6,7 +6,6 @@ import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Pressable,
   Text,
   TextInput,
   View,
@@ -29,6 +28,7 @@ import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ChromaTransition } from '../../components/ChromaTransition';
 import { PressScale } from '../../components/PressScale';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -361,18 +361,18 @@ export default function UserProfileScreen() {
           {/* Back button */}
           <SafeAreaView className="absolute top-0 left-0 right-0">
             <View className="flex-row justify-between px-4 pt-2">
-              <Pressable
+              <ScalePressable
                 className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
                 onPress={() => router.back()}
               >
                 <Ionicons name="chevron-back" size={22} color="#ffffff" />
-              </Pressable>
-              <Pressable
+              </ScalePressable>
+              <ScalePressable
                 className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
                 onPress={() => setShowReportModal(true)}
               >
                 <Ionicons name="ellipsis-horizontal" size={20} color="#ffffff" />
-              </Pressable>
+              </ScalePressable>
             </View>
           </SafeAreaView>
         </View>
@@ -513,7 +513,7 @@ export default function UserProfileScreen() {
               { value: 'INAPPROPRIATE_CONTENT', label: '不当内容' },
               { value: 'OTHER', label: '其他' },
             ].map((opt) => (
-              <Pressable
+              <ScalePressable
                 key={opt.value}
                 className="flex-row items-center py-2.5"
                 style={{ gap: 10 }}
@@ -528,7 +528,7 @@ export default function UserProfileScreen() {
                   ) : null}
                 </View>
                 <Text className="text-sm text-gray-700">{opt.label}</Text>
-              </Pressable>
+              </ScalePressable>
             ))}
             <TextInput
               className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 mt-3 min-h-[64px]"
@@ -541,13 +541,13 @@ export default function UserProfileScreen() {
               textAlignVertical="top"
             />
             <View className="flex-row mt-4" style={{ gap: 10 }}>
-              <Pressable
+              <ScalePressable
                 className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
                 onPress={() => { setShowReportModal(false); setReportReason(''); setReportDescription(''); }}
               >
                 <Text className="text-sm text-gray-600">取消</Text>
-              </Pressable>
-              <Pressable
+              </ScalePressable>
+              <ScalePressable
                 className="flex-1 py-3 rounded-xl bg-rose-500 items-center"
                 disabled={!reportReason || reportDescription.length < 10 || reportMut.isPending}
                 onPress={() => {
@@ -569,7 +569,7 @@ export default function UserProfileScreen() {
                     提交举报
                   </Text>
                 )}
-              </Pressable>
+              </ScalePressable>
             </View>
           </View>
         </View>

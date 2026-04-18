@@ -25,6 +25,10 @@ const mockButton = jest.fn(({ title, onPress }: any) => {
 jest.mock('@matrimonial/ui', () => ({
   Avatar: (props: any) => mockAvatar(props),
   Button: (props: any) => mockButton(props),
+  ChromaText: ({ text }: any) => {
+    const { Text } = require('react-native');
+    return <Text>{text}</Text>;
+  },
 }));
 
 let mockIcebreakersData: any = null;

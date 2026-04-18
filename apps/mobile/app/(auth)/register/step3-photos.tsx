@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, Text, View } from 'react-native';
 import { ScalePressable } from '../../../components/ScalePressable';
 import Animated, {
   Easing,
@@ -105,12 +105,12 @@ export default function RegisterStep3Photos() {
         {uri ? (
           <View className="w-full h-full bg-gray-200">
             <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-            <Pressable
+            <ScalePressable
               onPress={() => handleRemovePhoto(index)}
               className="absolute top-2 right-2 bg-black/60 rounded-full w-6 h-6 items-center justify-center"
             >
               <Ionicons name="close" size={14} color="#ffffff" />
-            </Pressable>
+            </ScalePressable>
           </View>
         ) : isActive ? (
           <View className={`w-full h-full items-center justify-center bg-rose-50 border-2 border-dashed border-rose-300 ${radius}`}>

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, Easing, Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Animated, Easing, Image, Platform, ScrollView, Text, View } from 'react-native';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,

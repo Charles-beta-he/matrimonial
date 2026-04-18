@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, ScrollView, Text, View } from 'react-native';
 import { AnimatedCounter } from '../../components/AnimatedCounter';
 import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
@@ -184,7 +184,7 @@ export default function ProfileTab() {
                 ? `您的账号将于 ${deletionDeadline} 正式注销。在此之前，您可以随时撤回申请，恢复正常使用。`
                 : '您的账号注销申请正在处理中，14天内可随时撤回。'}
             </Text>
-            <Pressable
+            <ScalePressable
               className={`rounded-full py-2.5 items-center ${cancelDeletionMut.isPending ? 'bg-amber-200' : 'bg-amber-500'}`}
               onPress={() => cancelDeletionMut.mutate()}
               disabled={cancelDeletionMut.isPending}
@@ -192,7 +192,7 @@ export default function ProfileTab() {
               <Text className="text-white text-sm font-bold">
                 {cancelDeletionMut.isPending ? '处理中...' : '取消注销'}
               </Text>
-            </Pressable>
+            </ScalePressable>
           </View>
         )}
 

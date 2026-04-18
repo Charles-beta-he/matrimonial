@@ -89,7 +89,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
               选择举报原因
             </Text>
             {REPORT_REASONS.map((item) => (
-              <Pressable
+              <ScalePressable
                 key={item.value}
                 className="flex-row items-center py-3"
                 onPress={() => setReason(item.value)}
@@ -137,7 +137,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
             </ScalePressable>
 
             {/* Submit */}
-            <Pressable
+            <ScalePressable
               className={`rounded-full py-3 items-center mb-8 ${
                 canSubmit ? 'bg-rose-500' : 'bg-gray-200'
               }`}
