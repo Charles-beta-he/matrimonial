@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { ScalePressable } from './ScalePressable';
 import Animated, {
   Easing,
   SharedValue,
@@ -108,6 +109,12 @@ export function MatchAnimation({
   const echoRingOpacity2 = useSharedValue(0);
   const echoRingScale3 = useSharedValue(1);
   const echoRingOpacity3 = useSharedValue(0);
+
+  // Iridescent purple ring — 1100ms
+  const ringPurpleScale = useSharedValue(1);
+  const ringPurpleOpacity = useSharedValue(0);
+  // Rose screen flash overlay
+  const roseFlashOpacity = useSharedValue(0);
 
   // Central white flash
   const flashOpacity = useSharedValue(0);
@@ -225,6 +232,21 @@ export function MatchAnimation({
       withTiming(0.22, { duration: 0 }),
       withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) }),
     ));
+
+    // Iridescent purple ring — 1100ms
+    ringPurpleScale.value = 1;
+    ringPurpleOpacity.value = 0;
+    ringPurpleScale.value = withDelay(1100, withTiming(9.0, { duration: 1000, easing: Easing.out(Easing.cubic) }));
+    ringPurpleOpacity.value = withDelay(1100, withSequence(
+      withTiming(0.5, { duration: 0 }),
+      withTiming(0, { duration: 1000, easing: Easing.out(Easing.cubic) }),
+    ));
+
+    // Rose screen flash
+    roseFlashOpacity.value = withSequence(
+      withTiming(0.28, { duration: 80 }),
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) }),
+    );
 
     // Particle burst
     PARTICLES.forEach((_, i) => {
@@ -366,6 +388,15 @@ export function MatchAnimation({
     opacity: flashOpacity.value,
   }));
 
+  const ringPurpleStyle = useAnimatedStyle(() => ({
+    opacity: ringPurpleOpacity.value,
+    transform: [{ scale: ringPurpleScale.value }],
+  }));
+
+  const roseFlashStyle = useAnimatedStyle(() => ({
+    opacity: roseFlashOpacity.value,
+  }));
+
   const contentScaleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: contentScale.value }],
   }));
@@ -481,10 +512,22 @@ export function MatchAnimation({
         style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(251,113,133,0.5)' }, echoRingStyle3]}
       />
 
+      {/* Rose screen flash */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: '#f43f5e' }, roseFlashStyle]}
+      />
+
       {/* Central white flash */}
       <Animated.View
         pointerEvents="none"
         style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: '#ffffff' }, flashStyle]}
+      />
+
+      {/* Iridescent purple ring — 1100ms */}
+      <Animated.View
+        pointerEvents="none"
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#c084fc' }, ringPurpleStyle]}
       />
 
       {/* Particle burst */}
@@ -522,6 +565,7 @@ export function MatchAnimation({
             <ChromaText
               text="It's a Match!"
               style={{ fontSize: 30, fontWeight: '700', color: 'white' }}
+              trigger={true}
             />
           </View>
           <Text className="text-white/80 text-base">
@@ -542,13 +586,13 @@ export function MatchAnimation({
           ) : (
             <View style={{ gap: 8 }}>
               {suggestions.map((s, i) => (
-                <Pressable
+                <ScalePressable
                   key={i}
                   onPress={() => onSendMessage(s)}
                   className="bg-white/15 border border-white/25 rounded-full px-4 py-2"
                 >
                   <Text className="text-white text-sm text-center">{s}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </View>
           )}
