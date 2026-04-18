@@ -21,6 +21,7 @@ import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { ChromaTransition } from '../../components/ChromaTransition';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -168,6 +169,7 @@ export default function ProfileTab() {
   ];
 
   return (
+    <ChromaTransition>
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Pending deletion banner */}
@@ -320,5 +322,6 @@ export default function ProfileTab() {
         <View className="h-8" />
       </ScrollView>
     </SafeAreaView>
+    </ChromaTransition>
   );
 }

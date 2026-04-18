@@ -17,6 +17,7 @@ import { formatLastActive } from '@matrimonial/shared';
 import { useSocketStore } from '../../stores/useSocketStore';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { ChromaTransition } from '../../components/ChromaTransition';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/avatar/100/100';
 
@@ -162,6 +163,7 @@ export default function MessagesTab() {
   const isError = conversationsQuery.isError;
 
   return (
+    <ChromaTransition>
     <SafeAreaView className="flex-1 bg-white">
       <Animated.View style={headerStyle} className="px-4 py-3">
         <Text className="text-2xl font-bold text-gray-900">消息</Text>
@@ -240,5 +242,6 @@ export default function MessagesTab() {
         </View>
       )}
     </SafeAreaView>
+    </ChromaTransition>
   );
 }

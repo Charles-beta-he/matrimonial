@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import Animated, {
 import { Card } from '@matrimonial/ui';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
+import { ChromaTransition } from '../../components/ChromaTransition';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -73,6 +74,7 @@ export default function ExploreTab() {
   }));
 
   return (
+    <ChromaTransition>
     <SafeAreaView className="flex-1 bg-gray-50">
       <Animated.View style={[headerStyle]} className="px-4 py-4">
         <Text className="text-2xl font-bold text-gray-900">探索</Text>
@@ -130,5 +132,6 @@ export default function ExploreTab() {
         ))}
       </View>
     </SafeAreaView>
+    </ChromaTransition>
   );
 }

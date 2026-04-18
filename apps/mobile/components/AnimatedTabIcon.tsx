@@ -23,6 +23,10 @@ interface AnimatedTabIconProps {
 export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 0 }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
   const dotScale = useSharedValue(focused ? 1 : 0);
+  // Chromatic aberration on icon — red/blue split on focus
+  const chromaRedX = useSharedValue(0);
+  const chromaBlueX = useSharedValue(0);
+  const chromaOp = useSharedValue(0);
   // Soft fill disc — filled circle bloom behind icon
   const glowFillScale = useSharedValue(0);
   const glowFillOpacity = useSharedValue(0);
@@ -61,6 +65,20 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
         withSpring(1.0, { damping: 10, stiffness: 220 }),
       );
       dotScale.value = withSpring(1, { damping: 8, stiffness: 200 });
+
+      // Chromatic split — red goes left, blue goes right, fade out
+      chromaOp.value = withSequence(
+        withTiming(0.55, { duration: 0 }),
+        withTiming(0, { duration: 280, easing: Easing.out(Easing.cubic) }),
+      );
+      chromaRedX.value = withSequence(
+        withTiming(-7, { duration: 80 }),
+        withTiming(0, { duration: 220, easing: Easing.out(Easing.cubic) }),
+      );
+      chromaBlueX.value = withSequence(
+        withTiming(7, { duration: 80 }),
+        withTiming(0, { duration: 220, easing: Easing.out(Easing.cubic) }),
+      );
 
       // Inner ring: quick expand + linger with soft opacity
       innerRingScale.value = withSequence(
@@ -115,6 +133,14 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
 
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+  }));
+  const chromaRedStyle = useAnimatedStyle(() => ({
+    opacity: chromaOp.value,
+    transform: [{ translateX: chromaRedX.value }],
+  }));
+  const chromaBlueStyle = useAnimatedStyle(() => ({
+    opacity: chromaOp.value,
+    transform: [{ translateX: chromaBlueX.value }],
   }));
   const dotStyle = useAnimatedStyle(() => ({
     transform: [{ scale: dotScale.value }],
@@ -189,6 +215,13 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
             borderColor: 'rgba(244,63,94,0.6)',
           }, innerRingStyle]}
         />
+        {/* Chromatic aberration layers — red left, blue right */}
+        <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, chromaRedStyle]}>
+          <Ionicons name={name} size={size} color="#f43f5e" />
+        </Animated.View>
+        <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, chromaBlueStyle]}>
+          <Ionicons name={name} size={size} color="#818cf8" />
+        </Animated.View>
         <Animated.View style={iconStyle}>
           <Ionicons name={name} size={size} color={color} />
         </Animated.View>
