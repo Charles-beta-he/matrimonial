@@ -162,7 +162,7 @@ function ChipGroup({
         const label = typeof opt === 'string' ? opt : opt.label;
         const isSelected = selected.includes(value);
         return (
-          <Pressable
+          <ScalePressable
             key={value}
             onPress={() => onToggle(value)}
             style={{
@@ -421,7 +421,7 @@ export default function DiscoverTab() {
           style={{ opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }}
         >
           <Text className="text-2xl font-bold text-gray-900">发现</Text>
-          <Pressable
+          <ScalePressable
             className="w-10 h-10 bg-white rounded-full items-center justify-center"
             style={shadowStyle({ y: 1, blur: 3, opacity: 0.06, elevation: 1 })}
             onPress={toggleFilters}
@@ -472,7 +472,7 @@ export default function DiscoverTab() {
                 年龄范围
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -493,7 +493,7 @@ export default function DiscoverTab() {
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMin ?? 18}
                 </Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -512,7 +512,7 @@ export default function DiscoverTab() {
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
                 </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -533,7 +533,7 @@ export default function DiscoverTab() {
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMax ?? 60}
                 </Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -560,7 +560,7 @@ export default function DiscoverTab() {
                 身高范围 (cm)
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -581,7 +581,7 @@ export default function DiscoverTab() {
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMin ?? 150}
                 </Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -600,7 +600,7 @@ export default function DiscoverTab() {
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
                 </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -621,7 +621,7 @@ export default function DiscoverTab() {
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMax ?? 200}
                 </Text>
-                <Pressable
+                <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
                       ...p,
@@ -728,7 +728,7 @@ export default function DiscoverTab() {
 
             {/* Action buttons */}
             <View style={{ flexDirection: 'row', gap: 12, paddingTop: 4 }}>
-              <Pressable
+              <ScalePressable
                 onPress={resetFilters}
                 style={{
                   flex: 1,
@@ -741,7 +741,7 @@ export default function DiscoverTab() {
               >
                 <Text style={{ fontSize: 15, fontWeight: '600', color: '#374151' }}>重置</Text>
               </ScalePressable>
-              <Pressable
+              <ScalePressable
                 onPress={applyFilters}
                 style={{
                   flex: 2,
@@ -785,7 +785,7 @@ export default function DiscoverTab() {
 
         {/* Daily picks horizontal scroll */}
         <View className="mb-4">
-          <Pressable
+          <ScalePressable
             className="flex-row items-center justify-between px-4 mb-2"
             onPress={() => router.push('/discover/daily-picks')}
           >
@@ -843,7 +843,7 @@ export default function DiscoverTab() {
 
         {/* Error banner */}
         {hasError && (
-          <Pressable
+          <ScalePressable
             onPress={() => recommendationsQuery.refetch()}
             className="mx-4 mb-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
           >
@@ -879,13 +879,13 @@ export default function DiscoverTab() {
                 <Text className="text-sm text-gray-500 mt-2 text-center">
                   明天将为你推荐更多优质用户
                 </Text>
-                <Pressable
+                <ScalePressable
                   className="mt-6 w-full h-12 bg-rose-500 rounded-full items-center justify-center"
                   onPress={() => router.push('/profile/membership')}
                 >
                   <Text className="text-white font-semibold text-base">升级会员解锁无限推荐</Text>
                 </ScalePressable>
-                <Pressable
+                <ScalePressable
                   className="mt-3 w-full h-12 bg-gray-100 rounded-full items-center justify-center"
                   onPress={() => router.push('/(tabs)/explore' as any)}
                 >

@@ -242,7 +242,7 @@ export default function BuddyScreen() {
           right: 20,
         }, fabStyle]}
       >
-        <Pressable
+        <ScalePressable
           className="w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
           style={{
             shadowColor: '#f43f5e',

@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing,
 } from 'react-native-reanimated';
+import { ScalePressable } from '../../components/ScalePressable';
 import { toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -119,14 +120,14 @@ export default function InvitePage() {
           </Text>
 
           <View className="flex-row" style={{ gap: 12 }}>
-            <Pressable
+            <ScalePressable
               className="flex-row items-center bg-gray-100 rounded-full px-5 py-2.5"
               onPress={handleCopyCode}
             >
               <Ionicons name="copy-outline" size={16} color="#374151" />
               <Text className="text-sm font-medium text-gray-700 ml-1.5">复制</Text>
             </ScalePressable>
-            <Pressable
+            <ScalePressable
               className="flex-row items-center bg-rose-500 rounded-full px-5 py-2.5"
               onPress={handleShare}
             >
@@ -166,7 +167,7 @@ export default function InvitePage() {
               maxLength={6}
               autoCapitalize="characters"
             />
-            <Pressable
+            <ScalePressable
               className="bg-rose-500 rounded-xl px-5 py-3"
               onPress={handleApplyCode}
               disabled={applyMut.isPending}

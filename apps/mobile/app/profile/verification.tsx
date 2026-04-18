@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, toast } from '@matrimonial/ui';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
+import { ScalePressable } from '../../components/ScalePressable';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 import { VERIFICATION_LEVEL_LABELS } from '@matrimonial/shared';
@@ -291,7 +292,7 @@ export default function VerificationScreen() {
                   PHD: '博士',
                 };
                 return (
-                  <Pressable
+                  <ScalePressable
                     key={d}
                     onPress={() => setDegree(d)}
                     className={`rounded-full px-4 py-2 ${

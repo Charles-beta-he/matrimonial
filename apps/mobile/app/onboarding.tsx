@@ -22,6 +22,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { ScalePressable } from '../components/ScalePressable';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -233,7 +234,7 @@ export default function OnboardingScreen() {
 
         {/* Action button */}
         <Animated.View style={btnStyle}>
-          <Pressable
+          <ScalePressable
             className="bg-rose-500 rounded-full py-4 items-center"
             onPress={handleNext}
           >

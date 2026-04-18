@@ -277,7 +277,7 @@ export default function ProfileEditScreen() {
           <Text className="text-base font-semibold text-gray-900 mb-3">照片</Text>
           <View className="flex-row flex-wrap" style={{ gap: 8 }}>
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <Pressable
+              <ScalePressable
                 key={i}
                 className="bg-gray-100 rounded-xl items-center justify-center"
                 style={{ width: '31%', aspectRatio: 1 }}
@@ -459,7 +459,7 @@ export default function ProfileEditScreen() {
                     </View>
                   )}
                   <View className="flex-row mt-4" style={{ gap: 12 }}>
-                    <Pressable
+                    <ScalePressable
                       className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
                       onPress={() => { setEditingPromptIdx(null); setPromptEval(null); }}
                     >

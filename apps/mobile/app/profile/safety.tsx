@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { ScalePressable } from '../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -237,7 +238,7 @@ export default function SafetyScreen() {
           <Text className="text-sm text-gray-500 text-center mb-4">
             遇到紧急情况时按下此按钮，系统将向紧急联系人发送你的位置信息
           </Text>
-          <Pressable
+          <ScalePressable
             className="w-32 h-32 rounded-full bg-red-500 items-center justify-center"
             style={
               Platform.OS === 'web'

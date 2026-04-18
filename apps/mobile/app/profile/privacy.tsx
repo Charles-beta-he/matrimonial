@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import * as Contacts from 'expo-contacts';
 import * as Crypto from 'expo-crypto';
+import { ScalePressable } from '../../components/ScalePressable';
 
 interface PrivacySetting {
   key: string;

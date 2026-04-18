@@ -293,13 +293,13 @@ export default function BuddyPostDetailScreen() {
                   </View>
                   {apply.status === 'PENDING' ? (
                     <View className="flex-row" style={{ gap: 6 }}>
-                      <Pressable
+                      <ScalePressable
                         className="bg-green-50 rounded-full px-3 py-1.5"
                         onPress={() => handleAcceptReject(apply.id, 'ACCEPTED')}
                       >
                         <Text className="text-xs font-medium text-green-600">接受</Text>
                       </ScalePressable>
-                      <Pressable
+                      <ScalePressable
                         className="bg-gray-100 rounded-full px-3 py-1.5"
                         onPress={() => handleAcceptReject(apply.id, 'REJECTED')}
                       >

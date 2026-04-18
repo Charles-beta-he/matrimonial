@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { ScalePressable } from '../../components/ScalePressable';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -171,7 +172,7 @@ export default function LoginScreen() {
                 onChangeText={setCode}
                 maxLength={6}
                 rightIcon={
-                  <Pressable
+                  <ScalePressable
                     onPress={handleSendCode}
                     disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
                   >

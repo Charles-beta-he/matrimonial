@@ -379,7 +379,7 @@ export default function ChatConversationScreen() {
             }`}
           >
             {item.type === 'VOICE' ? (
-              <Pressable
+              <ScalePressable
                 className="flex-row items-center"
                 onPress={() => playAudio(item.mediaUrl)}
               >
@@ -461,7 +461,7 @@ export default function ChatConversationScreen() {
         ) : historyQuery.isError ? (
           <View className="flex-1 items-center justify-center px-8">
             <Text className="text-base text-gray-700 mb-2">加载失败</Text>
-            <Pressable
+            <ScalePressable
               onPress={() => historyQuery.refetch()}
               className="bg-rose-500 rounded-full px-6 py-2 mt-2"
             >
@@ -477,7 +477,7 @@ export default function ChatConversationScreen() {
               <View className="mt-6 w-full" style={{ gap: 8 }}>
                 <Text className="text-xs text-gray-400 text-center">✨ AI 破冰建议</Text>
                 {icebreakers.slice(0, 3).map((s: string, i: number) => (
-                  <Pressable
+                  <ScalePressable
                     key={i}
                     className="bg-rose-50 rounded-xl px-4 py-3"
                     onPress={() => setInputText(s)}
@@ -502,7 +502,7 @@ export default function ChatConversationScreen() {
 
         {/* Read receipt upsell — shown once at bottom of conversation for FREE users */}
         {!canSeeReadReceipts && allMessages.length > 0 && (
-          <Pressable
+          <ScalePressable
             onPress={() => router.push('/profile/membership')}
             className="px-4 pb-1 items-end"
           >
@@ -596,7 +596,7 @@ export default function ChatConversationScreen() {
                 onBlur={() => { setIsFocused(false); focusProgress.value = withTiming(0, { duration: 200 }); }}
               />
             </Animated.View>
-            <Pressable className="w-10 h-10 items-center justify-center">
+            <ScalePressable className="w-10 h-10 items-center justify-center">
               <Ionicons name="camera-outline" size={22} color="#6b7280" />
             </ScalePressable>
             {inputText.trim() ? (

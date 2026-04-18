@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import { ScalePressable } from '../../components/ScalePressable';
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';

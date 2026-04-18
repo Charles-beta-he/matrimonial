@@ -8,7 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { ScalePressable } from '../../components/ScalePressable';
+import { ScalePressable } from '../../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button, toast } from '@matrimonial/ui';
@@ -156,7 +156,7 @@ export default function BuddyCreateScreen() {
               const isActive = selectedType === bt.id;
               const color = BUDDY_TYPE_COLORS[bt.id as BuddyType];
               return (
-                <Pressable
+                <ScalePressable
                   key={bt.id}
                   className="rounded-xl px-4 py-3 items-center border-2"
                   style={{
@@ -239,7 +239,7 @@ export default function BuddyCreateScreen() {
           <Text className="text-base font-semibold text-gray-900 mb-2">
             时间 <Text className="text-xs text-gray-400 font-normal">（选填）</Text>
           </Text>
-          <Pressable
+          <ScalePressable
             className="flex-row items-center border border-gray-200 rounded-xl px-4 py-3 mb-2"
             onPress={() => setShowDatePicker(!showDatePicker)}
           >
@@ -254,7 +254,7 @@ export default function BuddyCreateScreen() {
                 : '选择活动时间'}
             </Text>
             {scheduledAt ? (
-              <Pressable
+              <ScalePressable
                 onPress={() => {
                   setScheduledAt(null);
                   setDateText('');
@@ -277,7 +277,7 @@ export default function BuddyCreateScreen() {
                 {getDateOptions().map((opt) => {
                   const isActive = dateText === opt.label;
                   return (
-                    <Pressable
+                    <ScalePressable
                       key={opt.label}
                       className={`rounded-full px-3 py-1.5 ${
                         isActive ? 'bg-rose-500' : 'bg-gray-100'
@@ -304,7 +304,7 @@ export default function BuddyCreateScreen() {
                 {TIME_SLOTS.map((t) => {
                   const isActive = timeText === t;
                   return (
-                    <Pressable
+                    <ScalePressable
                       key={t}
                       className={`rounded-full px-3 py-1.5 ${
                         isActive ? 'bg-rose-500' : 'bg-gray-100'
@@ -330,7 +330,7 @@ export default function BuddyCreateScreen() {
             人数上限
           </Text>
           <View className="flex-row items-center mb-8" style={{ gap: 16 }}>
-            <Pressable
+            <ScalePressable
               className={`w-10 h-10 rounded-full items-center justify-center ${
                 maxPeople <= 2 ? 'bg-gray-100' : 'bg-rose-50'
               }`}
@@ -346,7 +346,7 @@ export default function BuddyCreateScreen() {
             <Text className="text-xl font-bold text-gray-900 w-8 text-center">
               {maxPeople}
             </Text>
-            <Pressable
+            <ScalePressable
               className={`w-10 h-10 rounded-full items-center justify-center ${
                 maxPeople >= 10 ? 'bg-gray-100' : 'bg-rose-50'
               }`}

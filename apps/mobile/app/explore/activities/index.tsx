@@ -184,7 +184,7 @@ export default function ActivitiesScreen() {
 
       {/* Activity matches banner */}
       {activityMatches && activityMatches.length > 0 ? (
-        <Pressable
+        <ScalePressable
           className="mx-4 mb-3 rounded-xl bg-rose-50 px-4 py-3 flex-row items-center justify-between"
           onPress={() => router.push('/explore/activities/matches' as any)}
         >

@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { ScalePressable } from '../../components/ScalePressable';
+import { ScalePressable } from '../../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar, Badge, Button, EmptyState, Modal, toast } from '@matrimonial/ui';
@@ -312,7 +312,7 @@ export default function CircleDetailScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       {/* Back button overlay */}
       <Animated.View className="absolute top-12 left-4 z-10" style={backBtnStyle}>
-        <Pressable
+        <ScalePressable
           onPress={() => router.back()}
           className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
         >
@@ -363,7 +363,7 @@ export default function CircleDetailScreen() {
 
       {/* FAB - only for members */}
       {circle.isMember ? (
-        <Pressable
+        <ScalePressable
           className="absolute bottom-8 right-5 w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
           style={{
             shadowColor: '#f43f5e',
@@ -404,7 +404,7 @@ export default function CircleDetailScreen() {
           {/* Image placeholder slots */}
           <View className="flex-row flex-wrap mt-3" style={{ gap: 8 }}>
             {Array.from({ length: Math.min(9, 1) }).map((_, idx) => (
-              <Pressable
+              <ScalePressable
                 key={`img-slot-${idx}`}
                 className="w-16 h-16 rounded-lg bg-gray-100 items-center justify-center border border-dashed border-gray-300"
               >

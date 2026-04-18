@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { toast } from '@matrimonial/ui';
 import { useAppStore } from '../../stores/useAppStore';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const DELETION_ITEMS = [
   '个人资料与照片',
@@ -171,7 +172,7 @@ export default function DeleteAccountPage() {
                 keyboardType="number-pad"
                 maxLength={6}
               />
-              <Pressable
+              <ScalePressable
                 className={`rounded-lg px-4 py-3 items-center justify-center ${
                   countdown > 0 || !phone ? 'bg-gray-100' : 'bg-rose-50'
                 }`}
@@ -192,7 +193,7 @@ export default function DeleteAccountPage() {
 
         {/* Confirm button */}
         <View className="mx-6 mt-8 mb-8">
-          <Pressable
+          <ScalePressable
             className={`rounded-full py-4 items-center ${
               canSubmit ? 'bg-red-500' : 'bg-gray-200'
             }`}

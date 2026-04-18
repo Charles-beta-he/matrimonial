@@ -39,7 +39,7 @@ function StarRating({
   return (
     <View className="flex-row items-center" style={{ gap: 4 }}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <Pressable
+        <ScalePressable
           key={star}
           onPress={() => !disabled && onRate(star)}
           hitSlop={6}

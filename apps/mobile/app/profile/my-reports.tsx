@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const REASON_LABEL: Record<string, string> = {
   FAKE_PROFILE: '虚假资料',
