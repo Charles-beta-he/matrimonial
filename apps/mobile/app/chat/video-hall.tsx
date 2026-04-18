@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
 import {
@@ -7,7 +7,6 @@ import {
   Alert,
   FlatList,
   Modal,
-  Pressable,
   Text,
   TextInput,
   View,
@@ -38,6 +37,7 @@ export default function VideoHallScreen() {
 
   const headerOpacity = useSharedValue(0);
   const headerY = useSharedValue(-14);
+  const tabGlow = useSharedValue(0);
   useEffect(() => {
     const e = Easing.out(Easing.cubic);
     headerOpacity.value = withTiming(1, { duration: 320, easing: e });
@@ -47,6 +47,16 @@ export default function VideoHallScreen() {
     opacity: headerOpacity.value,
     transform: [{ translateY: headerY.value }],
   }));
+  const tabGlowStyle = useAnimatedStyle(() => ({
+    opacity: tabGlow.value,
+  }));
+
+  const switchTab = (tab: TabType) => {
+    setActiveTab(tab);
+    tabGlow.value = withSpring(0.4, { damping: 8, stiffness: 300 }, () => {
+      tabGlow.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) });
+    });
+  };
 
   const handleJoinRoom = async (roomId: string) => {
     try {
@@ -121,12 +131,17 @@ export default function VideoHallScreen() {
       </ScalePressable>
 
       {/* Tabs */}
-      <View className="flex-row mx-4 bg-gray-100 rounded-xl p-1 mb-4">
+      <View className="flex-row mx-4 bg-gray-100 rounded-xl p-1 mb-4" style={{ overflow: 'hidden' }}>
+        {/* Glow overlay — activates on tab switch */}
+        <Animated.View
+          pointerEvents="none"
+          style={[{ position: 'absolute', inset: 0, backgroundColor: '#f43f5e', borderRadius: 12 }, tabGlowStyle]}
+        />
         <ScalePressable
           className={`flex-1 py-2.5 rounded-lg items-center ${
             activeTab === '1v1' ? 'bg-white shadow-sm' : ''
           }`}
-          onPress={() => setActiveTab('1v1')}
+          onPress={() => switchTab('1v1')}
         >
           <Text
             className={`text-sm font-medium ${
@@ -140,7 +155,7 @@ export default function VideoHallScreen() {
           className={`flex-1 py-2.5 rounded-lg items-center ${
             activeTab === 'hosted' ? 'bg-white shadow-sm' : ''
           }`}
-          onPress={() => setActiveTab('hosted')}
+          onPress={() => switchTab('hosted')}
         >
           <Text
             className={`text-sm font-medium ${
@@ -161,14 +176,14 @@ export default function VideoHallScreen() {
           <Text className="text-sm text-gray-500 text-center mb-8">
             1v1 视频通话仅向匹配成功的用户开放{'\n'}请从聊天列表进入视频通话
           </Text>
-          <Pressable
+          <ScalePressable
             className="bg-rose-500 rounded-full px-12 py-4 shadow-lg opacity-80"
             onPress={() =>
               Alert.alert('提示', '请先在"发现"中匹配对象，匹配成功后可在聊天中发起视频通话')
             }
           >
             <Text className="text-white text-lg font-bold">去匹配</Text>
-          </Pressable>
+          </ScalePressable>
         </View>
       ) : (
         <View className="flex-1">
@@ -183,12 +198,12 @@ export default function VideoHallScreen() {
               <Text className="text-sm text-gray-400 mb-4 text-center">
                 视频大厅暂时不可用，请稍后再试
               </Text>
-              <Pressable
+              <ScalePressable
                 onPress={() => roomsQuery.refetch()}
                 className="bg-rose-500 rounded-full px-6 py-2"
               >
                 <Text className="text-white font-medium">重试</Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           ) : (
             <FlatList
@@ -216,13 +231,13 @@ export default function VideoHallScreen() {
                         {item.participantCount}/{item.maxParticipants} 人
                       </Text>
                     </View>
-                    <Pressable
+                    <ScalePressable
                       onPress={() => handleJoinRoom(item.id)}
                       disabled={joinRoom.isPending}
                       className="bg-rose-500 rounded-full px-4 py-2"
                     >
                       <Text className="text-white text-sm font-medium">进入</Text>
-                    </Pressable>
+                    </ScalePressable>
                   </View>
                 </Card>
                 </StaggeredListItem>
@@ -231,12 +246,12 @@ export default function VideoHallScreen() {
           )}
 
           {/* Floating create button */}
-          <Pressable
+          <ScalePressable
             onPress={() => setCreateOpen(true)}
             className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-rose-500 items-center justify-center shadow-lg"
           >
             <Ionicons name="add" size={30} color="#ffffff" />
-          </Pressable>
+          </ScalePressable>
         </View>
       )}
 
@@ -258,7 +273,7 @@ export default function VideoHallScreen() {
             <Text className="text-sm text-gray-600 mb-2">分类</Text>
             <View className="flex-row flex-wrap gap-2 mb-6">
               {['综合', '90后', '读书', '旅行', '美食'].map((cat) => (
-                <Pressable
+                <ScalePressable
                   key={cat}
                   onPress={() => setNewCategory(cat)}
                   className={`px-4 py-2 rounded-full border ${
@@ -270,18 +285,18 @@ export default function VideoHallScreen() {
                   <Text className={newCategory === cat ? 'text-white' : 'text-gray-700'}>
                     {cat}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </View>
 
             <View className="flex-row gap-3">
-              <Pressable
+              <ScalePressable
                 onPress={() => setCreateOpen(false)}
                 className="flex-1 bg-gray-100 rounded-full py-3 items-center"
               >
                 <Text className="text-gray-700 font-medium">取消</Text>
-              </Pressable>
-              <Pressable
+              </ScalePressable>
+              <ScalePressable
                 onPress={handleCreate}
                 disabled={createRoom.isPending}
                 className="flex-1 bg-rose-500 rounded-full py-3 items-center"
@@ -289,7 +304,7 @@ export default function VideoHallScreen() {
                 <Text className="text-white font-medium">
                   {createRoom.isPending ? '创建中...' : '创建'}
                 </Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           </View>
         </View>
