@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ScalePressable } from '../../components/ScalePressable';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -122,7 +123,7 @@ export default function SettingsPage() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <Animated.View className="bg-white px-6 py-4 flex-row items-center" style={headerStyle}>
+        <Animated.View className="bg-white px-6 py-4" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
           <Pressable onPress={() => router.back()} className="mr-4">
             <Ionicons name="chevron-back" size={24} color="#4b5563" />
           </Pressable>
@@ -134,20 +135,20 @@ export default function SettingsPage() {
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号安全</Text>
           <View className="bg-white">
-            <Pressable
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
               onPress={() => Alert.alert('修改手机号', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改手机号</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
-            <Pressable
+            </ScalePressable>
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => Alert.alert('修改密码', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改密码</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 
@@ -178,20 +179,20 @@ export default function SettingsPage() {
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">通用</Text>
           <View className="bg-white">
-            <Pressable
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
               onPress={handleClearCache}
             >
               <Text className="text-base text-gray-900">清除缓存</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
-            <Pressable
+            </ScalePressable>
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleCheckUpdate}
             >
               <Text className="text-base text-gray-900">检查更新</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 
@@ -203,20 +204,20 @@ export default function SettingsPage() {
               <Text className="text-base text-gray-900">版本号</Text>
               <Text className="text-sm text-gray-400">v1.0.0</Text>
             </View>
-            <Pressable
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
               onPress={() => router.push('/legal/terms')}
             >
               <Text className="text-base text-gray-900">用户协议</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
-            <Pressable
+            </ScalePressable>
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => router.push('/legal/privacy')}
             >
               <Text className="text-base text-gray-900">隐私政策</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 
@@ -224,13 +225,13 @@ export default function SettingsPage() {
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">举报记录</Text>
           <View className="bg-white">
-            <Pressable
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => router.push('/profile/my-reports' as any)}
             >
               <Text className="text-base text-gray-900">我提交的举报</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 
@@ -238,7 +239,7 @@ export default function SettingsPage() {
         <View className="mt-3">
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号</Text>
           <View className="bg-white">
-            <Pressable
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
               onPress={isPendingDeletion ? () => router.push('/(tabs)/profile' as any) : handleDeleteAccount}
             >
@@ -246,14 +247,14 @@ export default function SettingsPage() {
                 {isPendingDeletion ? '账号注销申请中' : '注销账号'}
               </Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
-            <Pressable
+            </ScalePressable>
+            <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleLogout}
             >
               <Text className="text-base text-red-500">退出登录</Text>
               <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 
