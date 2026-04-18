@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Alert, Text, View } from 'react-native';
 import { ScalePressable } from '../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,74 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuickMatch, useLeaveQuickMatch, useQuickMatchStatus } from '@matrimonial/api-client';
 
 type CallState = 'idle' | 'matching' | 'matched' | 'in_call' | 'ended';
+
+function PulsingRing({ baseSize, color, delay }: { baseSize: number; color: string; delay: number }) {
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(0.55);
+  useEffect(() => {
+    const cfg = { duration: 1600, easing: Easing.out(Easing.cubic) };
+    scale.value = withDelay(delay, withRepeat(withTiming(1.55, cfg), -1, false));
+    opacity.value = withDelay(delay, withRepeat(withTiming(0, cfg), -1, false));
+  }, []);
+  const style = useAnimatedStyle(() => ({
+    position: 'absolute',
+    width: baseSize,
+    height: baseSize,
+    borderRadius: baseSize / 2,
+    borderWidth: 2,
+    borderColor: color,
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+  return <Animated.View pointerEvents="none" style={style} />;
+}
+
+function AnimatedMatchingDots() {
+  const PERIOD = 560;
+  const d1 = useSharedValue(0.35);
+  const d2 = useSharedValue(0.35);
+  const d3 = useSharedValue(0.35);
+  useEffect(() => {
+    const pulse = (sv: typeof d1, delay: number) => {
+      sv.value = withDelay(delay, withRepeat(
+        withSequence(
+          withTiming(1, { duration: PERIOD * 0.45 }),
+          withTiming(0.35, { duration: PERIOD * 0.55 }),
+        ),
+        -1, false,
+      ));
+    };
+    pulse(d1, 0);
+    pulse(d2, PERIOD / 3);
+    pulse(d3, (PERIOD * 2) / 3);
+  }, []);
+  const s1 = useAnimatedStyle(() => ({ opacity: d1.value }));
+  const s2 = useAnimatedStyle(() => ({ opacity: d2.value }));
+  const s3 = useAnimatedStyle(() => ({ opacity: d3.value }));
+  const dotBase = { width: 12, height: 12, borderRadius: 6, backgroundColor: '#f43f5e' } as const;
+  return (
+    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 32 }}>
+      <Animated.View style={[dotBase, s1]} />
+      <Animated.View style={[dotBase, s2]} />
+      <Animated.View style={[dotBase, s3]} />
+    </View>
+  );
+}
+
+function MatchedEntrance({ children }: { children: React.ReactNode }) {
+  const scale = useSharedValue(0.6);
+  const opacity = useSharedValue(0);
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 260 });
+    scale.value = withSpring(1, { damping: 9, stiffness: 220 });
+  }, []);
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+    alignItems: 'center',
+  }));
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
 
 export default function QuickMatchScreen() {
   const router = useRouter();
@@ -162,8 +230,12 @@ export default function QuickMatchScreen() {
         {/* Idle state — start button */}
         {callState === 'idle' && (
           <>
-            <View className="w-44 h-44 rounded-full bg-rose-100 items-center justify-center mb-6">
-              <Ionicons name="flash-outline" size={80} color="#f43f5e" />
+            <View style={{ width: 176, height: 176, alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+              <PulsingRing baseSize={176} color="#f43f5e" delay={0} />
+              <PulsingRing baseSize={176} color="#f43f5e" delay={700} />
+              <View className="w-44 h-44 rounded-full bg-rose-100 items-center justify-center">
+                <Ionicons name="flash-outline" size={80} color="#f43f5e" />
+              </View>
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">3分钟视频速配</Text>
             <Text className="text-sm text-gray-500 text-center mb-2">
@@ -199,15 +271,7 @@ export default function QuickMatchScreen() {
                 排队位置: 第 {statusQuery.data.position} 位
               </Text>
             )}
-            <View className="flex-row gap-1 mb-8">
-              {[0, 1, 2].map((i) => (
-                <View
-                  key={i}
-                  className="w-3 h-3 rounded-full bg-rose-400"
-                  style={{ opacity: 0.4 + (i * 0.3) }}
-                />
-              ))}
-            </View>
+            <AnimatedMatchingDots />
             <ScalePressable
               onPress={handleCancel}
               className="border-2 border-gray-300 rounded-full px-12 py-3"
@@ -219,16 +283,19 @@ export default function QuickMatchScreen() {
 
         {/* Matched state — brief display before call */}
         {callState === 'matched' && (
-          <>
-            <View className="w-44 h-44 rounded-full bg-green-100 items-center justify-center mb-6">
-              <Ionicons name="checkmark-circle-outline" size={80} color="#22c55e" />
+          <MatchedEntrance>
+            <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+              <PulsingRing baseSize={176} color="#22c55e" delay={0} />
+              <View className="w-44 h-44 rounded-full bg-green-100 items-center justify-center">
+                <Ionicons name="checkmark-circle-outline" size={80} color="#22c55e" />
+              </View>
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">匹配成功!</Text>
             <Text className="text-base text-rose-500 font-semibold mb-4">
               {partnerName}
             </Text>
             <Text className="text-sm text-gray-500">正在连接视频通话...</Text>
-          </>
+          </MatchedEntrance>
         )}
 
         {/* In-call state — timer + video placeholder */}
