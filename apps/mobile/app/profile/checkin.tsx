@@ -71,6 +71,80 @@ function ConfettiParticle({ dx, dy, size, color, delay, burst }: typeof CONFETTI
   );
 }
 
+function AchievementBadge({ ach, index }: { ach: any; index: number }) {
+  const sc = useSharedValue(0.6);
+  const op = useSharedValue(0);
+  const glowSc = useSharedValue(1);
+  const glowOp = useSharedValue(0);
+
+  useEffect(() => {
+    const delay = index * 60;
+    op.value = withDelay(delay, withTiming(1, { duration: 220 }));
+    sc.value = withDelay(delay, withSpring(1, { damping: 9, stiffness: 220 }));
+    if (ach.unlocked) {
+      glowOp.value = withDelay(delay + 300, withSequence(
+        withTiming(0.6, { duration: 0 }),
+        withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }),
+      ));
+      glowSc.value = withDelay(delay + 300, withTiming(2.2, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    }
+  }, [ach.unlocked, index]);
+
+  const badgeStyle = useAnimatedStyle(() => ({
+    opacity: op.value,
+    transform: [{ scale: sc.value }],
+  }));
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOp.value,
+    transform: [{ scale: glowSc.value }],
+  }));
+
+  return (
+    <Animated.View
+      style={[{
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        backgroundColor: ach.unlocked ? '#fffbeb' : '#f9fafb',
+        width: '28%',
+        overflow: 'visible',
+      }, badgeStyle]}
+    >
+      {ach.unlocked && (
+        <Animated.View
+          pointerEvents="none"
+          style={[{
+            position: 'absolute',
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            backgroundColor: '#f59e0b',
+          }, glowStyle]}
+        />
+      )}
+      <Text style={{ fontSize: 24 }}>{ach.unlocked ? ach.icon : '🔒'}</Text>
+      <Text
+        style={{
+          fontSize: 11,
+          fontWeight: '600',
+          marginTop: 4,
+          textAlign: 'center',
+          color: ach.unlocked ? '#111827' : '#9ca3af',
+        }}
+        numberOfLines={1}
+      >
+        {ach.name}
+      </Text>
+      <Text
+        style={{ fontSize: 10, marginTop: 2, textAlign: 'center', color: ach.unlocked ? '#6b7280' : '#d1d5db' }}
+        numberOfLines={2}
+      >
+        {ach.description}
+      </Text>
+    </Animated.View>
+  );
+}
+
 function CheckinDot({ isChecked, isToday, day, index }: {
   isChecked: boolean;
   isToday: boolean;
@@ -304,26 +378,8 @@ export default function CheckinScreen() {
         <View className="bg-white mx-4 mt-4 rounded-2xl p-5 mb-6">
           <Text className="text-base font-bold text-gray-900 mb-3">成就徽章</Text>
           <View className="flex-row flex-wrap" style={{ gap: 12 }}>
-            {achievements.map((ach: any) => (
-              <View
-                key={ach.type}
-                className={`items-center p-3 rounded-xl ${ach.unlocked ? 'bg-amber-50' : 'bg-gray-50'}`}
-                style={{ width: '28%' }}
-              >
-                <Text className="text-2xl">{ach.unlocked ? ach.icon : '🔒'}</Text>
-                <Text
-                  className={`text-xs font-medium mt-1 text-center ${ach.unlocked ? 'text-gray-900' : 'text-gray-400'}`}
-                  numberOfLines={1}
-                >
-                  {ach.name}
-                </Text>
-                <Text
-                  className={`text-[10px] mt-0.5 text-center ${ach.unlocked ? 'text-gray-500' : 'text-gray-300'}`}
-                  numberOfLines={2}
-                >
-                  {ach.description}
-                </Text>
-              </View>
+            {achievements.map((ach: any, i: number) => (
+              <AchievementBadge key={ach.type} ach={ach} index={i} />
             ))}
           </View>
         </View>

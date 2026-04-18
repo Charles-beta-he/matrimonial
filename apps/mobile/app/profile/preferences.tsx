@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { ActivityIndicator, ScrollView, Switch, Text, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const EDUCATION_OPTIONS: Array<{ label: string; value: string }> = [
   { label: '不限', value: '' },
@@ -48,7 +49,7 @@ function RangePicker({
           contentContainerStyle={{ gap: 6 }}
         >
           {values.map((v) => (
-            <Pressable
+            <ScalePressable
               key={`min-${v}`}
               className={`rounded-full px-3 py-1.5 border ${
                 v === minValue
@@ -65,7 +66,7 @@ function RangePicker({
               >
                 {v}{suffix}
               </Text>
-            </Pressable>
+            </ScalePressable>
           ))}
         </ScrollView>
       </View>
@@ -80,7 +81,7 @@ function RangePicker({
           contentContainerStyle={{ gap: 6 }}
         >
           {values.filter((v) => v >= minValue).map((v) => (
-            <Pressable
+            <ScalePressable
               key={`max-${v}`}
               className={`rounded-full px-3 py-1.5 border ${
                 v === maxValue
@@ -94,7 +95,7 @@ function RangePicker({
               >
                 {v}{suffix}
               </Text>
-            </Pressable>
+            </ScalePressable>
           ))}
         </ScrollView>
       </View>
@@ -130,6 +131,8 @@ export default function PreferencesScreen() {
   const [heightMax, setHeightMax] = useState(185);
   const [educationMin, setEducationMin] = useState('');
   const [acceptLongDistance, setAcceptLongDistance] = useState(false);
+  const saveScale = useSharedValue(1);
+  const saveStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveScale.value }] }));
 
   useEffect(() => {
     if (!prefs) return;
@@ -142,6 +145,11 @@ export default function PreferencesScreen() {
   }, [prefs]);
 
   const handleSave = () => {
+    saveScale.value = withSequence(
+      withSpring(0.96, { damping: 10, stiffness: 400 }),
+      withSpring(1.04, { damping: 8, stiffness: 280 }),
+      withSpring(1.0, { damping: 12, stiffness: 240 }),
+    );
     const payload: Record<string, unknown> = { ageMin, ageMax, heightMin, heightMax, acceptLongDistance };
     if (educationMin) payload.educationMin = educationMin;
     updateMut.mutate(payload as any);
@@ -169,13 +177,13 @@ export default function PreferencesScreen() {
             <Text className="text-sm text-gray-600 mb-2">最小年龄：{ageMin}岁</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
               {AGE_OPTIONS.filter((v) => v <= ageMax).map((v) => (
-                <Pressable
+                <ScalePressable
                   key={v}
                   className={`rounded-full px-3 py-1.5 border ${v === ageMin ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
                   onPress={() => setAgeMin(v)}
                 >
                   <Text className={`text-xs ${v === ageMin ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </ScrollView>
 
@@ -183,13 +191,13 @@ export default function PreferencesScreen() {
             <Text className="text-sm text-gray-600 mb-2">最大年龄：{ageMax}岁</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
               {AGE_OPTIONS.filter((v) => v >= ageMin).map((v) => (
-                <Pressable
+                <ScalePressable
                   key={v}
                   className={`rounded-full px-3 py-1.5 border ${v === ageMax ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
                   onPress={() => setAgeMax(v)}
                 >
                   <Text className={`text-xs ${v === ageMax ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </ScrollView>
           </View>
@@ -200,26 +208,26 @@ export default function PreferencesScreen() {
             <Text className="text-sm text-gray-600 mb-2">最低身高：{heightMin}cm</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v <= heightMax).map((v) => (
-                <Pressable
+                <ScalePressable
                   key={v}
                   className={`rounded-full px-3 py-1.5 border ${v === heightMin ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
                   onPress={() => setHeightMin(v)}
                 >
                   <Text className={`text-xs ${v === heightMin ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </ScrollView>
 
             <Text className="text-sm text-gray-600 mb-2">最高身高：{heightMax}cm</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v >= heightMin).map((v) => (
-                <Pressable
+                <ScalePressable
                   key={v}
                   className={`rounded-full px-3 py-1.5 border ${v === heightMax ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
                   onPress={() => setHeightMax(v)}
                 >
                   <Text className={`text-xs ${v === heightMax ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </ScrollView>
           </View>
@@ -228,7 +236,7 @@ export default function PreferencesScreen() {
             <Text className="text-base font-semibold text-gray-900 mb-3">最低学历要求</Text>
             <View className="flex-row flex-wrap" style={{ gap: 8 }}>
               {EDUCATION_OPTIONS.map((opt) => (
-                <Pressable
+                <ScalePressable
                   key={opt.value}
                   className={`rounded-full px-4 py-2 border ${
                     educationMin === opt.value ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
@@ -238,7 +246,7 @@ export default function PreferencesScreen() {
                   <Text className={`text-sm ${educationMin === opt.value ? 'text-rose-500 font-medium' : 'text-gray-600'}`}>
                     {opt.label}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </View>
           </View>
@@ -258,14 +266,16 @@ export default function PreferencesScreen() {
             </View>
           </View>
 
-          <Button
-            title={updateMut.isPending ? '保存中...' : '保存偏好'}
-            variant="primary"
-            size="lg"
-            fullWidth
-            disabled={updateMut.isPending}
-            onPress={handleSave}
-          />
+          <Animated.View style={saveStyle}>
+            <Button
+              title={updateMut.isPending ? '保存中...' : '保存偏好'}
+              variant="primary"
+              size="lg"
+              fullWidth
+              disabled={updateMut.isPending}
+              onPress={handleSave}
+            />
+          </Animated.View>
         </ScrollView>
       )}
     </SafeAreaView>
