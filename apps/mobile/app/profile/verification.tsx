@@ -236,6 +236,7 @@ export default function VerificationScreen() {
             <Text className="text-lg font-semibold text-gray-900 mb-4">身份认证</Text>
             <Text className="text-sm text-gray-600 mb-2">真实姓名</Text>
             <TextInput
+              aria-label="真实姓名"
               value={realName}
               onChangeText={setRealName}
               placeholder="请输入真实姓名"
@@ -244,6 +245,7 @@ export default function VerificationScreen() {
             />
             <Text className="text-sm text-gray-600 mb-2">身份证号</Text>
             <TextInput
+              aria-label="身份证号"
               value={idCard}
               onChangeText={setIdCard}
               placeholder="18位身份证号"
@@ -275,6 +277,7 @@ export default function VerificationScreen() {
             <Text className="text-lg font-semibold text-gray-900 mb-4">学历认证</Text>
             <Text className="text-sm text-gray-600 mb-2">学校名称</Text>
             <TextInput
+              aria-label="学校名称"
               value={school}
               onChangeText={setSchool}
               placeholder="请输入学校名称"
@@ -308,6 +311,7 @@ export default function VerificationScreen() {
             </View>
             <Text className="text-sm text-gray-600 mb-2">毕业年份</Text>
             <TextInput
+              aria-label="毕业年份"
               value={gradYear}
               onChangeText={setGradYear}
               placeholder="2020"

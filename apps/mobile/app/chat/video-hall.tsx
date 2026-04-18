@@ -263,6 +263,7 @@ export default function VideoHallScreen() {
 
             <Text className="text-sm text-gray-600 mb-2">房间标题</Text>
             <TextInput
+              aria-label="房间标题"
               value={newTitle}
               onChangeText={setNewTitle}
               placeholder="例如：周末轻聊局"

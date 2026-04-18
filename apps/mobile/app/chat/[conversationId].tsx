@@ -585,6 +585,7 @@ export default function ChatConversationScreen() {
               style={[inputAnimatedStyle, { borderWidth: 1.5, flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
             >
               <TextInput
+                aria-label="消息输入"
                 className="text-base text-gray-900"
                 placeholder="输入消息..."
                 placeholderTextColor="#9ca3af"

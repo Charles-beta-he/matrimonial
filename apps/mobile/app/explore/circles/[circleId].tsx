@@ -388,6 +388,7 @@ export default function CircleDetailScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <TextInput
+            aria-label="发帖内容"
             className="border border-gray-200 rounded-xl p-3 text-sm text-gray-900 min-h-[120px]"
             placeholder="分享你的想法..."
             placeholderTextColor="#9ca3af"

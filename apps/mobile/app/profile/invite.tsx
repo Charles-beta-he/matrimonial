@@ -159,6 +159,7 @@ export default function InvitePage() {
           <Text className="text-base font-bold text-gray-900 mb-3">输入邀请码</Text>
           <View className="flex-row items-center" style={{ gap: 8 }}>
             <TextInput
+              aria-label="邀请码"
               className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900 border border-gray-200"
               placeholder="输入6位邀请码"
               placeholderTextColor="#9ca3af"

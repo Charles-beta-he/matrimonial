@@ -160,6 +160,7 @@ export default function SafetyScreen() {
             设置紧急联系人，在遇到危险时可以一键发送求助信息
           </Text>
           <Input
+            label="紧急联系人手机号"
             placeholder="输入手机号"
             value={emergencyContact}
             onChangeText={setEmergencyContact}

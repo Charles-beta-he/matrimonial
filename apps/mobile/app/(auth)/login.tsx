@@ -148,7 +148,7 @@ export default function LoginScreen() {
                 trigger={chromaTrigger}
               />
             </Animated.View>
-            <Animated.Text className="text-sm text-gray-400 mt-1" style={titleStyle}>
+            <Animated.Text className="text-sm text-gray-400 mt-1" style={titleStyle} accessibilityRole="header" aria-level={1}>
               遇见对的人
             </Animated.Text>
           </View>

@@ -425,6 +425,7 @@ export default function ProfileEditScreen() {
                     {PROMPT_QUESTIONS.find((q) => q.id === prompts[editingPromptIdx]?.questionId)?.text ?? ''}
                   </Text>
                   <TextInput
+                    aria-label="问答回答"
                     className="border border-gray-200 rounded-xl p-3 text-sm text-gray-800 min-h-[80px]"
                     value={promptDraft}
                     onChangeText={setPromptDraft}

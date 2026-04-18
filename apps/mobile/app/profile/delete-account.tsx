@@ -152,6 +152,7 @@ export default function DeleteAccountPage() {
           <View className="bg-white rounded-xl p-4">
             <Text className="text-sm text-gray-600 mb-2">手机号</Text>
             <TextInput
+              aria-label="手机号"
               className="border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 mb-4"
               placeholder="请输入注册手机号"
               placeholderTextColor="#9ca3af"
@@ -164,6 +165,7 @@ export default function DeleteAccountPage() {
             <Text className="text-sm text-gray-600 mb-2">验证码</Text>
             <View className="flex-row" style={{ gap: 12 }}>
               <TextInput
+                aria-label="验证码"
                 className="flex-1 border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900"
                 placeholder="请输入验证码"
                 placeholderTextColor="#9ca3af"

@@ -204,6 +204,8 @@ export default function OnboardingScreen() {
             <Animated.Text
               style={titleStyle}
               className="text-2xl font-bold text-gray-900 mb-4 text-center"
+              accessibilityRole="header"
+              aria-level={1}
             >
               {p.title}
             </Animated.Text>

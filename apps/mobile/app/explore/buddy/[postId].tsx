@@ -342,6 +342,7 @@ export default function BuddyPostDetailScreen() {
           {showApplyInput ? (
             <View style={{ gap: 8 }}>
               <TextInput
+                aria-label="申请留言"
                 className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900"
                 placeholder="写一句打招呼的话（选填）"
                 placeholderTextColor="#9ca3af"

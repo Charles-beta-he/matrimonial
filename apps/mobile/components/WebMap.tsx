@@ -19,8 +19,8 @@ export default function WebMap({ latitude, longitude, title }: Props) {
       {/* img tag is supported by react-native-web at runtime even though
           @types/react-native doesn't declare it as an intrinsic JSX element */}
       {(() => {
-        const Img = 'img' as unknown as React.ComponentType<{ src: string; alt: string; style: React.CSSProperties }>;
-        return <Img src={src} alt={title ?? 'map'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+        const Img = 'img' as unknown as React.ComponentType<{ src: string; alt: string; style: React.CSSProperties; loading: string }>;
+        return <Img src={src} alt={title ?? 'map'} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
       })()}
     </View>
   );

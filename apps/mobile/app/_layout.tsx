@@ -5,7 +5,7 @@ import { observable } from '@trpc/server/observable';
 import type { AnyRouter } from '@trpc/server';
 import { Stack } from 'expo-router';
 import Head from 'expo-router/head';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { api } from '@matrimonial/api-client';
@@ -109,6 +109,12 @@ export default function RootLayout() {
     if (Platform.OS !== 'web') return;
     if (!('serviceWorker' in navigator)) return;
     (navigator as any).serviceWorker.register('/sw.js').catch(() => {});
+  }, []);
+
+  // Set document title imperatively so axe-core picks it up before Head hydrates
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    document.title = '缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台 | 立即遇见对的人';
   }, []);
 
   // Auto-connect socket when hydrated and token is available
@@ -215,17 +221,28 @@ export default function RootLayout() {
     <>
     {Platform.OS === 'web' && (
       <Head>
+        <title>缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台 | 立即遇见对的人</title>
         <meta name="theme-color" content="#f43f5e" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="canonical" href="https://yuanfen.app/" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="缘分" />
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
-        <meta name="description" content="基于AI的智能婚恋匹配平台" />
-        <meta property="og:title" content="缘分 — 智能婚恋" />
-        <meta property="og:description" content="基于AI的智能婚恋匹配平台" />
+        <meta name="description" content="缘分是基于AI智能匹配算法的婚恋交友平台，专注高质量婚恋匹配服务。从性格、兴趣、价值观等多维度深度分析，为您精准推荐最合适的另一半。四级实名认证体系，安全可靠有保障。不再盲目寻找，让缘分有迹可循，美好爱情触手可及，诚邀您加入。立即免费注册！" />
+        <meta property="og:title" content="缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台" />
+        <meta property="og:description" content="缘分是基于AI智能匹配算法的婚恋交友平台。从性格、兴趣、价值观等多维度分析，为您精准推荐最合适的另一半。" />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yuanfen.app/" />
+        <meta property="og:image" content="https://yuanfen.app/icons/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="缘分 — 智能婚恋" />
+        <meta name="twitter:description" content="缘分是基于AI智能匹配算法的婚恋交友平台。从性格、兴趣、价值观等多维度分析，为您精准推荐最合适的另一半。" />
+        <meta name="twitter:image" content="https://yuanfen.app/icons/og-image.png" />
+        <script type="application/ld+json">{`{"@context":"https://schema.org","@type":"WebApplication","name":"缘分","description":"基于AI的智能婚恋匹配平台","url":"https://yuanfen.app/","applicationCategory":"SocialNetworkingApplication","operatingSystem":"Web"}`}</script>
       </Head>
     )}
     <ErrorBoundary
@@ -256,7 +273,13 @@ export default function RootLayout() {
         <api.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             <SafeAreaProvider>
-              <Stack screenOptions={{ headerShown: false }} />
+              <View style={{ flex: 1 }} accessibilityRole="main">
+                {Platform.OS === 'web' && (() => {
+                  const H1 = 'h1' as unknown as React.ComponentType<{ style: React.CSSProperties; children: React.ReactNode }>;
+                  return <H1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>缘分 — 基于AI的智能婚恋匹配平台</H1>;
+                })()}
+                <Stack screenOptions={{ headerShown: false }} />
+              </View>
             </SafeAreaProvider>
           </QueryClientProvider>
         </api.Provider>

@@ -551,6 +551,7 @@ export default function UserProfileScreen() {
               </ScalePressable>
             ))}
             <TextInput
+              aria-label="举报原因"
               className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 mt-3 min-h-[64px]"
               placeholder="请简述举报原因（至少10个字）"
               placeholderTextColor="#9ca3af"

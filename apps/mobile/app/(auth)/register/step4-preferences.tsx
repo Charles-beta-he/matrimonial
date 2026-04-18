@@ -103,11 +103,11 @@ export default function RegisterStep4Preferences() {
         <Text className="text-sm text-gray-600 mb-2 font-medium">年龄范围</Text>
         <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
           <View className="flex-1">
-            <Input placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
+            <Input label="最小年龄" placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
           </View>
           <Text className="text-gray-400">—</Text>
           <View className="flex-1">
-            <Input placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
+            <Input label="最大年龄" placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
           </View>
           <Text className="text-gray-400 text-sm">岁</Text>
         </View>
@@ -116,11 +116,11 @@ export default function RegisterStep4Preferences() {
         <Text className="text-sm text-gray-600 mb-2 font-medium">身高范围</Text>
         <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
           <View className="flex-1">
-            <Input placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
+            <Input label="最低身高" placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
           </View>
           <Text className="text-gray-400">—</Text>
           <View className="flex-1">
-            <Input placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
+            <Input label="最高身高" placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
           </View>
           <Text className="text-gray-400 text-sm">cm</Text>
         </View>

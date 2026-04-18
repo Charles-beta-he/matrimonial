@@ -85,6 +85,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             textAlignVertical={multiline ? 'top' : 'center'}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            aria-label={label ?? placeholder}
           />
           {rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
         </Animated.View>

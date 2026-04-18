@@ -190,6 +190,7 @@ export default function BuddyCreateScreen() {
           </Text>
           <TextInput
             className="border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 mb-1"
+            aria-label="标题"
             placeholder="给你的搭子帖起个名字"
             placeholderTextColor="#9ca3af"
             value={title}
@@ -206,6 +207,7 @@ export default function BuddyCreateScreen() {
           </Text>
           <TextInput
             className="border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 mb-1"
+            aria-label="详细描述"
             placeholder="描述一下你的计划，至少10个字"
             placeholderTextColor="#9ca3af"
             value={description}
@@ -228,6 +230,7 @@ export default function BuddyCreateScreen() {
             <Ionicons name="location-outline" size={18} color="#9ca3af" />
             <TextInput
               className="flex-1 ml-2 text-base text-gray-900"
+              aria-label="地点"
               placeholder="活动地点"
               placeholderTextColor="#9ca3af"
               value={location}
