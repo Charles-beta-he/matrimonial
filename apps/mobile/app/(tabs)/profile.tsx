@@ -263,7 +263,7 @@ export default function ProfileTab() {
             stat.route ? (
               <ScalePressable
                 key={stat.label}
-                style={{ flex: 1, alignItems: 'center' }}
+                containerStyle={{ flex: 1, alignItems: 'center' }}
                 onPress={() => router.push(stat.route as any)}
               >
                 {i > 0 && (
