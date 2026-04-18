@@ -135,7 +135,7 @@ export default function VideoHallScreen() {
         {/* Glow overlay — activates on tab switch */}
         <Animated.View
           pointerEvents="none"
-          style={[{ position: 'absolute', inset: 0, backgroundColor: '#f43f5e', borderRadius: 12 }, tabGlowStyle]}
+          style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#f43f5e', borderRadius: 12 }, tabGlowStyle]}
         />
         <ScalePressable
           className={`flex-1 py-2.5 rounded-lg items-center ${
