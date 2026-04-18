@@ -96,7 +96,7 @@ export default function CirclesScreen() {
         {CATEGORY_TABS.map((tab) => {
           const active = category === tab.value;
           return (
-            <Pressable
+            <ScalePressable
               key={tab.label}
               className={`rounded-full px-4 py-1.5 ${
                 active ? 'bg-rose-500' : 'bg-gray-100'
@@ -110,7 +110,7 @@ export default function CirclesScreen() {
               >
                 {tab.label}
               </Text>
-            </Pressable>
+            </ScalePressable>
           );
         })}
       </ScrollView>

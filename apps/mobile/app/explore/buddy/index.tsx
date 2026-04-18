@@ -103,7 +103,7 @@ export default function BuddyScreen() {
         {TYPE_TABS.map((tab) => {
           const active = type === tab.value;
           return (
-            <Pressable
+            <ScalePressable
               key={tab.label}
               className={`rounded-full px-4 py-1.5 ${
                 active ? 'bg-rose-500' : 'bg-gray-100'
@@ -117,7 +117,7 @@ export default function BuddyScreen() {
               >
                 {tab.label}
               </Text>
-            </Pressable>
+            </ScalePressable>
           );
         })}
       </ScrollView>

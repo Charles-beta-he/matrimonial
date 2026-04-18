@@ -18,6 +18,7 @@ import { api } from '@matrimonial/api-client';
 import { formatPrice } from '@matrimonial/shared';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
+import { ScalePressable } from '../../../components/ScalePressable';
 
 const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -133,7 +134,7 @@ export default function ActivitiesScreen() {
         {CATEGORY_TABS.map((cat) => {
           const active = category === cat.value;
           return (
-            <Pressable
+            <ScalePressable
               key={cat.label}
               className={`rounded-full px-4 py-1.5 ${
                 active ? 'bg-rose-500' : 'bg-white'
@@ -147,7 +148,7 @@ export default function ActivitiesScreen() {
               >
                 {cat.label}
               </Text>
-            </Pressable>
+            </ScalePressable>
           );
         })}
       </ScrollView>

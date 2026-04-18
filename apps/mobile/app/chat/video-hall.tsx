@@ -97,9 +97,9 @@ export default function VideoHallScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-xl font-bold text-gray-900">视频相亲大厅</Text>
       </Animated.View>
 

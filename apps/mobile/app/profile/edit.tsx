@@ -11,6 +11,7 @@ import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
 import { PressScale } from '../../components/PressScale';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const EDUCATION_LABEL_TO_ENUM: Record<string, 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD'> = {
   '高中': 'HIGH_SCHOOL',
@@ -301,7 +302,7 @@ export default function ProfileEditScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
               <View className="flex-row" style={{ gap: 8 }}>
                 {EDUCATION_OPTIONS.map((e) => (
-                  <Pressable
+                  <ScalePressable
                     key={e}
                     className={`rounded-full px-4 py-2 ${
                       education === e ? 'bg-rose-500' : 'bg-gray-100'
@@ -311,7 +312,7 @@ export default function ProfileEditScreen() {
                     <Text className={`text-sm ${education === e ? 'text-white' : 'text-gray-700'}`}>
                       {e}
                     </Text>
-                  </Pressable>
+                  </ScalePressable>
                 ))}
               </View>
             </ScrollView>
@@ -323,7 +324,7 @@ export default function ProfileEditScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
               <View className="flex-row" style={{ gap: 8 }}>
                 {INCOME_OPTIONS.map((i) => (
-                  <Pressable
+                  <ScalePressable
                     key={i}
                     className={`rounded-full px-4 py-2 ${
                       income === i ? 'bg-rose-500' : 'bg-gray-100'
@@ -333,7 +334,7 @@ export default function ProfileEditScreen() {
                     <Text className={`text-sm ${income === i ? 'text-white' : 'text-gray-700'}`}>
                       {i}
                     </Text>
-                  </Pressable>
+                  </ScalePressable>
                 ))}
               </View>
             </ScrollView>
@@ -344,7 +345,7 @@ export default function ProfileEditScreen() {
             <Text className="text-sm text-gray-600 mb-2">星座</Text>
             <View className="flex-row flex-wrap" style={{ gap: 8 }}>
               {ZODIAC_OPTIONS.map((z) => (
-                <Pressable
+                <ScalePressable
                   key={z}
                   className={`rounded-full px-3 py-1.5 ${
                     zodiac === z ? 'bg-rose-500' : 'bg-gray-100'
@@ -354,7 +355,7 @@ export default function ProfileEditScreen() {
                   <Text className={`text-xs ${zodiac === z ? 'text-white' : 'text-gray-700'}`}>
                     {z}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </View>
           </View>
@@ -364,7 +365,7 @@ export default function ProfileEditScreen() {
             <Text className="text-sm text-gray-600 mb-2">MBTI</Text>
             <View className="flex-row flex-wrap" style={{ gap: 8 }}>
               {MBTI_OPTIONS.map((m) => (
-                <Pressable
+                <ScalePressable
                   key={m}
                   className={`rounded-full px-3 py-1.5 ${
                     mbti === m ? 'bg-rose-500' : 'bg-gray-100'
@@ -374,7 +375,7 @@ export default function ProfileEditScreen() {
                   <Text className={`text-xs ${mbti === m ? 'text-white' : 'text-gray-700'}`}>
                     {m}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </View>
           </View>
