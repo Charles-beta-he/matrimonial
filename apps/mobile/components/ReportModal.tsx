@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Modal,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -10,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { ScalePressable } from './ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
@@ -73,14 +73,14 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <Pressable className="flex-1 bg-black/40" onPress={handleClose} />
+        <ScalePressable className="flex-1 bg-black/40" onPress={handleClose} />
         <View className="bg-white rounded-t-2xl max-h-[85%]">
           {/* Header */}
           <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-100">
             <Text className="text-lg font-semibold text-gray-900">举报用户</Text>
-            <Pressable onPress={handleClose} hitSlop={8}>
+            <ScalePressable onPress={handleClose} hitSlop={8}>
               <Ionicons name="close" size={24} color="#6b7280" />
-            </Pressable>
+            </ScalePressable>
           </View>
 
           <ScrollView className="px-4" keyboardShouldPersistTaps="handled">
@@ -106,7 +106,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
                   )}
                 </View>
                 <Text className="text-base text-gray-900">{item.label}</Text>
-              </Pressable>
+              </ScalePressable>
             ))}
 
             {/* Step 2: Description */}
@@ -131,10 +131,10 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
             <Text className="text-sm font-medium text-gray-700 mt-4 mb-2">
               上传证据（可选，最多5张）
             </Text>
-            <Pressable className="bg-gray-50 rounded-xl px-4 py-6 items-center justify-center border border-dashed border-gray-300 mb-4">
+            <ScalePressable className="bg-gray-50 rounded-xl px-4 py-6 items-center justify-center border border-dashed border-gray-300 mb-4">
               <Ionicons name="cloud-upload-outline" size={28} color="#9ca3af" />
               <Text className="text-sm text-gray-400 mt-1">点击上传图片</Text>
-            </Pressable>
+            </ScalePressable>
 
             {/* Submit */}
             <Pressable
@@ -155,7 +155,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
                   提交举报
                 </Text>
               )}
-            </Pressable>
+            </ScalePressable>
           </ScrollView>
         </View>
       </KeyboardAvoidingView>

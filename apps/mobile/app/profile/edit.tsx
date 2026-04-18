@@ -243,9 +243,9 @@ export default function ProfileEditScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="px-4 py-3 bg-white" style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerStyle]}>
-        <Pressable onPress={() => router.back()}>
+        <ScalePressable onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-lg font-semibold text-gray-900">编辑资料</Text>
         <PressScale onPress={handleSave}>
           {updateMut.isPending ? (
@@ -259,7 +259,7 @@ export default function ProfileEditScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Avatar */}
         <Animated.View className="items-center py-6 bg-white" style={avatarStyle}>
-          <Pressable onPress={handleChangeAvatar} disabled={uploading}>
+          <ScalePressable onPress={handleChangeAvatar} disabled={uploading}>
             <Avatar source={{ uri: avatarUrl }} size={80} />
             <View className="absolute bottom-0 right-0 bg-rose-500 rounded-full w-7 h-7 items-center justify-center border-2 border-white">
               {uploading ? (
@@ -268,7 +268,7 @@ export default function ProfileEditScreen() {
                 <Ionicons name="camera" size={14} color="#ffffff" />
               )}
             </View>
-          </Pressable>
+          </ScalePressable>
         </Animated.View>
 
         <Animated.View style={contentStyle}>
@@ -284,7 +284,7 @@ export default function ProfileEditScreen() {
                 onPress={() => Alert.alert('照片', '功能开发中')}
               >
                 <Text className="text-2xl text-gray-300">+</Text>
-              </Pressable>
+              </ScalePressable>
             ))}
           </View>
         </View>
@@ -464,7 +464,7 @@ export default function ProfileEditScreen() {
                       onPress={() => { setEditingPromptIdx(null); setPromptEval(null); }}
                     >
                       <Text className="text-sm text-gray-600">取消</Text>
-                    </Pressable>
+                    </ScalePressable>
                     <PressScale
                       style={{ flex: 1 }}
                       onPress={async () => {

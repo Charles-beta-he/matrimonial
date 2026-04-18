@@ -270,9 +270,9 @@ export default function CheckinScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="bg-white px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#111827" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-lg font-bold text-gray-900">签到中心</Text>
       </Animated.View>
 

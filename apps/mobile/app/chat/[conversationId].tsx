@@ -393,7 +393,7 @@ export default function ChatConversationScreen() {
                 >
                   语音消息
                 </Text>
-              </Pressable>
+              </ScalePressable>
             ) : (
               <Text className={`text-base ${isMe ? 'text-white' : 'text-gray-900'}`}>
                 {item.content}
@@ -423,9 +423,9 @@ export default function ChatConversationScreen() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <Animated.View className="px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, chatHeaderStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Avatar
           source={{ uri: conversationMeta?.avatarUrl ?? FALLBACK_AVATAR }}
           size={36}
@@ -466,7 +466,7 @@ export default function ChatConversationScreen() {
               className="bg-rose-500 rounded-full px-6 py-2 mt-2"
             >
               <Text className="text-white font-medium">重试</Text>
-            </Pressable>
+            </ScalePressable>
           </View>
         ) : allMessages.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
@@ -483,7 +483,7 @@ export default function ChatConversationScreen() {
                     onPress={() => setInputText(s)}
                   >
                     <Text className="text-sm text-rose-700 text-center">{s}</Text>
-                  </Pressable>
+                  </ScalePressable>
                 ))}
               </View>
             ) : null}
@@ -507,7 +507,7 @@ export default function ChatConversationScreen() {
             className="px-4 pb-1 items-end"
           >
             <Text style={{ fontSize: 10, color: '#9CA3AF' }}>升级查看已读</Text>
-          </Pressable>
+          </ScalePressable>
         )}
 
         {/* Typing indicator */}
@@ -598,7 +598,7 @@ export default function ChatConversationScreen() {
             </Animated.View>
             <Pressable className="w-10 h-10 items-center justify-center">
               <Ionicons name="camera-outline" size={22} color="#6b7280" />
-            </Pressable>
+            </ScalePressable>
             {inputText.trim() ? (
               <AnimatedSendButton key="send-btn">
                 <PressScale onPress={handleSend}>

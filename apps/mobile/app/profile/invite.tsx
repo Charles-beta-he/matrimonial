@@ -93,9 +93,9 @@ export default function InvitePage() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
+        <ScalePressable onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={24} color="#111827" />
-        </Pressable>
+        </ScalePressable>
         <Text className="flex-1 text-center text-lg font-bold text-gray-900">邀请好友</Text>
         <View style={{ width: 24 }} />
       </Animated.View>
@@ -125,14 +125,14 @@ export default function InvitePage() {
             >
               <Ionicons name="copy-outline" size={16} color="#374151" />
               <Text className="text-sm font-medium text-gray-700 ml-1.5">复制</Text>
-            </Pressable>
+            </ScalePressable>
             <Pressable
               className="flex-row items-center bg-rose-500 rounded-full px-5 py-2.5"
               onPress={handleShare}
             >
               <Ionicons name="share-outline" size={16} color="#fff" />
               <Text className="text-sm font-medium text-white ml-1.5">分享</Text>
-            </Pressable>
+            </ScalePressable>
           </View>
         </Animated.View>
 
@@ -174,7 +174,7 @@ export default function InvitePage() {
               <Text className="text-white font-medium text-base">
                 {applyMut.isPending ? '...' : '确认'}
               </Text>
-            </Pressable>
+            </ScalePressable>
           </View>
         </View>
 

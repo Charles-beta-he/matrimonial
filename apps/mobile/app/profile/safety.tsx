@@ -140,9 +140,9 @@ export default function SafetyScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-lg font-semibold text-gray-900">安全工具</Text>
       </Animated.View>
 
@@ -254,7 +254,7 @@ export default function SafetyScreen() {
             onPress={handleSOS}
           >
             <Text className="text-white text-3xl font-bold">SOS</Text>
-          </Pressable>
+          </ScalePressable>
           {!contactQuery.data?.phone && (
             <Text className="text-xs text-red-400 mt-2">
               请先设置紧急联系人
@@ -289,9 +289,9 @@ export default function SafetyScreen() {
               <Text className="text-lg font-semibold text-gray-900">
                 创建约会报备
               </Text>
-              <Pressable onPress={() => setShowCheckinModal(false)}>
+              <ScalePressable onPress={() => setShowCheckinModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
-              </Pressable>
+              </ScalePressable>
             </View>
 
             <View style={{ gap: 12 }}>

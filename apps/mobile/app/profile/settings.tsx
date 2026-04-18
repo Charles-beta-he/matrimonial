@@ -124,9 +124,9 @@ export default function SettingsPage() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
         <Animated.View className="bg-white px-6 py-4" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-          <Pressable onPress={() => router.back()} className="mr-4">
+          <ScalePressable onPress={() => router.back()} className="mr-4">
             <Ionicons name="chevron-back" size={24} color="#4b5563" />
-          </Pressable>
+          </ScalePressable>
           <Text className="text-lg font-bold text-gray-900">设置</Text>
         </Animated.View>
 

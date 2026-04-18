@@ -172,9 +172,9 @@ export default function OnboardingScreen() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Skip button */}
       <View className="flex-row justify-end px-6 pt-2">
-        <Pressable onPress={handleSkip}>
+        <ScalePressable onPress={handleSkip}>
           <Text className="text-sm text-gray-400">跳过</Text>
-        </Pressable>
+        </ScalePressable>
       </View>
 
       {/* Swipeable pages — native scroll handles left/right transition */}
@@ -240,7 +240,7 @@ export default function OnboardingScreen() {
             <Text className="text-white font-bold text-base">
               {currentPage === PAGES.length - 1 ? '开始使用' : '下一步'}
             </Text>
-          </Pressable>
+          </ScalePressable>
         </Animated.View>
       </View>
     </SafeAreaView>

@@ -103,9 +103,9 @@ export default function DeleteAccountPage() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
         <Animated.View className="bg-white px-6 py-4 flex-row items-center" style={headerStyle}>
-          <Pressable onPress={() => router.back()} className="mr-4">
+          <ScalePressable onPress={() => router.back()} className="mr-4">
             <Ionicons name="chevron-back" size={24} color="#4b5563" />
-          </Pressable>
+          </ScalePressable>
           <Text className="text-lg font-bold text-gray-900">注销账号</Text>
         </Animated.View>
 
@@ -185,7 +185,7 @@ export default function DeleteAccountPage() {
                 >
                   {countdown > 0 ? `${countdown}s` : '发送验证码'}
                 </Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           </View>
         </View>
@@ -204,7 +204,7 @@ export default function DeleteAccountPage() {
             >
               {deleteMut.isPending ? '提交中...' : '确认注销'}
             </Text>
-          </Pressable>
+          </ScalePressable>
         </View>
       </ScrollView>
     </SafeAreaView>

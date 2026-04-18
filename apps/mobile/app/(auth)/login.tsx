@@ -182,7 +182,7 @@ export default function LoginScreen() {
                     >
                       {countdown > 0 ? `${countdown}s` : sendCodeMutation.isPending ? '发送中...' : '发送验证码'}
                     </Text>
-                  </Pressable>
+                  </ScalePressable>
                 }
               />
             </View>
@@ -201,9 +201,9 @@ export default function LoginScreen() {
             />
             <View className="flex-row justify-center mt-6">
               <Text className="text-gray-400 text-sm">还没有账号？</Text>
-              <Pressable onPress={() => router.push('/(auth)/register/step1-phone')}>
+              <ScalePressable onPress={() => router.push('/(auth)/register/step1-phone')}>
                 <Text className="text-rose-500 text-sm font-medium">立即注册</Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           </Animated.View>
         </View>

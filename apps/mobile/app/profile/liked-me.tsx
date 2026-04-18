@@ -32,9 +32,9 @@ export default function LikedMeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <Animated.View style={[headerStyle, { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }]} className="flex-row items-center px-4 py-3">
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-xl font-bold text-gray-900">获赞</Text>
         {data && data.length > 0 ? (
           <View className="ml-2 bg-rose-100 rounded-full px-2 py-0.5">
