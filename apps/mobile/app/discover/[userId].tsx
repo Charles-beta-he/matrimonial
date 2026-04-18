@@ -18,6 +18,8 @@ import Animated, {
   interpolate,
   Extrapolation,
   withDelay,
+  withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -100,6 +102,12 @@ export default function UserProfileScreen() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
+
+  // Action button icon animations
+  const heartScale = useSharedValue(1);
+  const starScale = useSharedValue(1);
+  const heartStyle = useAnimatedStyle(() => ({ transform: [{ scale: heartScale.value }] }));
+  const starStyle = useAnimatedStyle(() => ({ transform: [{ scale: starScale.value }] }));
 
   // Fire profile view + start timing on mount
   useEffect(() => {
@@ -241,6 +249,10 @@ export default function UserProfileScreen() {
   ].filter(Boolean) as { label: string; value: string }[];
 
   const handleLike = () => {
+    heartScale.value = withSequence(
+      withSpring(1.5, { damping: 5, stiffness: 320 }),
+      withSpring(1.0, { damping: 8, stiffness: 260 }),
+    );
     likeMutation.mutate(
       { toUserId: user.id, type: 'NORMAL' },
       {
@@ -255,6 +267,10 @@ export default function UserProfileScreen() {
   };
 
   const handleSuperLike = () => {
+    starScale.value = withSequence(
+      withSpring(1.6, { damping: 5, stiffness: 320 }),
+      withSpring(1.0, { damping: 8, stiffness: 260 }),
+    );
     likeMutation.mutate(
       { toUserId: user.id, type: 'SUPER' },
       {
@@ -459,14 +475,18 @@ export default function UserProfileScreen() {
           <View style={{ flex: 1 }}>
             <PressScale onPress={handleLike} scale={0.96}>
               <View className="h-12 rounded-full bg-rose-500 flex-row items-center justify-center" style={{ gap: 6 }}>
-                <Ionicons name="heart" size={20} color="#ffffff" />
+                <Animated.View style={heartStyle}>
+                  <Ionicons name="heart" size={20} color="#ffffff" />
+                </Animated.View>
                 <Text className="text-white font-semibold text-base">喜欢</Text>
               </View>
             </PressScale>
           </View>
           <PressScale onPress={handleSuperLike} scale={0.9}>
             <View className="w-12 h-12 rounded-full bg-amber-100 items-center justify-center">
-              <Ionicons name="star" size={22} color="#f59e0b" />
+              <Animated.View style={starStyle}>
+                <Ionicons name="star" size={22} color="#f59e0b" />
+              </Animated.View>
             </View>
           </PressScale>
         </View>
