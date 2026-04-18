@@ -36,6 +36,7 @@ import { AnimatedMessageBubble } from '../../components/AnimatedMessageBubble';
 import { AnimatedTypingIndicator } from '../../components/AnimatedTypingIndicator';
 import { SkeletonMessage } from '../../components/SkeletonLoader';
 import { PressScale } from '../../components/PressScale';
+import { ScalePressable } from '../../components/ScalePressable';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/them/100/100';
 
@@ -438,12 +439,12 @@ export default function ChatConversationScreen() {
             {showOnline ? '在线' : '离线'}
           </Text>
         </View>
-        <Pressable
+        <ScalePressable
           onPress={handleStartVideoCall}
           style={{ marginRight: 4 }}
         >
           <Ionicons name="videocam-outline" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
       </Animated.View>
 
       <KeyboardAvoidingView
@@ -521,12 +522,12 @@ export default function ChatConversationScreen() {
         {isRecording || isUploading ? (
           /* Recording UI */
           <View className="flex-row items-center px-4 py-3 border-t border-gray-100 bg-red-50" style={{ gap: 8 }}>
-            <Pressable
+            <ScalePressable
               className="w-10 h-10 items-center justify-center"
               onPress={cancelRecording}
             >
               <Ionicons name="close-circle" size={28} color="#6b7280" />
-            </Pressable>
+            </ScalePressable>
             <View className="flex-1 flex-row items-center justify-center" style={{ gap: 8 }}>
               {isUploading ? (
                 <>
@@ -543,13 +544,13 @@ export default function ChatConversationScreen() {
                 </>
               )}
             </View>
-            <Pressable
+            <ScalePressable
               className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
               onPress={handleVoiceSend}
               disabled={isUploading}
             >
               <Ionicons name="arrow-up" size={18} color="#ffffff" />
-            </Pressable>
+            </ScalePressable>
           </View>
         ) : (
           /* Normal input bar */
@@ -562,24 +563,24 @@ export default function ChatConversationScreen() {
               contentContainerStyle={{ paddingHorizontal: 12, alignItems: 'center', gap: 8 }}
             >
               {icebreakers.slice(0, 3).map((s: string, i: number) => (
-                <Pressable
+                <ScalePressable
                   key={i}
                   style={{ alignSelf: 'center' }}
                   className="bg-rose-50 rounded-full px-3 py-1.5"
                   onPress={() => setInputText(s)}
                 >
                   <Text className="text-xs text-rose-600">{s}</Text>
-                </Pressable>
+                </ScalePressable>
               ))}
             </ScrollView>
           ) : null}
           <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
-            <Pressable
+            <ScalePressable
               className="w-10 h-10 items-center justify-center"
               onPress={startRecording}
             >
               <Ionicons name="mic-outline" size={22} color="#6b7280" />
-            </Pressable>
+            </ScalePressable>
             <Animated.View
               style={[inputAnimatedStyle, { borderWidth: 1.5, flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
             >
