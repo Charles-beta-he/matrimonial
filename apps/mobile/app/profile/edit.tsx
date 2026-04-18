@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withDelay, Easing } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withDelay, withSequence, Easing } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
@@ -85,6 +85,9 @@ export default function ProfileEditScreen() {
     opacity: contentOpacity.value,
     transform: [{ translateY: contentY.value }],
   }));
+
+  const saveScale = useSharedValue(1);
+  const saveStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveScale.value }] }));
 
   const storeUser = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => (s as any).setUser);
@@ -194,6 +197,11 @@ export default function ProfileEditScreen() {
   }, [promptDraft, editingPromptIdx]);
 
   const handleSave = async () => {
+    saveScale.value = withSequence(
+      withSpring(0.96, { damping: 10, stiffness: 400 }),
+      withSpring(1.04, { damping: 8, stiffness: 280 }),
+      withSpring(1.0, { damping: 12, stiffness: 240 }),
+    );
     const payload: Record<string, any> = {};
     if (nickname && nickname.length >= 2) payload.nickname = nickname;
     if (bio !== undefined) payload.bio = bio;
@@ -508,7 +516,7 @@ export default function ProfileEditScreen() {
         </View>
 
         {/* Save button */}
-        <View className="p-4">
+        <Animated.View className="p-4" style={saveStyle}>
           <Button
             title={updateMut.isPending ? '保存中...' : '保存'}
             variant="primary"
@@ -517,7 +525,7 @@ export default function ProfileEditScreen() {
             disabled={updateMut.isPending}
             onPress={handleSave}
           />
-        </View>
+        </Animated.View>
 
         <View className="h-8" />
         </Animated.View>
