@@ -56,6 +56,7 @@ export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
+  const [chromaTrigger, setChromaTrigger] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sendCodeMutation = api.auth.sendCode.useMutation();
@@ -97,6 +98,7 @@ export default function LoginScreen() {
 
   const handleLogin = useCallback(() => {
     if (!phone || !code) return;
+    setChromaTrigger((v) => !v);
 
     verifyCodeMutation.mutate(
       { phone, code },
@@ -142,6 +144,7 @@ export default function LoginScreen() {
               <ChromaText
                 text="缘分"
                 style={{ fontSize: 26, fontWeight: '700', color: '#f43f5e' }}
+                trigger={chromaTrigger}
               />
             </Animated.View>
             <Animated.Text className="text-sm text-gray-400 mt-1" style={titleStyle}>

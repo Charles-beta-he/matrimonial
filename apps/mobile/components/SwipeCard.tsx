@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   Extrapolation,
   interpolate,
   runOnJS,
@@ -55,7 +56,15 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
         });
         translateY.value = withTiming(e.translationY + e.velocityY * 0.06, { duration: dur });
       } else {
-        translateX.value = withSpring(0, { damping: 8, stiffness: 180 });
+        // Snap back then rejection shake
+        const ease = Easing.out(Easing.cubic);
+        translateX.value = withSequence(
+          withTiming(0, { duration: 180, easing: ease }),
+          withTiming(-14, { duration: 60 }),
+          withTiming(14, { duration: 80 }),
+          withTiming(-6, { duration: 55 }),
+          withSpring(0, { damping: 14, stiffness: 320 }),
+        );
         translateY.value = withSpring(0, { damping: 8, stiffness: 180 });
       }
       scale.value = withSpring(1.0, { damping: 9, stiffness: 180 });

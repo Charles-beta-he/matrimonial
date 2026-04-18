@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { AnimatedCounter } from '../../components/AnimatedCounter';
 import { PressScale } from '../../components/PressScale';
+import { ScalePressable } from '../../components/ScalePressable';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import Animated, {
   useAnimatedStyle,
@@ -228,7 +229,7 @@ export default function ProfileTab() {
         </Animated.View>
 
         {/* Daily check-in card */}
-        <Pressable
+        <ScalePressable
           className="bg-white mt-2 mx-4 rounded-2xl p-4 flex-row items-center"
           style={{ shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}
           onPress={() => router.push('/profile/checkin' as any)}
@@ -252,15 +253,15 @@ export default function ProfileTab() {
             )}
             <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
           </View>
-        </Pressable>
+        </ScalePressable>
 
         {/* Stats row */}
         <Animated.View style={[statsStyle, { backgroundColor: '#fff', marginTop: 8, flexDirection: 'row', paddingVertical: 16 }]}>
           {stats.map((stat, i) => (
             stat.route ? (
-              <Pressable
+              <ScalePressable
                 key={stat.label}
-                className="flex-1 items-center"
+                style={{ flex: 1, alignItems: 'center' }}
                 onPress={() => router.push(stat.route as any)}
               >
                 {i > 0 && (
@@ -268,7 +269,7 @@ export default function ProfileTab() {
                 )}
                 <AnimatedCounter value={stat.value} className="text-xl font-bold text-gray-900" />
                 <Text className="text-xs text-rose-500 mt-0.5">{stat.label}</Text>
-              </Pressable>
+              </ScalePressable>
             ) : (
               <View key={stat.label} className="flex-1 items-center">
                 {i > 0 && (
