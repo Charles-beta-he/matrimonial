@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ScrollView, Switch, Text, View } from 'react-native';
+import { ScalePressable } from '../../../components/ScalePressable';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -138,7 +139,7 @@ export default function RegisterStep4Preferences() {
         <Text className="text-sm text-gray-600 mb-2 font-medium">最低学历</Text>
         <View className="flex-row flex-wrap mb-4" style={{ gap: 8 }}>
           {EDUCATION_OPTIONS.map((opt) => (
-            <Pressable
+            <ScalePressable
               key={opt.value}
               className={`rounded-full px-4 py-2 ${
                 educationMin === opt.value ? 'bg-rose-500' : 'bg-gray-100'
@@ -152,7 +153,7 @@ export default function RegisterStep4Preferences() {
               >
                 {opt.label}
               </Text>
-            </Pressable>
+            </ScalePressable>
           ))}
         </View>
 

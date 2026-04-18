@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Alert, Pressable, Text, View } from 'react-native';
+import { ScalePressable } from '../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -171,15 +172,15 @@ export default function QuickMatchScreen() {
             <Text className="text-xs text-gray-400 text-center mb-8">
               需要完成L2+身份认证
             </Text>
-            <Pressable
+            <ScalePressable
               onPress={handleStartMatch}
               disabled={quickMatch.isPending}
-              className="bg-rose-500 rounded-full px-16 py-4 shadow-lg active:bg-rose-600"
+              className="bg-rose-500 rounded-full px-16 py-4 shadow-lg"
             >
               <Text className="text-white text-lg font-bold">
                 {quickMatch.isPending ? '匹配中...' : '开始匹配'}
               </Text>
-            </Pressable>
+            </ScalePressable>
           </>
         )}
 
@@ -207,12 +208,12 @@ export default function QuickMatchScreen() {
                 />
               ))}
             </View>
-            <Pressable
+            <ScalePressable
               onPress={handleCancel}
               className="border-2 border-gray-300 rounded-full px-12 py-3"
             >
               <Text className="text-gray-600 text-base font-medium">取消匹配</Text>
-            </Pressable>
+            </ScalePressable>
           </>
         )}
 
@@ -256,18 +257,18 @@ export default function QuickMatchScreen() {
 
             {/* Call controls */}
             <View className="flex-row gap-6">
-              <Pressable
+              <ScalePressable
                 onPress={handleNavigateToCall}
                 className="w-14 h-14 rounded-full bg-rose-100 items-center justify-center"
               >
                 <Ionicons name="expand-outline" size={24} color="#f43f5e" />
-              </Pressable>
-              <Pressable
+              </ScalePressable>
+              <ScalePressable
                 onPress={() => setCallState('ended')}
                 className="w-14 h-14 rounded-full bg-red-500 items-center justify-center"
               >
                 <Ionicons name="call" size={24} color="#ffffff" style={{ transform: [{ rotate: '135deg' }] }} />
-              </Pressable>
+              </ScalePressable>
             </View>
           </>
         )}
@@ -285,18 +286,18 @@ export default function QuickMatchScreen() {
               与 {partnerName} 的速配已结束
             </Text>
             <View className="flex-row gap-4">
-              <Pressable
+              <ScalePressable
                 onPress={handleEnd}
                 className="border-2 border-gray-300 rounded-full px-8 py-3"
               >
                 <Text className="text-gray-600 text-base font-medium">结束</Text>
-              </Pressable>
-              <Pressable
+              </ScalePressable>
+              <ScalePressable
                 onPress={handleStartMatch}
                 className="bg-rose-500 rounded-full px-8 py-3"
               >
                 <Text className="text-white text-base font-bold">再来一局</Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           </>
         )}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScalePressable } from '../../../components/ScalePressable';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -96,7 +97,7 @@ export default function RegisterStep3Photos() {
     const isActive = activeSlot === index && uploading;
     const radius = variant === 'main' ? 'rounded-2xl' : 'rounded-xl';
     return (
-      <Pressable
+      <ScalePressable
         className={`w-full h-full overflow-hidden ${radius}`}
         onPress={() => (uri ? handleRemovePhoto(index) : handleAddPhoto(index))}
         disabled={isActive}
@@ -127,7 +128,7 @@ export default function RegisterStep3Photos() {
             {variant === 'main' ? <Text className="text-xs text-gray-400">主照片</Text> : null}
           </View>
         )}
-      </Pressable>
+      </ScalePressable>
     );
   };
 
