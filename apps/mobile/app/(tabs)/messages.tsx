@@ -1,11 +1,14 @@
 import { useEffect, useMemo } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withSpring,
   withTiming,
   Easing,
 } from 'react-native-reanimated';
@@ -20,6 +23,27 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 import { ChromaTransition } from '../../components/ChromaTransition';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/avatar/100/100';
+
+function UnreadDot() {
+  const scale = useSharedValue(1);
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(
+        withSpring(1.5, { damping: 6, stiffness: 300 }),
+        withSpring(1.0, { damping: 10, stiffness: 200 }),
+        withTiming(1.0, { duration: 900 }),
+      ),
+      -1,
+      false,
+    );
+  }, []);
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  return (
+    <Animated.View
+      style={[{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#f43f5e' }, style]}
+    />
+  );
+}
 
 /** Messages list */
 export default function MessagesTab() {
@@ -149,9 +173,7 @@ export default function MessagesTab() {
             <Text className="text-xs text-gray-400 mb-1">
               {item.lastAt ? formatLastActive(item.lastAt) : ''}
             </Text>
-            {item.isUnread && (
-              <View className="bg-rose-500 rounded-full min-w-[10px] h-2.5 px-1" />
-            )}
+            {item.isUnread && <UnreadDot />}
           </View>
         }
         onPress={() => router.push(`/chat/${item.id}`)}
@@ -212,12 +234,12 @@ export default function MessagesTab() {
           <Text className="text-sm text-gray-400 mb-4 text-center">
             网络出了点小问题，请稍后重试
           </Text>
-          <Pressable
+          <ScalePressable
             onPress={() => conversationsQuery.refetch()}
             className="bg-rose-500 rounded-full px-6 py-2"
           >
             <Text className="text-white font-medium">重试</Text>
-          </Pressable>
+          </ScalePressable>
         </View>
       ) : conversations.length > 0 ? (
         <FlatList
