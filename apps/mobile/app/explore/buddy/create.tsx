@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -49,6 +49,25 @@ export default function BuddyCreateScreen() {
       toast.error(e?.message ?? '发布失败');
     },
   });
+
+  const titleCountProgress = useSharedValue(0);
+  const descCountProgress = useSharedValue(0);
+  useEffect(() => {
+    const p = title.length / 50;
+    titleCountProgress.value = withTiming(p, { duration: 120 });
+    if (title.length > 0) {
+      withSequence(withTiming(1.15, { duration: 60 }), withSpring(1, { damping: 10 }));
+    }
+  }, [title.length]);
+  useEffect(() => {
+    descCountProgress.value = withTiming(description.length / 500, { duration: 120 });
+  }, [description.length]);
+  const titleCountStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(titleCountProgress.value, [0, 0.7, 1], ['#9ca3af', '#9ca3af', '#ef4444']),
+  }));
+  const descCountStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(descCountProgress.value, [0, 0.8, 1], ['#9ca3af', '#9ca3af', '#ef4444']),
+  }));
 
   const canSubmit =
     selectedType !== null &&
@@ -178,9 +197,9 @@ export default function BuddyCreateScreen() {
             onChangeText={(t) => setTitle(t.slice(0, 50))}
             maxLength={50}
           />
-          <Text className="text-xs text-gray-400 mb-5 text-right">
+          <Animated.Text style={[{ fontSize: 12, marginBottom: 20, textAlign: 'right' }, titleCountStyle]}>
             {title.length}/50
-          </Text>
+          </Animated.Text>
 
           {/* Description */}
           <Text className="text-base font-semibold text-gray-900 mb-2">
@@ -198,9 +217,9 @@ export default function BuddyCreateScreen() {
             textAlignVertical="top"
             style={{ minHeight: 100 }}
           />
-          <Text className="text-xs text-gray-400 mb-5 text-right">
+          <Animated.Text style={[{ fontSize: 12, marginBottom: 20, textAlign: 'right' }, descCountStyle]}>
             {description.length}/500
-          </Text>
+          </Animated.Text>
 
           {/* Location (optional) */}
           <Text className="text-base font-semibold text-gray-900 mb-2">

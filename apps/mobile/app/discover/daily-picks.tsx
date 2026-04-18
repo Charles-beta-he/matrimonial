@@ -70,16 +70,28 @@ export default function DailyPicksScreen() {
   const router = useRouter();
   const { data, isLoading, error, refetch } = api.match.dailyPicks.useQuery();
 
+  const headerOpacity = useSharedValue(0);
+  const headerY = useSharedValue(-14);
+  useEffect(() => {
+    const e = Easing.out(Easing.cubic);
+    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
+    headerY.value = withTiming(0, { duration: 320, easing: e });
+  }, []);
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+    transform: [{ translateY: headerY.value }],
+  }));
+
   const picks: ProfileCardUserWithId[] = (data ?? []).map(toProfileCardUser);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center px-4 py-3">
+      <Animated.View className="flex-row items-center px-4 py-3" style={headerStyle}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>
         <Text className="text-xl font-bold text-gray-900">今日精选</Text>
-      </View>
+      </Animated.View>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

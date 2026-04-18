@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
+import { ScalePressable } from '../../components/ScalePressable';
 import {
   ActivityIndicator,
   Alert,
@@ -103,7 +104,7 @@ export default function VideoHallScreen() {
       </Animated.View>
 
       {/* Quick Match Entry Card */}
-      <Pressable
+      <ScalePressable
         onPress={() => router.push('/chat/quick-match')}
         className="mx-4 mb-4 bg-gradient-to-r rounded-2xl overflow-hidden"
       >
@@ -117,11 +118,11 @@ export default function VideoHallScreen() {
           </View>
           <Ionicons name="chevron-forward" size={20} color="#ffffff" />
         </View>
-      </Pressable>
+      </ScalePressable>
 
       {/* Tabs */}
       <View className="flex-row mx-4 bg-gray-100 rounded-xl p-1 mb-4">
-        <Pressable
+        <ScalePressable
           className={`flex-1 py-2.5 rounded-lg items-center ${
             activeTab === '1v1' ? 'bg-white shadow-sm' : ''
           }`}
@@ -134,8 +135,8 @@ export default function VideoHallScreen() {
           >
             1v1 快速匹配
           </Text>
-        </Pressable>
-        <Pressable
+        </ScalePressable>
+        <ScalePressable
           className={`flex-1 py-2.5 rounded-lg items-center ${
             activeTab === 'hosted' ? 'bg-white shadow-sm' : ''
           }`}
@@ -148,7 +149,7 @@ export default function VideoHallScreen() {
           >
             红娘主持房
           </Text>
-        </Pressable>
+        </ScalePressable>
       </View>
 
       {activeTab === '1v1' ? (

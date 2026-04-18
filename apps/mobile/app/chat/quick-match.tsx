@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -34,6 +34,20 @@ export default function QuickMatchScreen() {
     opacity: headerOpacity.value,
     transform: [{ translateY: headerY.value }],
   }));
+
+  const timerScale = useSharedValue(1);
+  useEffect(() => {
+    if (timeLeft === 180) return;
+    const urgent = timeLeft <= 30;
+    timerScale.value = withSequence(
+      withTiming(urgent ? 1.14 : 1.05, { duration: 65 }),
+      withSpring(1, { damping: urgent ? 7 : 10, stiffness: 220 }),
+    );
+  }, [timeLeft]);
+  const timerAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: timerScale.value }],
+  }));
+
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Poll for match while queued
@@ -221,13 +235,14 @@ export default function QuickMatchScreen() {
           <>
             {/* Timer */}
             <View className="mb-8">
-              <Text
+              <Animated.Text
+                style={timerAnimStyle}
                 className={`text-6xl font-bold text-center ${
                   timeLeft <= 30 ? 'text-red-500' : 'text-gray-900'
                 }`}
               >
                 {formatTime(timeLeft)}
-              </Text>
+              </Animated.Text>
               <Text className="text-sm text-gray-500 text-center mt-2">
                 与 {partnerName} 通话中
               </Text>
