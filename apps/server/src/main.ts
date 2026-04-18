@@ -7,6 +7,7 @@ import { appRouter } from './trpc';
 import { createContext } from './trpc/context';
 import { AnalyticsService } from './modules/analytics/analytics.service';
 import { assertRequiredEnv, env } from './lib/env';
+import { getRedis } from './lib/redis';
 import { WechatPayAdapter } from './adapters/wechat-pay.adapter';
 import { AlipayAdapter } from './adapters/alipay.adapter';
 import { PaymentService } from './modules/payment/payment.service';
@@ -45,14 +46,17 @@ async function bootstrap() {
   app.use('/health', async (_req: any, res: any) => {
     const startTime = Date.now();
     let dbOk = false;
-    const redisOk = false;
+    let redisOk = false;
 
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      dbOk = true;
-    } catch {
-      // db unreachable → status will report degraded
-    }
+    await Promise.all([
+      prisma.$queryRaw`SELECT 1`.then(() => { dbOk = true; }).catch(() => {}),
+      (async () => {
+        const redis = getRedis();
+        if (redis) {
+          try { await redis.ping(); redisOk = true; } catch {}
+        }
+      })(),
+    ]);
 
     res.json({
       status: dbOk ? 'ok' : 'degraded',

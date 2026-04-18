@@ -421,7 +421,7 @@ export default function ChatConversationScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Animated.View className="flex-row items-center px-4 py-3 border-b border-gray-100" style={chatHeaderStyle}>
+      <Animated.View className="px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, chatHeaderStyle]}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>

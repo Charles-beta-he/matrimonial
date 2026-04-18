@@ -242,7 +242,7 @@ export default function ProfileEditScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <Animated.View className="flex-row items-center justify-between px-4 py-3 bg-white" style={headerStyle}>
+      <Animated.View className="px-4 py-3 bg-white" style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerStyle]}>
         <Pressable onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="#374151" />
         </Pressable>

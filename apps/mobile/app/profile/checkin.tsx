@@ -269,7 +269,7 @@ export default function CheckinScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <Animated.View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-100" style={headerStyle}>
+      <Animated.View className="bg-white px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#111827" />
         </Pressable>

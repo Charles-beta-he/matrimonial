@@ -217,6 +217,7 @@ model Like {
 
   @@unique([fromUserId, toUserId])
   @@index([toUserId, isMatched])
+  @@index([fromUserId])
 }
 
 // ========== 会话与消息 ==========

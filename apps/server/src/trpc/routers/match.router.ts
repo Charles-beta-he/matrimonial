@@ -6,25 +6,20 @@ import { RecommendAdapter } from '../../adapters/recommend.adapter';
 import { CreditsService } from '../../modules/credits/credits.service';
 import { NotificationService } from '../../modules/notification/notification.module';
 import { logger } from '../../lib/logger';
-
-// ── Daily picks in-memory cache ──
-// Key: `${userId}-${YYYY-MM-DD}`, Value: { users, expireAt }
-const dailyPicksCache = new Map<
-  string,
-  { users: unknown[]; expireAt: number }
->();
-
-/** Purge expired entries (runs lazily on each access) */
-function purgeDailyPicksCache() {
-  const now = Date.now();
-  for (const [key, entry] of dailyPicksCache) {
-    if (entry.expireAt <= now) dailyPicksCache.delete(key);
-  }
-}
+import { getRedis } from '../../lib/redis';
 
 /** Get today's date string in YYYY-MM-DD */
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+/** Seconds from now until next midnight */
+function secondsUntilMidnight(): number {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setDate(midnight.getDate() + 1);
+  midnight.setHours(0, 0, 0, 0);
+  return Math.floor((midnight.getTime() - now.getTime()) / 1000);
 }
 
 // ── Free user daily swipe quota ──
@@ -583,16 +578,14 @@ export const matchRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id;
-      const today = todayKey();
-      const cacheKey = `${userId}-${today}`;
+      const cacheKey = `daily_picks:${userId}:${todayKey()}`;
+      const redis = getRedis();
 
-      // Purge stale entries
-      purgeDailyPicksCache();
-
-      // Return cached result if available
-      const cached = dailyPicksCache.get(cacheKey);
-      if (cached) {
-        return cached.users;
+      if (redis) {
+        try {
+          const cached = await redis.get(cacheKey);
+          if (cached) return JSON.parse(cached);
+        } catch {}
       }
 
       const currentUser = await ctx.prisma.user.findUnique({
@@ -634,13 +627,11 @@ export const matchRouter = router({
       const shuffled = candidates.sort(() => Math.random() - 0.5);
       const picks = shuffled.slice(0, 5);
 
-      // Cache until end of day (midnight of next day)
-      const tomorrow = new Date(today + 'T00:00:00');
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      dailyPicksCache.set(cacheKey, {
-        users: picks,
-        expireAt: tomorrow.getTime(),
-      });
+      if (redis) {
+        try {
+          await redis.setex(cacheKey, secondsUntilMidnight(), JSON.stringify(picks));
+        } catch {}
+      }
 
       return picks;
     }),
