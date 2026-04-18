@@ -17,19 +17,26 @@ interface CardStackProps {
 
 export function CardStack({ children, index, totalCards: _totalCards }: CardStackProps) {
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(60);
-  // Entrance scale — top card pops from 0.92→1, others from 0.96→1
-  const entranceScale = useSharedValue(index === 0 ? 0.92 : 0.96);
+  // Top card pops from further away; next card from closer
+  const translateY = useSharedValue(index === 0 ? 48 : 24);
+  // Top card: dramatic pop from 0.86; next card: subtle from 0.94
+  const entranceScale = useSharedValue(index === 0 ? 0.86 : 0.94);
   // Breathing scale — only animated for the top card (index 0)
   const breathScale = useSharedValue(1);
 
   useEffect(() => {
-    const delay = index * 80;
+    const delay = index * 60;
     const easing = Easing.out(Easing.cubic);
 
-    opacity.value = withDelay(delay, withTiming(1, { duration: 400, easing }));
-    translateY.value = withDelay(delay, withTiming(0, { duration: 400, easing }));
-    entranceScale.value = withDelay(delay, withSpring(1, { damping: 14, stiffness: 160 }));
+    opacity.value = withDelay(delay, withTiming(1, { duration: 320, easing }));
+    translateY.value = withDelay(delay, withTiming(0, { duration: 360, easing }));
+    // Top card gets a bouncy overshoot spring, next card stays subtle
+    entranceScale.value = withDelay(
+      delay,
+      index === 0
+        ? withSpring(1, { damping: 8, stiffness: 220 })
+        : withSpring(1, { damping: 14, stiffness: 160 }),
+    );
 
     if (index === 0) {
       // Start breathing loop after the entrance animation finishes

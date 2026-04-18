@@ -209,6 +209,7 @@ export default function DiscoverTab() {
   const filterHeight = useRef(new Animated.Value(0)).current;
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const headerTranslateY = useRef(new Animated.Value(-16)).current;
+  const quotaBarWidth = useRef(new Animated.Value(0)).current;
   const hasActiveFilters = !isFiltersEmpty(filters);
 
   const toggleFilters = useCallback(() => {
@@ -384,6 +385,18 @@ export default function DiscoverTab() {
   const isEmpty = !isLoading && !hasError && (recommendations.length === 0 || localIndex >= recommendations.length);
   const quotaData = remainingSwipesQuery?.data;
   const quotaExhausted = quotaExhaustedFromApi || (quotaData?.quotaExhausted ?? false);
+
+  useEffect(() => {
+    if (quotaData) {
+      const pct = Math.min((quotaData.used / quotaData.total) * 100, 100);
+      Animated.timing(quotaBarWidth, {
+        toValue: pct,
+        duration: 900,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [quotaData?.used, quotaData?.total]);
 
   return (
     <ChromaTransition>
@@ -744,10 +757,13 @@ export default function DiscoverTab() {
               </Text>
             </View>
             <View className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-              <View
+              <Animated.View
                 className="h-full bg-rose-500 rounded-full"
                 style={{
-                  width: `${Math.min((quotaData.used / quotaData.total) * 100, 100)}%`,
+                  width: quotaBarWidth.interpolate({
+                    inputRange: [0, 100],
+                    outputRange: ['0%', '100%'],
+                  }),
                 }}
               />
             </View>
