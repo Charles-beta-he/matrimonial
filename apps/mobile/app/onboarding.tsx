@@ -149,7 +149,9 @@ export default function OnboardingScreen() {
 
   const handleNext = () => {
     if (currentPage < PAGES.length - 1) {
-      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH * (currentPage + 1), animated: true });
+      const next = currentPage + 1;
+      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH * next, animated: true });
+      setCurrentPage(next);
     } else {
       completeOnboarding();
     }
@@ -182,6 +184,7 @@ export default function OnboardingScreen() {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
+        onScrollEndDrag={handleScroll}
         scrollEventThrottle={16}
       >
         {PAGES.map((p) => (
