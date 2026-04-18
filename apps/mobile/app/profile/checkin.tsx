@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withDelay,
+  withSequence,
   withSpring,
   withTiming,
   Easing,
@@ -14,6 +15,61 @@ import Animated, {
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
+
+const CONFETTI_COLORS = ['#f43f5e', '#f59e0b', '#22c55e', '#3b82f6', '#c084fc', '#fde68a', '#fb7185', '#34d399'];
+const CONFETTI_COUNT = 12;
+
+function jitter(seed: number) { return ((seed * 9301 + 49297) % 233280) / 233280; }
+
+const CONFETTI = Array.from({ length: CONFETTI_COUNT }, (_, i) => {
+  const angle = (i / CONFETTI_COUNT) * 360 + jitter(i * 5) * 30 - 15;
+  const dist = 70 + jitter(i * 7) * 80;
+  const rad = (angle * Math.PI) / 180;
+  return {
+    dx: Math.cos(rad) * dist,
+    dy: Math.sin(rad) * dist - 20,
+    size: 7 + jitter(i * 3) * 6,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    delay: i * 25,
+  };
+});
+
+function ConfettiParticle({ dx, dy, size, color, delay, burst }: typeof CONFETTI[number] & { burst: number }) {
+  const tx = useSharedValue(0);
+  const ty = useSharedValue(0);
+  const sc = useSharedValue(0);
+  const op = useSharedValue(0);
+  const rot = useSharedValue(0);
+
+  useEffect(() => {
+    if (burst === 0) return;
+    tx.value = 0; ty.value = 0; sc.value = 0; op.value = 0; rot.value = 0;
+    const cfg = { duration: 700, easing: Easing.out(Easing.cubic) };
+    tx.value = withDelay(delay, withTiming(dx, cfg));
+    ty.value = withDelay(delay, withTiming(dy, cfg));
+    rot.value = withDelay(delay, withTiming(jitter(delay) * 360 - 180, cfg));
+    sc.value = withDelay(delay, withSequence(withTiming(1.2, { duration: 80 }), withTiming(0, cfg)));
+    op.value = withDelay(delay, withSequence(withTiming(1, { duration: 40 }), withTiming(0, { duration: 600 })));
+  }, [burst]);
+
+  const style = useAnimatedStyle(() => ({
+    opacity: op.value,
+    transform: [{ translateX: tx.value }, { translateY: ty.value }, { scale: sc.value }, { rotate: `${rot.value}deg` }],
+  }));
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[{
+        position: 'absolute',
+        width: size,
+        height: size * 0.6,
+        borderRadius: 2,
+        backgroundColor: color,
+      }, style]}
+    />
+  );
+}
 
 function CheckinDot({ isChecked, isToday, day, index }: {
   isChecked: boolean;
@@ -73,12 +129,21 @@ export default function CheckinScreen() {
   const router = useRouter();
   const { track } = useAnalytics();
   const utils = api.useUtils();
+  const [confettiBurst, setConfettiBurst] = useState(0);
+  const streakScale = useSharedValue(1);
+  const streakScaleStyle = useAnimatedStyle(() => ({ transform: [{ scale: streakScale.value }] }));
 
   const historyQuery = api.checkin.history.useQuery();
   const achievementsQuery = api.checkin.achievements.useQuery();
   const checkInMut = api.checkin.checkIn.useMutation({
     onSuccess: (data) => {
       toast.success(data.reward);
+      setConfettiBurst((k) => k + 1);
+      streakScale.value = withSequence(
+        withSpring(1.5, { damping: 6, stiffness: 280 }),
+        withSpring(0.9, { damping: 8, stiffness: 220 }),
+        withSpring(1.0, { damping: 12, stiffness: 200 }),
+      );
       utils.checkin.history.invalidate();
       utils.checkin.achievements.invalidate();
       utils.credits.balance.invalidate();
@@ -140,10 +205,16 @@ export default function CheckinScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Streak & Check-in card */}
         <View className="bg-white mx-4 mt-4 rounded-2xl p-5" style={{ shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
-          <View className="items-center">
-            <Text className="text-4xl font-bold text-rose-500">
-              {history?.currentStreak ?? 0}
-            </Text>
+          <View className="items-center" style={{ overflow: 'visible' }}>
+            {/* Confetti origin point */}
+            <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+              {CONFETTI.map((p, i) => (
+                <ConfettiParticle key={i} {...p} burst={confettiBurst} />
+              ))}
+              <Animated.Text className="text-4xl font-bold text-rose-500" style={streakScaleStyle}>
+                {history?.currentStreak ?? 0}
+              </Animated.Text>
+            </View>
             <Text className="text-sm text-gray-500 mt-1">连续签到天数</Text>
           </View>
 

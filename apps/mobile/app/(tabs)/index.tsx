@@ -31,6 +31,7 @@ import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ChromaTransition } from '../../components/ChromaTransition';
 import { HeartBurst } from '../../components/HeartBurst';
 import { StarBurst } from '../../components/StarBurst';
+import { ScalePressable } from '../../components/ScalePressable';
 import { SwipeCard } from '../../components/SwipeCard';
 import { CardStack } from '../../components/CardStack';
 const MatchAnimation = lazy(() =>
@@ -210,6 +211,7 @@ export default function DiscoverTab() {
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const headerTranslateY = useRef(new Animated.Value(-16)).current;
   const quotaBarWidth = useRef(new Animated.Value(0)).current;
+  const moonFloat = useRef(new Animated.Value(0)).current;
   const hasActiveFilters = !isFiltersEmpty(filters);
 
   const toggleFilters = useCallback(() => {
@@ -397,6 +399,17 @@ export default function DiscoverTab() {
       }).start();
     }
   }, [quotaData?.used, quotaData?.total]);
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(moonFloat, { toValue: -10, duration: 1800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(moonFloat, { toValue: 0, duration: 1800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
 
   return (
     <ChromaTransition>
@@ -859,7 +872,9 @@ export default function DiscoverTab() {
               <SkeletonCard />
             ) : quotaExhausted ? (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
-                <Ionicons name="moon-outline" size={48} color="#f43f5e" />
+                <Animated.View style={{ transform: [{ translateY: moonFloat }] }}>
+                  <Ionicons name="moon-outline" size={56} color="#f43f5e" />
+                </Animated.View>
                 <Text className="text-xl font-bold text-gray-900 mt-4 text-center">今日推荐已用完</Text>
                 <Text className="text-sm text-gray-500 mt-2 text-center">
                   明天将为你推荐更多优质用户
@@ -914,9 +929,10 @@ export default function DiscoverTab() {
             className="flex-row items-center justify-center pb-6 pt-3"
             style={{ gap: 20 }}
           >
-            <Pressable
+            <ScalePressable
               onPress={handleSwipeLeft}
-              style={({ pressed }) => ({
+              containerStyle={{ width: 56, height: 56 }}
+              style={{
                 width: 56,
                 height: 56,
                 borderRadius: 28,
@@ -924,12 +940,10 @@ export default function DiscoverTab() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
-                opacity: pressed ? 0.85 : 1,
-                transform: [{ scale: pressed ? 0.96 : 1 }],
-              })}
+              }}
             >
               <Ionicons name="close" size={28} color="#ef4444" />
-            </Pressable>
+            </ScalePressable>
 
             <HeartBurst onPress={handleSwipeRight} />
 
