@@ -194,7 +194,7 @@ export default function ProfileTab() {
         )}
 
         {/* Header profile area */}
-        <Animated.View style={[headerStyle, { backgroundColor: '#fff' }]} className="px-6 pt-6 pb-6 items-center">
+        <Animated.View style={[headerStyle, { backgroundColor: '#fff', alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }]}>
           <Animated.View style={breatheStyle}>
             <Avatar
               source={{ uri: avatarUrl }}
