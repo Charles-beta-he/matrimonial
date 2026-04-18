@@ -182,7 +182,7 @@ function ChipGroup({
             >
               {label}
             </Text>
-          </Pressable>
+          </ScalePressable>
         );
       })}
     </View>
@@ -444,7 +444,7 @@ export default function DiscoverTab() {
                 }}
               />
             )}
-          </Pressable>
+          </ScalePressable>
         </Animated.View>
 
         {/* Filter drawer */}
@@ -489,7 +489,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMin ?? 18}
                 </Text>
@@ -510,7 +510,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
                 <Pressable
                   onPress={() =>
@@ -529,7 +529,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMax ?? 60}
                 </Text>
@@ -550,7 +550,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
-                </Pressable>
+                </ScalePressable>
               </View>
             </View>
 
@@ -577,7 +577,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMin ?? 150}
                 </Text>
@@ -598,7 +598,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
                 <Pressable
                   onPress={() =>
@@ -617,7 +617,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
-                </Pressable>
+                </ScalePressable>
                 <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMax ?? 200}
                 </Text>
@@ -638,7 +638,7 @@ export default function DiscoverTab() {
                   }}
                 >
                   <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
-                </Pressable>
+                </ScalePressable>
               </View>
             </View>
 
@@ -740,7 +740,7 @@ export default function DiscoverTab() {
                 }}
               >
                 <Text style={{ fontSize: 15, fontWeight: '600', color: '#374151' }}>重置</Text>
-              </Pressable>
+              </ScalePressable>
               <Pressable
                 onPress={applyFilters}
                 style={{
@@ -753,7 +753,7 @@ export default function DiscoverTab() {
                 }}
               >
                 <Text style={{ fontSize: 15, fontWeight: '600', color: '#ffffff' }}>应用</Text>
-              </Pressable>
+              </ScalePressable>
             </View>
           </ScrollView>
         </Animated.View>
@@ -794,7 +794,7 @@ export default function DiscoverTab() {
               <Text className="text-sm text-rose-500">查看全部</Text>
               <Ionicons name="chevron-forward" size={14} color="#f43f5e" />
             </View>
-          </Pressable>
+          </ScalePressable>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -848,7 +848,7 @@ export default function DiscoverTab() {
             className="mx-4 mb-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
           >
             <Text className="text-red-600 text-sm text-center">加载失败，点击重试</Text>
-          </Pressable>
+          </ScalePressable>
         )}
 
         {/* Main card area — hardcoded dimensions because flex-1 + absolute
@@ -884,13 +884,13 @@ export default function DiscoverTab() {
                   onPress={() => router.push('/profile/membership')}
                 >
                   <Text className="text-white font-semibold text-base">升级会员解锁无限推荐</Text>
-                </Pressable>
+                </ScalePressable>
                 <Pressable
                   className="mt-3 w-full h-12 bg-gray-100 rounded-full items-center justify-center"
                   onPress={() => router.push('/(tabs)/explore' as any)}
                 >
                   <Text className="text-gray-700 font-medium text-base">去探索更多</Text>
-                </Pressable>
+                </ScalePressable>
               </View>
             ) : isEmpty ? (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
