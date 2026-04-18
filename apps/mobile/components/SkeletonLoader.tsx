@@ -66,23 +66,22 @@ export function Shimmer({ width, height, borderRadius = 8, style }: ShimmerProps
 
 export function SkeletonCard() {
   return (
-    <View
-      style={{
-        width: '100%',
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Image placeholder — 4:5 aspect ratio */}
-      <Shimmer width="100%" height={0} borderRadius={0} style={{ aspectRatio: 4 / 5 }} />
-
-      {/* Text lines below image */}
-      <View style={{ padding: 16, gap: 10 }}>
-        {/* Name line — 60% width */}
-        <Shimmer width="60%" height={18} borderRadius={6} />
-        {/* Info line — 40% width */}
-        <Shimmer width="40%" height={14} borderRadius={6} />
+    <View style={{ width: '100%', height: '100%', borderRadius: 20, overflow: 'hidden' }}>
+      {/* Full-bleed photo shimmer — matches actual ProfileCard */}
+      <Shimmer width="100%" height={480} borderRadius={20} />
+      {/* Name + info overlay at bottom */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 20,
+          gap: 10,
+        }}
+      >
+        <Shimmer width="55%" height={22} borderRadius={6} />
+        <Shimmer width="38%" height={16} borderRadius={6} />
       </View>
     </View>
   );

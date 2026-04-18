@@ -158,12 +158,11 @@ export default function BuddyCreateScreen() {
               return (
                 <Pressable
                   key={bt.id}
-                  className={`rounded-xl px-4 py-3 items-center border-2 ${
-                    isActive ? 'border-rose-500' : 'border-gray-100'
-                  }`}
+                  className="rounded-xl px-4 py-3 items-center border-2"
                   style={{
                     width: '30%',
                     backgroundColor: isActive ? color + '12' : '#f9fafb',
+                    borderColor: isActive ? color : '#f3f4f6',
                   }}
                   onPress={() => setSelectedType(bt.id as BuddyType)}
                 >

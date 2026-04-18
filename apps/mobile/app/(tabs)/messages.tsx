@@ -86,6 +86,7 @@ export default function MessagesTab() {
       const lastAt: string = lastMsg?.createdAt ?? c.lastMessageAt ?? '';
       const isUnread = !!(
         lastMsg &&
+        lastMsg.senderId !== currentUser?.id &&
         (!c.lastReadAt || new Date(lastMsg.createdAt) > new Date(c.lastReadAt))
       );
       return {

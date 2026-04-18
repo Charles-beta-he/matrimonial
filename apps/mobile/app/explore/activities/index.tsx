@@ -128,8 +128,8 @@ export default function ActivitiesScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, marginBottom: 12 }}
-        className="max-h-10"
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, alignItems: 'center' }}
+        style={{ marginBottom: 12, maxHeight: 44 }}
       >
         {CATEGORY_TABS.map((cat) => {
           const active = category === cat.value;

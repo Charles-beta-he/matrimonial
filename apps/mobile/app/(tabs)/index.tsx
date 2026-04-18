@@ -773,9 +773,13 @@ export default function DiscoverTab() {
             contentContainerStyle={{ paddingHorizontal: 16, gap: 10, alignItems: 'center' }}
           >
             {dailyPicksQuery.isLoading ? (
-              <Text className="text-xs text-gray-400 px-2 py-6">加载中…</Text>
+              <View style={{ width: 320, alignItems: 'center', justifyContent: 'center', height: 88 }}>
+                <Text className="text-xs text-gray-400">加载中…</Text>
+              </View>
             ) : dailyPicks.length === 0 ? (
-              <Text className="text-xs text-gray-400 px-2 py-6">暂无精选</Text>
+              <View style={{ width: 320, alignItems: 'center', justifyContent: 'center', height: 88 }}>
+                <Text className="text-xs text-gray-400">暂无精选</Text>
+              </View>
             ) : (
               dailyPicks.map((user) => (
                 <Pressable
