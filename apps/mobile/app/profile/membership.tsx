@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withDelay,
+  withRepeat,
   withSpring,
   Easing,
 } from 'react-native-reanimated';
@@ -31,13 +32,18 @@ const PRODUCT_ID_BY_PLAN: Record<string, string> = {
   YEARLY: 'MEMBERSHIP_YEARLY',
 };
 
-function PlanCardWrapper({ children, index }: { children: React.ReactNode; index: number }) {
+function PlanCardWrapper({ children, index, shimmer }: { children: React.ReactNode; index: number; shimmer?: boolean }) {
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.9);
-  const style = useAnimatedStyle(() => ({
+  const shimmerX = useSharedValue(-100);
+
+  const animStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ scale: scale.value }],
-    flex: 1,
+  }));
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shimmerX.value }, { skewX: '-20deg' }],
   }));
 
   useEffect(() => {
@@ -46,7 +52,36 @@ function PlanCardWrapper({ children, index }: { children: React.ReactNode; index
     scale.value = withDelay(delay, withSpring(1, { damping: 14, stiffness: 200 }));
   }, [index, opacity, scale]);
 
-  return <Animated.View style={style}>{children}</Animated.View>;
+  useEffect(() => {
+    if (shimmer) {
+      shimmerX.value = -100;
+      shimmerX.value = withRepeat(
+        withTiming(250, { duration: 1400, easing: Easing.inOut(Easing.cubic) }),
+        -1,
+        false,
+      );
+    } else {
+      shimmerX.value = -100;
+    }
+  }, [shimmer, shimmerX]);
+
+  return (
+    <Animated.View style={[{ flex: 1, borderRadius: 16, overflow: 'hidden' }, animStyle]}>
+      {children}
+      {shimmer && (
+        <Animated.View
+          pointerEvents="none"
+          style={[{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            width: 50,
+            backgroundColor: 'rgba(255, 255, 255, 0.38)',
+          }, shimmerStyle]}
+        />
+      )}
+    </Animated.View>
+  );
 }
 
 const FEATURE_COMPARISON = [
@@ -173,7 +208,7 @@ export default function MembershipScreen() {
           {MEMBERSHIP_PLAN_DETAILS.map((plan, i) => {
             const isSelected = selectedPlan === plan.plan;
             return (
-              <PlanCardWrapper key={plan.plan} index={i}>
+              <PlanCardWrapper key={plan.plan} index={i} shimmer={isSelected}>
               <ScalePressable
                 containerStyle={{ flex: 1 }}
                 className={`rounded-2xl border-2 p-3 items-center ${
