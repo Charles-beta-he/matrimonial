@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ActivityIndicator, Image, ScrollView, Text, View } from 'react-native';
+import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -74,7 +75,8 @@ export default function ActivityMatchesScreen() {
             const avatarUrl = (user.photos as any[])?.[0]?.url ?? FALLBACK_AVATAR;
 
             return (
-              <Card key={`${match.activityId}-${user.id}-${idx}`}>
+              <StaggeredListItem key={`${match.activityId}-${user.id}-${idx}`} index={idx}>
+              <Card>
                 <ScalePressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
@@ -108,6 +110,7 @@ export default function ActivityMatchesScreen() {
                   <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
                 </ScalePressable>
               </Card>
+              </StaggeredListItem>
             );
           })}
         </ScrollView>
