@@ -255,7 +255,7 @@ export default function ProfileTab() {
         </Pressable>
 
         {/* Stats row */}
-        <Animated.View className="bg-white mt-2 flex-row py-4" style={statsStyle}>
+        <Animated.View style={[statsStyle, { backgroundColor: '#fff', marginTop: 8, flexDirection: 'row', paddingVertical: 16 }]}>
           {stats.map((stat, i) => (
             stat.route ? (
               <Pressable
