@@ -7,11 +7,11 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  Text,
+    Text,
   TextInput,
   View,
 } from 'react-native';
+import { ScalePressable } from '../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar, Badge, Button, EmptyState, Modal, toast } from '@matrimonial/ui';
@@ -146,9 +146,9 @@ export default function CircleDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-row items-center px-4 py-3">
-          <Pressable onPress={() => router.back()} className="mr-3">
+          <ScalePressable onPress={() => router.back()} className="mr-3">
             <Ionicons name="chevron-back" size={24} color="#374151" />
-          </Pressable>
+          </ScalePressable>
         </View>
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#f43f5e" />
@@ -161,9 +161,9 @@ export default function CircleDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-row items-center px-4 py-3">
-          <Pressable onPress={() => router.back()} className="mr-3">
+          <ScalePressable onPress={() => router.back()} className="mr-3">
             <Ionicons name="chevron-back" size={24} color="#374151" />
-          </Pressable>
+          </ScalePressable>
           <Text className="text-xl font-bold text-gray-900">圈子详情</Text>
         </View>
         <View className="flex-1 items-center justify-center px-8">
@@ -317,7 +317,7 @@ export default function CircleDetailScreen() {
           className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
         >
           <Ionicons name="chevron-back" size={22} color="#fff" />
-        </Pressable>
+        </ScalePressable>
       </Animated.View>
 
       {postsLoading && posts.length === 0 ? (
@@ -375,7 +375,7 @@ export default function CircleDetailScreen() {
           onPress={() => setShowPostModal(true)}
         >
           <Ionicons name="add" size={28} color="#fff" />
-        </Pressable>
+        </ScalePressable>
       ) : null}
 
       {/* Post creation modal */}
@@ -409,12 +409,12 @@ export default function CircleDetailScreen() {
                 className="w-16 h-16 rounded-lg bg-gray-100 items-center justify-center border border-dashed border-gray-300"
               >
                 <Ionicons name="image-outline" size={24} color="#9ca3af" />
-              </Pressable>
+              </ScalePressable>
             ))}
-            <Pressable className="w-16 h-16 rounded-lg bg-gray-50 items-center justify-center border border-dashed border-gray-300">
+            <ScalePressable className="w-16 h-16 rounded-lg bg-gray-50 items-center justify-center border border-dashed border-gray-300">
               <Ionicons name="add" size={24} color="#9ca3af" />
               <Text className="text-[10px] text-gray-400">图片</Text>
-            </Pressable>
+            </ScalePressable>
           </View>
 
           <View className="mt-4">

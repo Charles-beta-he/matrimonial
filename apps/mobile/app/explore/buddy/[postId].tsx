@@ -3,8 +3,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 import {
   ActivityIndicator,
   Alert,
-  Pressable,
-  ScrollView,
+    ScrollView,
   Text,
   TextInput,
   View,
@@ -135,9 +134,9 @@ export default function BuddyPostDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-          <Pressable onPress={() => router.back()} className="mr-3">
+          <ScalePressable onPress={() => router.back()} className="mr-3">
             <Ionicons name="chevron-back" size={24} color="#374151" />
-          </Pressable>
+          </ScalePressable>
           <Text className="text-xl font-bold text-gray-900">帖子详情</Text>
         </Animated.View>
         <View className="flex-1 items-center justify-center">
@@ -164,9 +163,9 @@ export default function BuddyPostDetailScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-xl font-bold text-gray-900 flex-1">帖子详情</Text>
         <View
           className="rounded-full px-3 py-1"
@@ -299,13 +298,13 @@ export default function BuddyPostDetailScreen() {
                         onPress={() => handleAcceptReject(apply.id, 'ACCEPTED')}
                       >
                         <Text className="text-xs font-medium text-green-600">接受</Text>
-                      </Pressable>
+                      </ScalePressable>
                       <Pressable
                         className="bg-gray-100 rounded-full px-3 py-1.5"
                         onPress={() => handleAcceptReject(apply.id, 'REJECTED')}
                       >
                         <Text className="text-xs font-medium text-gray-500">拒绝</Text>
-                      </Pressable>
+                      </ScalePressable>
                     </View>
                   ) : (
                     <Badge

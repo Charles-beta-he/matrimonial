@@ -3,12 +3,12 @@ import Animated, { Easing, interpolateColor, useAnimatedStyle, useSharedValue, w
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
+    ScrollView,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { ScalePressable } from '../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button, toast } from '@matrimonial/ui';
@@ -132,9 +132,9 @@ export default function BuddyCreateScreen() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-xl font-bold text-gray-900">发布搭子帖</Text>
       </Animated.View>
 
@@ -179,7 +179,7 @@ export default function BuddyCreateScreen() {
                   >
                     {bt.label}
                   </Text>
-                </Pressable>
+                </ScalePressable>
               );
             })}
           </View>
@@ -263,9 +263,9 @@ export default function BuddyCreateScreen() {
                 }}
               >
                 <Ionicons name="close-circle" size={18} color="#9ca3af" />
-              </Pressable>
+              </ScalePressable>
             ) : null}
-          </Pressable>
+          </ScalePressable>
           {showDatePicker && (
             <View className="mb-3">
               <Text className="text-sm text-gray-500 mb-2">选择日期</Text>
@@ -291,7 +291,7 @@ export default function BuddyCreateScreen() {
                       >
                         {opt.label}
                       </Text>
-                    </Pressable>
+                    </ScalePressable>
                   );
                 })}
               </ScrollView>
@@ -318,7 +318,7 @@ export default function BuddyCreateScreen() {
                       >
                         {t}
                       </Text>
-                    </Pressable>
+                    </ScalePressable>
                   );
                 })}
               </ScrollView>
@@ -342,7 +342,7 @@ export default function BuddyCreateScreen() {
                 size={20}
                 color={maxPeople <= 2 ? '#d1d5db' : '#f43f5e'}
               />
-            </Pressable>
+            </ScalePressable>
             <Text className="text-xl font-bold text-gray-900 w-8 text-center">
               {maxPeople}
             </Text>
@@ -358,7 +358,7 @@ export default function BuddyCreateScreen() {
                 size={20}
                 color={maxPeople >= 10 ? '#d1d5db' : '#f43f5e'}
               />
-            </Pressable>
+            </ScalePressable>
             <Text className="text-sm text-gray-400">人</Text>
           </View>
 

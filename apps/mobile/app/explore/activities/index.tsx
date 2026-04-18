@@ -5,8 +5,7 @@ import {
   Alert,
   FlatList,
   Image,
-  Pressable,
-  ScrollView,
+    ScrollView,
   Text,
   View,
 } from 'react-native';
@@ -118,9 +117,9 @@ export default function ActivitiesScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <Text className="text-xl font-bold text-gray-900">线下活动</Text>
       </Animated.View>
 
@@ -168,13 +167,13 @@ export default function ActivitiesScreen() {
                     {signup.status === 'CONFIRMED' ? '已确认' : '待确认'}
                   </Text>
                   {signup.activity?.status === 'UPCOMING' ? (
-                    <Pressable onPress={() => handleCancelSignup(signup.activityId)}>
+                    <ScalePressable onPress={() => handleCancelSignup(signup.activityId)}>
                       <Text className="text-xs text-rose-400">取消</Text>
-                    </Pressable>
+                    </ScalePressable>
                   ) : signup.activity?.status === 'COMPLETED' ? (
-                    <Pressable onPress={() => router.push(`/explore/activities/${signup.activityId}/vote` as any)}>
+                    <ScalePressable onPress={() => router.push(`/explore/activities/${signup.activityId}/vote` as any)}>
                       <Text className="text-xs text-rose-500 font-medium">去互评</Text>
-                    </Pressable>
+                    </ScalePressable>
                   ) : null}
                 </View>
               </View>
@@ -199,7 +198,7 @@ export default function ActivitiesScreen() {
             </View>
           </View>
           <Ionicons name="chevron-forward" size={18} color="#f43f5e" />
-        </Pressable>
+        </ScalePressable>
       ) : null}
 
       {isLoading ? (

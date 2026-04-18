@@ -6,10 +6,10 @@ import {
   Alert,
   FlatList,
   Image,
-  Pressable,
-  Text,
+    Text,
   View,
 } from 'react-native';
+import { ScalePressable } from '../../../../components/ScalePressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,7 +50,7 @@ function StarRating({
             size={24}
             color={star <= rating ? '#f43f5e' : '#d1d5db'}
           />
-        </Pressable>
+        </ScalePressable>
       ))}
     </View>
   );
@@ -129,9 +129,9 @@ export default function ActivityVoteScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color="#374151" />
-        </Pressable>
+        </ScalePressable>
         <View className="flex-1">
           <Text className="text-lg font-bold text-gray-900">活动互评</Text>
           {activity?.title ? (
