@@ -116,7 +116,7 @@ export default function VideoHallScreen() {
       {/* Quick Match Entry Card */}
       <ScalePressable
         onPress={() => router.push('/chat/quick-match')}
-        className="mx-4 mb-4 bg-gradient-to-r rounded-2xl overflow-hidden"
+        className="mx-4 mt-4 mb-4 bg-gradient-to-r rounded-2xl overflow-hidden"
       >
         <View className="bg-rose-500 rounded-2xl p-4 flex-row items-center">
           <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">

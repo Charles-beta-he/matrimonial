@@ -307,7 +307,7 @@ export default function ProfileEditScreen() {
           {/* Education picker */}
           <View>
             <Text className="text-sm text-gray-600 mb-2">学历</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center', paddingHorizontal: 2 }}>
               <View className="flex-row" style={{ gap: 8 }}>
                 {EDUCATION_OPTIONS.map((e) => (
                   <ScalePressable
@@ -329,7 +329,7 @@ export default function ProfileEditScreen() {
           {/* Income picker */}
           <View>
             <Text className="text-sm text-gray-600 mb-2">收入</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 44 }} contentContainerStyle={{ gap: 8, alignItems: 'center', paddingHorizontal: 2 }}>
               <View className="flex-row" style={{ gap: 8 }}>
                 {INCOME_OPTIONS.map((i) => (
                   <ScalePressable

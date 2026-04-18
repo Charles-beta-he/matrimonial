@@ -175,7 +175,7 @@ export default function PreferencesScreen() {
 
             {/* Age min */}
             <Text className="text-sm text-gray-600 mb-2">最小年龄：{ageMin}岁</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center', paddingHorizontal: 2 }}>
               {AGE_OPTIONS.filter((v) => v <= ageMax).map((v) => (
                 <ScalePressable
                   key={v}
@@ -189,7 +189,7 @@ export default function PreferencesScreen() {
 
             {/* Age max */}
             <Text className="text-sm text-gray-600 mb-2">最大年龄：{ageMax}岁</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center', paddingHorizontal: 2 }}>
               {AGE_OPTIONS.filter((v) => v >= ageMin).map((v) => (
                 <ScalePressable
                   key={v}
@@ -206,7 +206,7 @@ export default function PreferencesScreen() {
             <Text className="text-base font-semibold text-gray-900 mb-4">身高范围</Text>
 
             <Text className="text-sm text-gray-600 mb-2">最低身高：{heightMin}cm</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center', paddingHorizontal: 2 }}>
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v <= heightMax).map((v) => (
                 <ScalePressable
                   key={v}
@@ -219,7 +219,7 @@ export default function PreferencesScreen() {
             </ScrollView>
 
             <Text className="text-sm text-gray-600 mb-2">最高身高：{heightMax}cm</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center', paddingHorizontal: 2 }}>
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v >= heightMin).map((v) => (
                 <ScalePressable
                   key={v}

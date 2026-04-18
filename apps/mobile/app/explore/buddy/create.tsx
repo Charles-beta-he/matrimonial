@@ -272,7 +272,7 @@ export default function BuddyCreateScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 6 }}
+                contentContainerStyle={{ gap: 6, paddingHorizontal: 2 }}
               >
                 {getDateOptions().map((opt) => {
                   const isActive = dateText === opt.label;
@@ -299,7 +299,7 @@ export default function BuddyCreateScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 6 }}
+                contentContainerStyle={{ gap: 6, paddingHorizontal: 2 }}
               >
                 {TIME_SLOTS.map((t) => {
                   const isActive = timeText === t;

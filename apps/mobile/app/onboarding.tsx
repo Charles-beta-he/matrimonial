@@ -3,7 +3,6 @@ import {
   Dimensions,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   Text,
   View,
