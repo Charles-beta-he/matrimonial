@@ -445,8 +445,8 @@ export default function ChatConversationScreen() {
       </Animated.View>
 
       <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1, minHeight: 0 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
         {/* Message list */}
@@ -491,7 +491,7 @@ export default function ChatConversationScreen() {
             data={allMessages}
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
-            style={{ flex: 1 }}
+            style={{ flex: 1, minHeight: 0 }}
             contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', paddingVertical: 12 }}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
