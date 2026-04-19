@@ -561,7 +561,7 @@ export function MatchAnimation({
         </View>
 
         {/* Match text with chromatic aberration */}
-        <Animated.View style={textStyle} className="items-center mb-8">
+        <Animated.View style={[textStyle, { alignItems: 'center', marginBottom: 32 }]}>
           <View style={{ position: 'relative', height: 44, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
             <ChromaText
               text="It's a Match!"
