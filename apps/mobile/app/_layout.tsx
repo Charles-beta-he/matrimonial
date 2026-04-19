@@ -94,15 +94,19 @@ const TRPC_ERROR_MESSAGES: Record<string, string> = {
   INTERNAL_SERVER_ERROR: '服务器开小差了',
 };
 
+/** Must render inside api.Provider so tRPC context is available */
+function PushRegistrar() {
+  const token = useAppStore((s) => s.token);
+  usePushNotifications(!!token);
+  return null;
+}
+
 export default function RootLayout() {
   const token = useAppStore((s) => s.token);
   const hydrated = useAppStore((s) => s.hydrated);
 
   // Activate global error handler
   useGlobalErrorHandler();
-
-  // Register push token when authenticated
-  usePushNotifications(!!token);
 
   // Hydrate auth state from SecureStore on mount
   useEffect(() => {
@@ -286,6 +290,7 @@ export default function RootLayout() {
                   const H1 = 'h1' as unknown as React.ComponentType<{ style: React.CSSProperties; children: React.ReactNode }>;
                   return <H1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>缘分 — 基于AI的智能婚恋匹配平台</H1>;
                 })()}
+                <PushRegistrar />
                 <Stack screenOptions={{ headerShown: false }} />
               </View>
             </SafeAreaProvider>
