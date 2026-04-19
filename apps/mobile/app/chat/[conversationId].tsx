@@ -580,7 +580,7 @@ export default function ChatConversationScreen() {
               <Ionicons name="mic-outline" size={22} color={colors.gray500} />
             </ScalePressable>
             <Animated.View
-              style={[inputAnimatedStyle, { flex: 1, borderRadius: 22, paddingHorizontal: 16, minHeight: 40, maxHeight: 120 }]}
+              style={[inputAnimatedStyle, { flex: 1, borderRadius: 22, maxHeight: 120 }]}
             >
               <TextInput
                 aria-label="消息输入"
@@ -591,7 +591,7 @@ export default function ChatConversationScreen() {
                 onChangeText={handleChangeText}
                 multiline
                 maxLength={500}
-                style={{ paddingVertical: 10, textAlignVertical: 'center', outlineStyle: 'none' } as any}
+                style={{ paddingVertical: 10, paddingHorizontal: 16, minHeight: 40, textAlignVertical: 'top', outlineStyle: 'none' } as any}
               />
             </Animated.View>
             <ScalePressable className="w-10 h-10 items-center justify-center">
