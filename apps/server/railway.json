@@ -6,7 +6,7 @@
     "watchPatterns": ["apps/server/**", "packages/shared/**"]
   },
   "deploy": {
-    "startCommand": "node apps/server/dist/main.js",
+    "startCommand": "pnpm --filter @matrimonial/server exec prisma migrate deploy && node apps/server/dist/main.js",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
