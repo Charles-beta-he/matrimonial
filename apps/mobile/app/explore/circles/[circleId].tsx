@@ -7,7 +7,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-    Text,
+  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -19,6 +19,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
 import { colors } from '../../../constants/colors';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
+import { useUpload } from '../../../hooks/useUpload';
 
 /** Relative time display in Chinese */
 function timeAgo(value: unknown): string {
@@ -57,10 +59,13 @@ const GRADIENT_COLORS: Record<string, string> = {
 };
 
 export default function CircleDetailScreen() {
+  useScreenTracking('circle_detail');
   const router = useRouter();
   const { circleId } = useLocalSearchParams<{ circleId: string }>();
   const [showPostModal, setShowPostModal] = useState(false);
   const [postContent, setPostContent] = useState('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const { pickAndUpload, uploading: imageUploading } = useUpload();
 
   const backBtnOpacity = useSharedValue(0);
   const backBtnY = useSharedValue(-14);
@@ -117,8 +122,7 @@ export default function CircleDetailScreen() {
   const createPostMut = api.circle.createPost.useMutation({
     onSuccess: () => {
       toast.success('发布成功');
-      setPostContent('');
-      setShowPostModal(false);
+      handleClosePostModal();
       refetchPosts();
       utils.circle.getById.invalidate({ id: circleId! });
     },
@@ -134,9 +138,25 @@ export default function CircleDetailScreen() {
     }
   };
 
+  const handleAddPostImage = async () => {
+    if (postImages.length >= 9) return;
+    const result = await pickAndUpload('photo');
+    if (result) setPostImages((prev) => [...prev, result.publicUrl]);
+  };
+
+  const handleRemovePostImage = (url: string) => {
+    setPostImages((prev) => prev.filter((u) => u !== url));
+  };
+
   const handleCreatePost = () => {
     if (!circleId || !postContent.trim()) return;
-    createPostMut.mutate({ circleId, content: postContent.trim() });
+    createPostMut.mutate({ circleId, content: postContent.trim(), imageUrls: postImages });
+  };
+
+  const handleClosePostModal = () => {
+    setShowPostModal(false);
+    setPostContent('');
+    setPostImages([]);
   };
 
   const categoryLabel =
@@ -381,7 +401,7 @@ export default function CircleDetailScreen() {
       {/* Post creation modal */}
       <Modal
         visible={showPostModal}
-        onClose={() => setShowPostModal(false)}
+        onClose={handleClosePostModal}
         title="发帖"
       >
         <KeyboardAvoidingView
@@ -402,20 +422,35 @@ export default function CircleDetailScreen() {
             {postContent.length}/2000
           </Text>
 
-          {/* Image placeholder slots */}
+          {/* Image upload grid */}
           <View className="flex-row flex-wrap mt-3" style={{ gap: 8 }}>
-            {Array.from({ length: Math.min(9, 1) }).map((_, idx) => (
-              <ScalePressable
-                key={`img-slot-${idx}`}
-                containerStyle={{ width: 64, height: 64, borderRadius: 8, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db' }}
-              >
-                <Ionicons name="image-outline" size={24} color={colors.gray400} />
-              </ScalePressable>
+            {postImages.map((url) => (
+              <View key={url} style={{ width: 64, height: 64, borderRadius: 8, overflow: 'hidden' }}>
+                <Image source={{ uri: url }} style={{ width: 64, height: 64 }} resizeMode="cover" />
+                <ScalePressable
+                  onPress={() => handleRemovePostImage(url)}
+                  containerStyle={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Ionicons name="close" size={12} color="#fff" />
+                </ScalePressable>
+              </View>
             ))}
-            <ScalePressable containerStyle={{ width: 64, height: 64, borderRadius: 8, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db' }}>
-              <Ionicons name="add" size={24} color={colors.gray400} />
-              <Text style={{ fontSize: 10, color: '#9ca3af' }}>图片</Text>
-            </ScalePressable>
+            {postImages.length < 9 && (
+              <ScalePressable
+                onPress={handleAddPostImage}
+                disabled={imageUploading}
+                containerStyle={{ width: 64, height: 64, borderRadius: 8, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db' }}
+              >
+                {imageUploading ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <>
+                    <Ionicons name="add" size={24} color={colors.gray400} />
+                    <Text style={{ fontSize: 10, color: '#9ca3af' }}>图片</Text>
+                  </>
+                )}
+              </ScalePressable>
+            )}
           </View>
 
           <View className="mt-4">

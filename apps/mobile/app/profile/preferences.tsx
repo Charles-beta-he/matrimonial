@@ -8,6 +8,7 @@ import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { ScalePressable } from '../../components/ScalePressable';
 import { colors } from '../../constants/colors';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const EDUCATION_OPTIONS: Array<{ label: string; value: string }> = [
   { label: '不限', value: '' },
@@ -106,6 +107,7 @@ function RangePicker({
 
 /** Dating preferences edit screen */
 export default function PreferencesScreen() {
+  useScreenTracking('preferences');
   const meQuery = api.user.me.useQuery();
   const updateMut = api.user.updatePreferences.useMutation({
     onSuccess: () => toast.success('偏好已保存'),

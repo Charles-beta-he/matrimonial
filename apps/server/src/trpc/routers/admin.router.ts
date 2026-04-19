@@ -236,6 +236,34 @@ export const adminRouter = router({
       }
     }),
 
+  /** Recent error events with breadcrumbs (session replay) */
+  errorEvents: adminProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(100).default(50) }))
+    .query(async ({ input, ctx }) => {
+      try {
+        const rows = await ctx.prisma.$queryRaw`
+          SELECT id, props, user_id, session_id, created_at
+          FROM analytics_events
+          WHERE event = 'error_boundary'
+          ORDER BY created_at DESC
+          LIMIT ${input.limit}
+        ` as Array<{ id: bigint; props: any; user_id: string | null; session_id: string; created_at: Date }>;
+
+        return rows.map((r) => ({
+          id: String(r.id),
+          errorType: r.props?.error_type ?? 'unknown',
+          message: r.props?.error ?? '',
+          fatal: !!r.props?.fatal,
+          breadcrumbs: Array.isArray(r.props?.breadcrumbs) ? r.props.breadcrumbs : [],
+          userId: r.user_id,
+          sessionId: r.session_id,
+          createdAt: r.created_at,
+        }));
+      } catch {
+        return [];
+      }
+    }),
+
   /** Ban a user */
   banUser: adminProcedure
     .input(z.object({ userId: z.string(), reason: z.string().min(1) }))
@@ -326,18 +354,66 @@ export const adminRouter = router({
       };
     }),
 
+  /** Matchmaker detail */
+  matchmakerDetail: adminProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const mm = await ctx.prisma.matchmaker.findUnique({
+        where: { id: input },
+        include: {
+          user: {
+            select: {
+              id: true,
+              nickname: true,
+              city: true,
+              gender: true,
+              phone: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+      if (!mm) throw new TRPCError({ code: 'NOT_FOUND', message: 'Matchmaker not found' });
+      return mm;
+    }),
+
+  /** Update matchmaker (isOnline toggle + activeClients) */
+  updateMatchmaker: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        isOnline: z.boolean().optional(),
+        activeClients: z.number().int().min(0).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, ...data } = input;
+      return ctx.prisma.matchmaker.update({
+        where: { id },
+        data,
+        include: { user: { select: { id: true, nickname: true } } },
+      });
+    }),
+
   /** Matchmaker aggregated stats */
   matchmakerStats: adminProcedure.query(async ({ ctx }) => {
-    const [activeCount, agg] = await Promise.all([
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    const [activeCount, agg, monthlyLikes] = await Promise.all([
       ctx.prisma.matchmaker.count({ where: { isOnline: true } }),
       ctx.prisma.matchmaker.aggregate({
-        _sum: { totalMatches: true },
         _avg: { successRate: true, rating: true },
+      }),
+      // Monthly matches = likes that resulted in a match this month
+      ctx.prisma.like.count({
+        where: { isMatched: true, createdAt: { gte: monthStart } },
       }),
     ]);
     return {
       activeCount,
-      monthlyMatches: agg._sum.totalMatches ?? 0,
+      monthlyMatches: monthlyLikes,
       avgSuccessRate: agg._avg.successRate ?? 0,
       avgRating: agg._avg.rating ?? 0,
     };

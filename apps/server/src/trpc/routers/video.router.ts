@@ -11,7 +11,7 @@ export const videoRouter = router({
     }),
 
   /** List active matchmaker rooms */
-  listRooms: protectedProcedure.query(() => {
+  listRooms: protectedProcedure.query(async () => {
     return VideoService.listMatchmakerRooms();
   }),
 
@@ -42,7 +42,7 @@ export const videoRouter = router({
 
   /** Leave quick match queue */
   leaveQuickMatch: protectedProcedure.mutation(async ({ ctx }) => {
-    VideoService.leaveQuickMatch(ctx.user.id);
+    await VideoService.leaveQuickMatch(ctx.user.id);
     return { success: true };
   }),
 
@@ -55,7 +55,7 @@ export const videoRouter = router({
   leaveRoom: protectedProcedure
     .input(z.object({ roomId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      VideoService.leaveMatchmakerRoom(ctx.user.id, input.roomId);
+      await VideoService.leaveMatchmakerRoom(ctx.user.id, input.roomId);
       return { success: true };
     }),
 });

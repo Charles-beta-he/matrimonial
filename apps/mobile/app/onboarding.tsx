@@ -23,6 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ScalePressable } from '../components/ScalePressable';
 import { colors } from '../constants/colors';
+import { useScreenTracking } from '../hooks/useAnalytics';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -131,6 +132,7 @@ function useEntranceAnimations() {
 }
 
 export default function OnboardingScreen() {
+  useScreenTracking('onboarding');
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [currentPage, setCurrentPage] = useState(0);

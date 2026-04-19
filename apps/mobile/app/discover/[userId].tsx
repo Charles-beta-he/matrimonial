@@ -33,6 +33,7 @@ import { ChromaTransition } from '../../components/ChromaTransition';
 import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
 import { colors } from '../../constants/colors';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -79,6 +80,7 @@ function mapUser(u: any) {
 export default function UserProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const router = useRouter();
+  const { track } = useScreenTracking('user_profile');
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const { data, isLoading, error, refetch } = api.user.getById.useQuery(userId!, {
@@ -115,6 +117,7 @@ export default function UserProfileScreen() {
   useEffect(() => {
     if (!userId) return;
     recordView({ viewedId: userId });
+    track('profile_view', { target_user_id: userId, source: 'discover' });
     viewStartRef.current = Date.now();
     return () => {
       recordFeedback({

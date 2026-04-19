@@ -13,6 +13,7 @@ import { ErrorBoundary, ToastProvider, toast } from '@matrimonial/ui';
 import { useAppStore } from '../stores/useAppStore';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useGlobalErrorHandler } from '../hooks/useErrorHandler';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import { config } from '../env';
 import { refreshAccessToken } from '../lib/authRefresh';
 import { colors } from '../constants/colors';
@@ -99,6 +100,9 @@ export default function RootLayout() {
 
   // Activate global error handler
   useGlobalErrorHandler();
+
+  // Register push token when authenticated
+  usePushNotifications(!!token);
 
   // Hydrate auth state from SecureStore on mount
   useEffect(() => {

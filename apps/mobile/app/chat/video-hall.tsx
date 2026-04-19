@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
@@ -27,6 +28,7 @@ type TabType = '1v1' | 'hosted';
 
 /** Video dating hall screen */
 export default function VideoHallScreen() {
+  useScreenTracking('video_hall');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('1v1');
   const [createOpen, setCreateOpen] = useState(false);

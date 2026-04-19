@@ -21,6 +21,7 @@ import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
 import { colors } from '../../../constants/colors';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
 
 const TYPE_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -56,6 +57,7 @@ function formatScheduledTime(value: unknown): string {
 }
 
 export default function BuddyScreen() {
+  useScreenTracking('buddy');
   const router = useRouter();
   const [type, setType] = useState<string | undefined>(undefined);
   const fabScale = useSharedValue(0);

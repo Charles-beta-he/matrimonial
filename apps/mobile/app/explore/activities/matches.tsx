@@ -8,6 +8,7 @@ import { Card, EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { colors } from '../../../constants/colors';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
 
 function calculateAge(birthday: string | Date | null): number | null {
   if (!birthday) return null;
@@ -23,6 +24,7 @@ function calculateAge(birthday: string | Date | null): number | null {
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/activity-match/100/100';
 
 export default function ActivityMatchesScreen() {
+  useScreenTracking('activity_matches');
   const router = useRouter();
   const { data: matches, isLoading } = api.activity.activityMatches.useQuery();
 

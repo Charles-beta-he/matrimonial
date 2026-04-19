@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 import { Modal, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ type Modals = null | 'L2' | 'L3' | 'L4';
 
 /** Verification center screen */
 export default function VerificationScreen() {
+  useScreenTracking('verification');
   const statusQuery = api.verification.getStatus.useQuery();
   const utils = api.useUtils();
 

@@ -5,6 +5,7 @@ import { Card, EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { colors } from '../../constants/colors';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const REASON_LABEL: Record<string, string> = {
   FAKE_PROFILE: '虚假资料',
@@ -51,6 +52,7 @@ function ReportCard({ report }: { report: any }) {
 }
 
 export default function MyReportsScreen() {
+  useScreenTracking('my_reports');
   const { data, isLoading } = api.report.myReports.useQuery();
 
   return (

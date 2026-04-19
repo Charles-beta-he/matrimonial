@@ -9,6 +9,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { ScalePressable } from '../../components/ScalePressable';
 import { colors } from '../../constants/colors';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const DELETION_ITEMS = [
   '个人资料与照片',
@@ -18,6 +19,7 @@ const DELETION_ITEMS = [
 ];
 
 export default function DeleteAccountPage() {
+  useScreenTracking('delete_account');
   const router = useRouter();
   const token = useAppStore((s) => s.token);
   const refreshToken = useAppStore((s) => s.refreshToken);

@@ -17,8 +17,10 @@ import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
 import { colors } from '../../../constants/colors';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
 
 export default function BuddyCreateScreen() {
+  useScreenTracking('buddy_create');
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<BuddyType | null>(null);
   const [title, setTitle] = useState('');

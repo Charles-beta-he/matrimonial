@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuickMatch, useLeaveQuickMatch, useQuickMatchStatus } from '@matrimonial/api-client';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 type CallState = 'idle' | 'matching' | 'matched' | 'in_call' | 'ended';
 
@@ -80,6 +81,7 @@ function MatchedEntrance({ children }: { children: React.ReactNode }) {
 }
 
 export default function QuickMatchScreen() {
+  useScreenTracking('quick_match');
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>('idle');
   const [timeLeft, setTimeLeft] = useState(180);

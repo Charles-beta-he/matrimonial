@@ -325,26 +325,24 @@ export const activityRouter = router({
   activityMatches: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
-    // Find votes where I voted >= 3 AND they voted me >= 3
-    const myVotes = await ctx.prisma.activityVote.findMany({
-      where: { voterId: userId, rating: { gte: 3 } },
-    });
+    // Batch query: get all votes involving this user in both directions at once
+    const [myVotes, inboundVotes] = await Promise.all([
+      ctx.prisma.activityVote.findMany({
+        where: { voterId: userId, rating: { gte: 3 } },
+        select: { activityId: true, votedId: true },
+      }),
+      ctx.prisma.activityVote.findMany({
+        where: { votedId: userId, rating: { gte: 3 } },
+        select: { activityId: true, voterId: true },
+      }),
+    ]);
 
-    const mutuals = [];
-    for (const vote of myVotes) {
-      const reciprocal = await ctx.prisma.activityVote.findUnique({
-        where: {
-          activityId_voterId_votedId: {
-            activityId: vote.activityId,
-            voterId: vote.votedId,
-            votedId: userId,
-          },
-        },
-      });
-      if (reciprocal && reciprocal.rating >= 3) {
-        mutuals.push({ activityId: vote.activityId, userId: vote.votedId });
-      }
-    }
+    // Build a set of (activityId, voterId) for inbound high-rated votes for O(1) lookup
+    const inboundSet = new Set(inboundVotes.map((v) => `${v.activityId}:${v.voterId}`));
+
+    const mutuals = myVotes
+      .filter((v) => inboundSet.has(`${v.activityId}:${v.votedId}`))
+      .map((v) => ({ activityId: v.activityId, userId: v.votedId }));
 
     // Enrich with user + activity details in batch
     const uniqueUserIds = [...new Set(mutuals.map((m) => m.userId))];

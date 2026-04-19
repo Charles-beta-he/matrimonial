@@ -13,6 +13,7 @@ import type { ProfileCardUser } from '@matrimonial/ui';
 import { EmptyState, ProfileCard } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ScalePressable } from '../../components/ScalePressable';
 import { colors } from '../../constants/colors';
@@ -69,6 +70,7 @@ function toProfileCardUser(u: any): ProfileCardUserWithId {
 
 /** Daily picks screen */
 export default function DailyPicksScreen() {
+  useScreenTracking('daily_picks');
   const router = useRouter();
   const { data, isLoading, error, refetch } = api.match.dailyPicks.useQuery();
 

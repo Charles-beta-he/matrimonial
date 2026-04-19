@@ -9,6 +9,7 @@ import { ScalePressable } from '@/components/ScalePressable';
 import { colors } from '../../constants/colors';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/liked/100/100';
 
@@ -55,6 +56,7 @@ function LikedMeCard({ like, index, onPress }: LikedMeCardProps) {
 }
 
 export default function LikedMeScreen() {
+  useScreenTracking('liked_me');
   const router = useRouter();
   const { data, isLoading } = api.match.likedMe.useQuery();
 

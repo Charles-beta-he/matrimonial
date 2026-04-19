@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useSocketStore } from '../stores/useSocketStore';
 
-/** Simple online-status hook (placeholder until WebSocket integration) */
-export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(true);
-
-  useEffect(() => {
-    // TODO: integrate with WebSocket heartbeat
-    setIsOnline(true);
-  }, []);
-
+/** Returns real-time online status from Socket.IO presence events */
+export function useOnlineStatus(userId?: string) {
+  const isOnline = useSocketStore((state) =>
+    userId ? state.isUserOnline(userId) : state.connected,
+  );
   return { isOnline };
 }

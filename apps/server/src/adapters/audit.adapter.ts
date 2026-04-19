@@ -9,9 +9,26 @@ export interface AuditAdapter {
 }
 
 // Reuse the logic from services/audit-service/app/text_audit.py
-const SENSITIVE_WORDS = ['微信号', 'wx', 'QQ号', '加我', '私聊', '转账', '借钱', '投资'];
-const CONTACT_PATTERNS = [/\d{5,}/, /[a-zA-Z]{2,}\d{3,}/];
-const HARASSMENT_PATTERNS = [/约吗/, /开房/, /什么价/, /多少钱/];
+const SENSITIVE_WORDS = [
+  // Contact leaking
+  '微信号', 'wx', 'QQ号', 'qq号', '加我', '加一下', '加个好友', '私聊', '私信我',
+  'telegram', 'tg号', 'whatsapp', '联系方式', '怎么联系', '转账', '借钱', '投资',
+  '私下', '线下见', '出来见面', '约出来',
+  // Scam signals
+  '兼职', '日结', '高薪', '轻松赚钱', '月入过万', '网赚', '提现', '佣金',
+  '理财', '基金', '股票推荐', '带你赚钱', '合法', '正规',
+  // Adult content
+  '一夜情', '约炮', '炮友', '援交', '包养', '养小三', '出台',
+  // Gambling
+  '赌博', '赌场', '百家乐', '德州', '彩票', '六合彩',
+];
+const CONTACT_PATTERNS = [
+  /\d{5,}/,          // 5+ digit numbers (phone fragments)
+  /[a-zA-Z]{2,}\d{3,}/, // handle-like patterns
+  /\d{3}[-\s]\d{4}/, // phone number fragments
+  /[①②③④⑤⑥⑦⑧⑨⑩]+/, // obfuscated digits
+];
+const HARASSMENT_PATTERNS = [/约吗/, /开房/, /什么价/, /多少钱/, /来一炮/, /搞一次/];
 const LANDSCAPE_PATTERNS = ['landscape', 'scenery', 'nature', 'sunset', 'mountain', 'beach', 'building'];
 
 const mockAdapter: AuditAdapter = {

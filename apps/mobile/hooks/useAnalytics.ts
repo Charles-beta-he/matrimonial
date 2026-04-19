@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { AnalyticsEvent } from '@matrimonial/shared';
 import { config } from '../env';
+import { addBreadcrumb } from './useErrorHandler';
 
 // Event queue for batching
 const eventQueue: Array<AnalyticsEvent & { timestamp: number; user_id?: string; session_id: string }> = [];
@@ -35,6 +36,7 @@ export function useAnalytics() {
   const userIdRef = useRef<string | undefined>();
 
   const track = useCallback(<E extends AnalyticsEvent>(event: E['event'], props: Extract<AnalyticsEvent, { event: E['event'] }>['props']) => {
+    addBreadcrumb(event, (props as any)?.screen_name);
     eventQueue.push({
       event,
       props,

@@ -16,9 +16,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Button, Card, Input } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 /** Safety tools screen */
 export default function SafetyScreen() {
+  useScreenTracking('safety');
   // ---- Emergency contact ----
   const contactQuery = api.safety.getEmergencyContact.useQuery();
   const setContactMut = api.safety.setEmergencyContact.useMutation({

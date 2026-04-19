@@ -9,6 +9,7 @@ import { ScalePressable } from '@/components/ScalePressable';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 import { colors } from '../../constants/colors';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/visitor/100/100';
 
@@ -59,6 +60,7 @@ function VisitorCard({ visitor, index, onPress }: VisitorCardProps) {
 }
 
 export default function VisitorsScreen() {
+  useScreenTracking('visitors');
   const router = useRouter();
   const { data, isLoading } = api.user.visitors.useQuery({ limit: 100 });
 

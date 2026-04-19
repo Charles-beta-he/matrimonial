@@ -6,6 +6,7 @@ import * as Contacts from 'expo-contacts';
 import * as Crypto from 'expo-crypto';
 import { colors } from '../../constants/colors';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 interface PrivacySetting {
   key: string;
@@ -86,6 +87,7 @@ function PrivacySettingRow({ setting, value, saving, loading, onToggle, showDivi
 
 /** Privacy settings screen */
 export default function PrivacyScreen() {
+  useScreenTracking('privacy');
   const meQuery = api.user.me.useQuery();
   const utils = api.useUtils();
   const updatePrivacy = api.user.updatePrivacy.useMutation({

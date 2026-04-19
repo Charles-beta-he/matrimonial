@@ -1,8 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { VideoCall } from '../../components/VideoCall';
 import { api } from '@matrimonial/api-client';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 export default function VideoCallScreen() {
+  useScreenTracking('video_call');
   const router = useRouter();
   const params = useLocalSearchParams<{
     roomName: string;

@@ -16,6 +16,7 @@ import { api } from '@matrimonial/api-client';
 import { Card, EmptyState, toast } from '@matrimonial/ui';
 import { colors } from '../../../../constants/colors';
 import { ScreenHeader } from '../../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../../hooks/useAnalytics';
 
 function calculateAge(birthday: string | Date | null): number | null {
   if (!birthday) return null;
@@ -68,6 +69,7 @@ type Participant = {
 };
 
 export default function ActivityVoteScreen() {
+  useScreenTracking('activity_vote');
   const router = useRouter();
   const { activityId } = useLocalSearchParams<{ activityId: string }>();
 

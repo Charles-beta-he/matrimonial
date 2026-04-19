@@ -70,6 +70,14 @@ async function bootstrap() {
 
   // Analytics event ingestion (high-throughput, no auth required)
   const expressApp = app.getHttpAdapter().getInstance();
+  // Dedicated rate limit: max 60 batches/min per IP (each batch = up to 20 events)
+  expressApp.use('/analytics/events', rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'analytics rate limit exceeded' },
+  }));
   expressApp.use('/analytics/events', require('express').json({ limit: '100kb' }));
   expressApp.post('/analytics/events', (req: any, res: any) => {
     const { events } = req.body;

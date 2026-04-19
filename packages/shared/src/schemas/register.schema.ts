@@ -8,8 +8,8 @@ export const registerPhoneSchema = z.object({
 export const registerBasicInfoSchema = z.object({
   gender: z.enum(['MALE', 'FEMALE'], { required_error: '请选择性别' }),
   birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式应为 YYYY-MM-DD'),
-  city: z.string().min(1, '请选择城市').max(50),
-  nickname: z.string().min(2, '昵称至少2个字符').max(20, '昵称最多20个字符'),
+  city: z.string().trim().min(1, '请选择城市').max(50),
+  nickname: z.string().trim().min(2, '昵称至少2个字符').max(20, '昵称最多20个字符'),
 });
 
 export const registerPhotosSchema = z.object({

@@ -17,6 +17,7 @@ import { ScalePressable } from '../../../components/ScalePressable';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { colors } from '../../../constants/colors';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/buddy/100/100';
 
@@ -55,6 +56,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
 };
 
 export default function BuddyPostDetailScreen() {
+  useScreenTracking('buddy_post_detail');
   const router = useRouter();
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const [applyMessage, setApplyMessage] = useState('');

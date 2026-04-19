@@ -23,6 +23,7 @@ import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
 import { colors } from '../../../constants/colors';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useScreenTracking } from '../../../hooks/useAnalytics';
 
 function AnimatedBanner({ color, index }: { color: string; index: number }) {
   const width = useSharedValue(0);
@@ -57,6 +58,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function CirclesScreen() {
+  useScreenTracking('circles');
   const router = useRouter();
   const [category, setCategory] = useState<string | undefined>(undefined);
 

@@ -15,6 +15,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 
 interface SettingToggle {
   key: string;
@@ -29,6 +30,7 @@ const NOTIFICATION_SETTINGS: SettingToggle[] = [
 ];
 
 export default function SettingsPage() {
+  useScreenTracking('settings');
   const router = useRouter();
   const clearAuth = useAppStore((s) => s.clearAuth);
   const storeUser = useAppStore((s) => s.user);

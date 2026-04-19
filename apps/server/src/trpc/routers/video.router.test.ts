@@ -157,7 +157,7 @@ describe('videoRouter', () => {
       const { VideoService } = await import('../../modules/video/video.service');
       await VideoService.createMatchmakerRoom('user-1', { title: '形状测试', category: '交友' });
 
-      const rooms = VideoService.listMatchmakerRooms();
+      const rooms = await VideoService.listMatchmakerRooms();
       if (rooms.length > 0) {
         const room = rooms[0];
         expect(room).toHaveProperty('id');
@@ -220,7 +220,7 @@ describe('videoRouter', () => {
   describe('VideoService.getQuickMatchStatus', () => {
     it('returns inQueue=false when user is not in queue', async () => {
       const { VideoService } = await import('../../modules/video/video.service');
-      const status = VideoService.getQuickMatchStatus('user-not-in-queue-xyz');
+      const status = await VideoService.getQuickMatchStatus('user-not-in-queue-xyz');
       expect(status.inQueue).toBe(false);
       expect(status.position).toBe(0);
     });

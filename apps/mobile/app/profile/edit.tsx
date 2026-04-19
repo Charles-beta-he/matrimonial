@@ -10,6 +10,7 @@ import { ALL_TAGS, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
+import { useScreenTracking } from '../../hooks/useAnalytics';
 import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
 import { colors } from '../../constants/colors';
@@ -56,6 +57,7 @@ const MBTI_OPTIONS = [
 
 /** Profile edit screen */
 export default function ProfileEditScreen() {
+  useScreenTracking('profile_edit');
   const router = useRouter();
 
   // Entrance animations

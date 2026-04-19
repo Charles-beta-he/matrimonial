@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { toast } from '@matrimonial/ui';
+import { config } from '../env';
 
 /** Map tRPC error codes to user-friendly Chinese messages */
 const ERROR_MESSAGES: Record<string, string> = {
@@ -13,33 +14,42 @@ const ERROR_MESSAGES: Record<string, string> = {
   NETWORK_ERROR: '网络连接失败',
 };
 
+/** In-memory breadcrumb trail — last 30 user interactions for session replay context */
+const breadcrumbs: Array<{ action: string; screen?: string; ts: number }> = [];
+
+export function addBreadcrumb(action: string, screen?: string) {
+  breadcrumbs.push({ action, screen, ts: Date.now() });
+  if (breadcrumbs.length > 30) breadcrumbs.shift();
+}
+
+function sendErrorEvent(type: string, message: string, stack?: string, fatal = false) {
+  fetch(config.analyticsEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      events: [{
+        event: 'error_boundary',
+        props: {
+          error_type: type,
+          error: message.slice(0, 300),
+          stack: stack?.slice(0, 500),
+          fatal,
+          breadcrumbs: breadcrumbs.slice(-10),
+        },
+        timestamp: Date.now(),
+        session_id: 'error',
+      }],
+    }),
+  }).catch(() => {});
+}
+
 export function useGlobalErrorHandler() {
   useEffect(() => {
-    // Capture unhandled promise rejections
-    const handler = (event: any) => {
-      const error = event?.reason ?? event?.error;
-      if (!error) return;
-
-      const message = error?.data?.code
-        ? ERROR_MESSAGES[error.data.code] ?? error.message
-        : error?.message ?? '未知错误';
-
-      toast.error(message);
-
-      // Log for analytics
-      console.error(JSON.stringify({
-        type: 'unhandled_error',
-        message: error?.message,
-        stack: error?.stack?.slice(0, 500),
-        timestamp: new Date().toISOString(),
-      }));
-    };
-
-    // ErrorUtils is a React Native runtime global not declared in TS types
     const RNErrorUtils = (globalThis as { ErrorUtils?: { getGlobalHandler: () => (e: Error, fatal?: boolean) => void; setGlobalHandler: (h: (e: Error, fatal?: boolean) => void) => void } }).ErrorUtils;
     if (RNErrorUtils) {
       const prev = RNErrorUtils.getGlobalHandler();
       RNErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+        sendErrorEvent('js_error', error.message, error.stack, isFatal);
         console.error(JSON.stringify({
           type: 'fatal_error',
           fatal: isFatal,
@@ -49,8 +59,5 @@ export function useGlobalErrorHandler() {
         prev(error, isFatal);
       });
     }
-    void handler;
-
-    return () => {};
   }, []);
 }
