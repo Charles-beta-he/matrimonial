@@ -312,10 +312,10 @@ export default function CircleDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       {/* Back button overlay */}
-      <Animated.View className="absolute top-12 left-4 z-10" style={backBtnStyle}>
+      <Animated.View style={[{ position: 'absolute', top: 48, left: 16, zIndex: 10 }, backBtnStyle]}>
         <ScalePressable
           onPress={() => router.back()}
-          className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
+          containerStyle={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-back" size={22} color={colors.white} />
         </ScalePressable>
