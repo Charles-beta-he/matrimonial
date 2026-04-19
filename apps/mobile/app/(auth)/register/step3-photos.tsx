@@ -96,10 +96,11 @@ export default function RegisterStep3Photos() {
   const renderSlot = (index: number, variant: 'main' | 'small') => {
     const uri = photos[index];
     const isActive = activeSlot === index && uploading;
-    const radius = variant === 'main' ? 'rounded-2xl' : 'rounded-xl';
+    const borderRadius = variant === 'main' ? 16 : 12;
     return (
       <ScalePressable
-        className={`w-full h-full overflow-hidden ${radius}`}
+        containerStyle={{ flex: 1, borderRadius, overflow: 'hidden' }}
+        style={{ flex: 1 }}
         onPress={() => (uri ? handleRemovePhoto(index) : handleAddPhoto(index))}
         disabled={isActive}
       >
@@ -114,19 +115,19 @@ export default function RegisterStep3Photos() {
             </ScalePressable>
           </View>
         ) : isActive ? (
-          <View className={`w-full h-full items-center justify-center bg-rose-50 border-2 border-dashed border-rose-300 ${radius}`}>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff1f2', borderWidth: 1.5, borderColor: '#fda4af', borderRadius }}>
             <ActivityIndicator color={colors.primary} />
-            <Text className="text-xs text-rose-400 mt-1">上传中...</Text>
+            <Text style={{ fontSize: 12, color: '#fb7185', marginTop: 4 }}>上传中...</Text>
           </View>
         ) : (
-          <View className={`w-full h-full border-2 border-dashed border-gray-300 items-center justify-center bg-gray-50 ${radius}`}>
+          <View style={{ flex: 1, borderWidth: 1.5, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', borderRadius }}>
             <Ionicons
               name="add"
               size={variant === 'main' ? 32 : 24}
               color={colors.gray300}
               style={{ marginBottom: 2 }}
             />
-            {variant === 'main' ? <Text className="text-xs text-gray-400">主照片</Text> : null}
+            {variant === 'main' ? <Text style={{ fontSize: 12, color: '#9ca3af' }}>主照片</Text> : null}
           </View>
         )}
       </ScalePressable>
@@ -152,9 +153,9 @@ export default function RegisterStep3Photos() {
           </View>
 
           {/* Right column: 2 small slots */}
-          <View className="flex-1" style={{ gap: 8 }}>
+          <View style={{ flex: 1, gap: 8 }}>
             {[1, 2].map((idx) => (
-              <View key={idx} className="flex-1" style={{ aspectRatio: 1 }}>
+              <View key={idx} style={{ flex: 1 }}>
                 {renderSlot(idx, 'small')}
               </View>
             ))}
