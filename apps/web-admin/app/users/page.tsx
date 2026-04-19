@@ -17,13 +17,13 @@ type UserItem = {
   city: string | null;
   verificationLevel: string;
   status: string;
-  createdAt: Date;
-  birthday: Date | null;
+  createdAt: string;
+  birthday: string | null;
   bio: string | null;
   occupation: string | null;
   phone: string | null;
   membership: string;
-  lastActiveAt: Date | null;
+  lastActiveAt: string | null;
   photos: Array<{ url: string; isAvatar: boolean }>;
   _count: { sentLikes: number; receivedLikes: number };
 };

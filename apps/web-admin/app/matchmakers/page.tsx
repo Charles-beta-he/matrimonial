@@ -11,8 +11,8 @@ type MatchmakerItem = {
   successRate: number;
   rating: number;
   isOnline: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   user: { id: string; nickname: string; city: string } | null;
 };
 

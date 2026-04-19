@@ -119,7 +119,8 @@ export default function RootLayout() {
   // Set document title imperatively so axe-core picks it up before Head hydrates
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    document.title = '缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台 | 立即遇见对的人';
+    // eslint-disable-next-line no-undef
+    (globalThis as any).document && ((globalThis as any).document.title = '缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台 | 立即遇见对的人');
   }, []);
 
   // Auto-connect socket when hydrated and token is available
@@ -280,7 +281,7 @@ export default function RootLayout() {
         <api.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             <SafeAreaProvider>
-              <View style={{ flex: 1 }} accessibilityRole="main">
+              <View style={{ flex: 1 }} accessibilityRole={'main' as any}>
                 {Platform.OS === 'web' && (() => {
                   const H1 = 'h1' as unknown as React.ComponentType<{ style: React.CSSProperties; children: React.ReactNode }>;
                   return <H1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>缘分 — 基于AI的智能婚恋匹配平台</H1>;
