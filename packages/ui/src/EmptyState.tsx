@@ -38,7 +38,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 
   return (
     <View className="items-center justify-center p-8">
-      <Animated.View className="mb-4" style={iconStyle}>
+      <Animated.View style={[iconStyle, { marginBottom: 16 }]}>
         {icon ?? (
           <View
             className="items-center justify-center rounded-full"
@@ -57,7 +57,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         )}
       </Animated.View>
 
-      <Animated.View className="items-center" style={contentStyle}>
+      <Animated.View style={[contentStyle, { alignItems: 'center' }]}>
         <Text className="text-lg font-semibold text-gray-900 mb-2">{title}</Text>
 
         {description ? (
