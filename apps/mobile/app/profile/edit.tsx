@@ -460,7 +460,7 @@ export default function ProfileEditScreen() {
                   )}
                   <View className="flex-row mt-4" style={{ gap: 12 }}>
                     <ScalePressable
-                      className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
+                      containerStyle={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', paddingVertical: 12, alignItems: 'center' }}
                       onPress={() => { setEditingPromptIdx(null); setPromptEval(null); }}
                     >
                       <Text className="text-sm text-gray-600">取消</Text>
