@@ -40,6 +40,7 @@ const MatchAnimation = lazy(() =>
 );
 import { SkeletonCard } from '../../components/SkeletonLoader';
 import { useMatchStore } from '../../stores/useMatchStore';
+import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
 type ProfileCardUserWithId = ProfileCardUser & { id: string; recommendReason?: string };
@@ -195,6 +196,7 @@ export default function DiscoverTab() {
   const router = useRouter();
   const { showMatchAnimation, matchedUser, setMatchAnimation } = useMatchStore();
   const { track } = useAnalytics();
+  const myPhoto = useAppStore((s) => (s.user as any)?.photos?.[0]?.url ?? 'https://picsum.photos/seed/me/200/200');
 
   const [localIndex, setLocalIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<{ name: string; photo: string } | null>(null);
@@ -976,7 +978,7 @@ export default function DiscoverTab() {
         {showMatchAnimation && matchInfo && (
           <Suspense fallback={null}>
             <MatchAnimation
-              myPhoto="https://picsum.photos/seed/me/200/200"
+              myPhoto={myPhoto}
               theirPhoto={matchInfo.photo}
               theirName={matchInfo.name}
               matchedUserId={matchedUser?.id}
