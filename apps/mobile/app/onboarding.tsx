@@ -187,32 +187,34 @@ export default function OnboardingScreen() {
         onMomentumScrollEnd={handleScroll}
         onScrollEndDrag={handleScroll}
         scrollEventThrottle={16}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ alignItems: 'stretch' }}
       >
         {PAGES.map((p) => (
           <View
             key={p.title}
-            style={{ width: SCREEN_WIDTH }}
-            className="flex-1 items-center justify-center px-10"
+            style={{ width: SCREEN_WIDTH, flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}
           >
             {/* Illustration placeholder */}
             <Animated.View
-              style={[heroStyle, { backgroundColor: p.iconColor + '15' }]}
-              className="w-48 h-48 rounded-full items-center justify-center mb-10"
+              style={[heroStyle, {
+                width: 192, height: 192, borderRadius: 96,
+                backgroundColor: p.iconColor + '18',
+                alignItems: 'center', justifyContent: 'center', marginBottom: 40,
+              }]}
             >
               <Ionicons name={p.icon} size={88} color={p.iconColor} />
             </Animated.View>
 
             <Animated.Text
-              style={titleStyle}
-              className="text-2xl font-bold text-gray-900 mb-4 text-center"
+              style={[titleStyle, { fontSize: 24, fontWeight: '700', color: '#111827', marginBottom: 16, textAlign: 'center' }]}
               accessibilityRole="header"
               aria-level={1}
             >
               {p.title}
             </Animated.Text>
             <Animated.Text
-              style={descStyle}
-              className="text-sm text-gray-500 leading-6 text-center"
+              style={[descStyle, { fontSize: 14, color: '#6b7280', lineHeight: 24, textAlign: 'center' }]}
             >
               {p.description}
             </Animated.Text>

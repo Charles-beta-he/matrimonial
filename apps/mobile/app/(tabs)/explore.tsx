@@ -124,13 +124,16 @@ export default function ExploreTab() {
                   <Text className="text-lg font-semibold text-gray-900 mb-1">
                     {section.title}
                   </Text>
-                  <Text className="text-sm text-gray-500">{section.description}</Text>
+                  <Text className="text-sm text-gray-500" numberOfLines={1}>{section.description}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.gray300} />
               </View>
             </Card>
           </StaggeredListItem>
         ))}
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
+          <Text style={{ fontSize: 13, color: '#d1d5db', textAlign: 'center' }}>更多功能即将上线</Text>
+        </View>
       </View>
     </SafeAreaView>
     </ChromaTransition>

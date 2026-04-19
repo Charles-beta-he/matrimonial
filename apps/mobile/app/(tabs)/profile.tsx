@@ -213,7 +213,7 @@ export default function ProfileTab() {
           </Text>
           <View className="flex-row items-center mt-1" style={{ gap: 6 }}>
             <Text className="text-sm text-gray-500">
-              {age ?? '--'}岁 · {user?.city ?? '--'}
+              {age != null && user?.city ? `${age}岁 · ${user.city}` : age != null ? `${age}岁` : user?.city ?? ''}
             </Text>
             {verificationLevel && (
               <Badge
@@ -225,8 +225,8 @@ export default function ProfileTab() {
           </View>
 
           <PressScale onPress={() => router.push('/profile/edit')} style={{ marginTop: 16 }}>
-            <View className="bg-rose-50 rounded-full px-6 py-2">
-              <Text className="text-rose-500 font-medium text-sm">编辑资料</Text>
+            <View style={{ backgroundColor: '#f43f5e', borderRadius: 999, paddingHorizontal: 24, paddingVertical: 8 }}>
+              <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>编辑资料</Text>
             </View>
           </PressScale>
         </Animated.View>
