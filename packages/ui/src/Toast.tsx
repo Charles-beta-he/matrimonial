@@ -20,6 +20,7 @@ interface ToastMessage {
 
 // Global toast state
 let toastListeners: Array<(msg: ToastMessage) => void> = [];
+let toastCounter = 0;
 
 export const toast = {
   show(typeOrOptions: ToastType | { type: ToastType; text1: string }, messageArg?: string) {
@@ -32,7 +33,7 @@ export const toast = {
       type = typeOrOptions;
       message = messageArg ?? '';
     }
-    const msg: ToastMessage = { id: `t_${Date.now()}`, type, message };
+    const msg: ToastMessage = { id: `t_${++toastCounter}`, type, message };
     toastListeners.forEach(fn => fn(msg));
   },
   success: (msg: string) => toast.show('success', msg),

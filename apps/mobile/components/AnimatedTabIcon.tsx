@@ -23,7 +23,7 @@ interface AnimatedTabIconProps {
 
 export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 0 }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
-  const dotScale = useSharedValue(focused ? 1 : 0);
+  const dotWidth = useSharedValue(focused ? 1 : 0);
   // Chromatic aberration on icon — red/blue split on focus
   const chromaRedX = useSharedValue(0);
   const chromaBlueX = useSharedValue(0);
@@ -65,7 +65,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
         withSpring(1.3, { damping: 7, stiffness: 220 }),
         withSpring(1.0, { damping: 10, stiffness: 220 }),
       );
-      dotScale.value = withSpring(1, { damping: 8, stiffness: 200 });
+      dotWidth.value = withSpring(1, { damping: 8, stiffness: 200 });
 
       // Chromatic split — red goes left, blue goes right, fade out
       chromaOp.value = withSequence(
@@ -112,7 +112,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
         withTiming(0, { duration: 420, easing: Easing.out(Easing.cubic) }),
       );
     } else {
-      dotScale.value = withTiming(0, { duration: 150 });
+      dotWidth.value = withTiming(0, { duration: 150 });
       glowFillOpacity.value = withTiming(0, { duration: 150 });
       innerRingOpacity.value = withTiming(0, { duration: 150 });
       outerBloomOpacity.value = withTiming(0, { duration: 150 });
@@ -144,7 +144,8 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
     transform: [{ translateX: chromaBlueX.value }],
   }));
   const dotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dotScale.value }],
+    transform: [{ scaleX: dotWidth.value }],
+    opacity: dotWidth.value,
   }));
   const glowFillStyle = useAnimatedStyle(() => ({
     transform: [{ scale: glowFillScale.value }],
@@ -249,11 +250,11 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
       </View>
       <Animated.View
         style={[{
-          width: 4,
-          height: 4,
-          borderRadius: 2,
+          width: 20,
+          height: 3,
+          borderRadius: 1.5,
           backgroundColor: colors.primary,
-          marginTop: 3,
+          marginTop: 4,
         }, dotStyle]}
       />
     </View>

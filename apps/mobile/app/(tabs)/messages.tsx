@@ -188,7 +188,7 @@ export default function MessagesTab() {
   return (
     <ChromaTransition>
     <SafeAreaView className="flex-1 bg-white">
-      <Animated.View style={headerStyle} className="px-4 py-3">
+      <Animated.View style={[{ paddingHorizontal: 16, paddingVertical: 12 }, headerStyle]}>
         <Text className="text-2xl font-bold text-gray-900">消息</Text>
       </Animated.View>
 

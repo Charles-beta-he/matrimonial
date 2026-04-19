@@ -77,7 +77,7 @@ export default function ExploreTab() {
   return (
     <ChromaTransition>
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View style={[headerStyle]} className="px-4 py-4">
+      <Animated.View style={[{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }, headerStyle]}>
         <Text className="text-2xl font-bold text-gray-900">探索</Text>
         <Text className="text-sm text-gray-500 mt-1">发现更多社交方式</Text>
       </Animated.View>

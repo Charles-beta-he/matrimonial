@@ -53,9 +53,9 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.white,
           borderTopColor: colors.gray100,
-          height: 64 + bottomInset,
-          paddingBottom: bottomInset + 6,
-          paddingTop: 8,
+          height: 68 + bottomInset,
+          paddingBottom: bottomInset + 4,
+          paddingTop: 10,
         },
         title: LABELS[route.name] ?? route.name,
         tabBarLabel: ({ color }) => (

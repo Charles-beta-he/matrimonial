@@ -418,8 +418,15 @@ export default function DiscoverTab() {
       <SafeAreaView className="flex-1 bg-gray-50">
         {/* Header */}
         <Animated.View
-          className="flex-row items-center justify-between px-4 py-3"
-          style={{ opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            opacity: headerOpacity,
+            transform: [{ translateY: headerTranslateY }],
+          }}
         >
           <Text className="text-2xl font-bold text-gray-900">发现</Text>
           <ScalePressable
@@ -803,12 +810,12 @@ export default function DiscoverTab() {
             contentContainerStyle={{ paddingHorizontal: 16, gap: 10, alignItems: 'center' }}
           >
             {dailyPicksQuery.isLoading ? (
-              <View style={{ width: 320, alignItems: 'center', justifyContent: 'center', height: 88 }}>
-                <Text className="text-xs text-gray-400">加载中…</Text>
+              <View style={{ width: 320, height: 120, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 12, color: colors.gray400 }}>加载中…</Text>
               </View>
             ) : dailyPicks.length === 0 ? (
-              <View style={{ width: 320, alignItems: 'center', justifyContent: 'center', height: 88 }}>
-                <Text className="text-xs text-gray-400">暂无精选</Text>
+              <View style={{ width: 320, height: 120, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 12, color: colors.gray400 }}>暂无精选</Text>
               </View>
             ) : (
               dailyPicks.map((user) => (

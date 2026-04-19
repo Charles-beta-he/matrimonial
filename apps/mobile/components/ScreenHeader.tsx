@@ -62,16 +62,14 @@ export function ScreenHeader({ title, onBack, right, centered = false, noBorder 
 
       {centered ? (
         <Text
-          className="flex-1 text-center text-lg font-bold text-gray-900"
-          style={{ marginHorizontal: 8 }}
+          style={{ flex: 1, textAlign: 'center', fontSize: 18, fontWeight: '700', color: colors.gray900, marginHorizontal: 8 }}
           numberOfLines={1}
         >
           {title}
         </Text>
       ) : (
         <Text
-          className="flex-1 text-xl font-bold text-gray-900"
-          style={{ marginLeft: 12 }}
+          style={{ flex: 1, fontSize: 20, fontWeight: '700', color: colors.gray900, marginLeft: 12 }}
           numberOfLines={1}
         >
           {title}
