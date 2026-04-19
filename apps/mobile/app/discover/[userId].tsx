@@ -22,6 +22,7 @@ import Animated, {
   withSequence,
   withSpring,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -36,6 +37,58 @@ import { colors } from '../../constants/colors';
 import { useScreenTracking } from '../../hooks/useAnalytics';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+function PhotoSlide({
+  photo,
+  index,
+  scrollX,
+  heroImageStyle,
+}: {
+  photo: string;
+  index: number;
+  scrollX: SharedValue<number>;
+  heroImageStyle: ReturnType<typeof useAnimatedStyle>;
+}) {
+  const parallaxStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: (index * SCREEN_WIDTH - scrollX.value) * -0.3 }],
+  }));
+  return (
+    <View
+      style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 + 80, overflow: 'hidden' }}
+    >
+      <Animated.Image
+        source={{ uri: photo }}
+        style={[
+          { width: SCREEN_WIDTH * 1.2, height: SCREEN_WIDTH * 1.2 + 80, left: -SCREEN_WIDTH * 0.1 },
+          heroImageStyle,
+          parallaxStyle,
+        ]}
+        resizeMode="cover"
+      />
+    </View>
+  );
+}
+
+function DotIndicator({
+  index,
+  scrollX,
+}: {
+  index: number;
+  scrollX: SharedValue<number>;
+}) {
+  const dotStyle = useAnimatedStyle(() => {
+    const inputRange = [(index - 1) * SCREEN_WIDTH, index * SCREEN_WIDTH, (index + 1) * SCREEN_WIDTH];
+    const scale = interpolate(scrollX.value, inputRange, [1, 1.5, 1], Extrapolation.CLAMP);
+    const width = interpolate(scrollX.value, inputRange, [8, 20, 8], Extrapolation.CLAMP);
+    const opacity = interpolate(scrollX.value, inputRange, [0.5, 1, 0.5], Extrapolation.CLAMP);
+    return { transform: [{ scale }], width, opacity };
+  });
+  return (
+    <Animated.View
+      style={[{ height: 8, borderRadius: 4, backgroundColor: colors.white }, dotStyle]}
+    />
+  );
+}
 
 function mapUser(u: any) {
   const age = u?.birthday ? calculateAge(new Date(u.birthday)) : 25;
@@ -184,28 +237,6 @@ export default function UserProfileScreen() {
     },
   });
 
-  // Returns an animated style for the inner image layer of photo at index `i`
-  // translateX = (i * SCREEN_WIDTH - scrollX) * -0.3
-  // When scrollX === i * SCREEN_WIDTH (photo is centred) → offset = 0
-  // As you scroll right past it, image shifts left (reveals right side of image)
-  const makePhotoParallaxStyle = (i: number) =>
-    useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateX: (i * SCREEN_WIDTH - scrollX.value) * -0.3,
-        },
-      ],
-    }));
-
-  // Dot animation: active dot expands width, scale up
-  const makeDotStyle = (i: number) =>
-    useAnimatedStyle(() => {
-      const inputRange = [(i - 1) * SCREEN_WIDTH, i * SCREEN_WIDTH, (i + 1) * SCREEN_WIDTH];
-      const scale = interpolate(scrollX.value, inputRange, [1, 1.5, 1], Extrapolation.CLAMP);
-      const width = interpolate(scrollX.value, inputRange, [8, 20, 8], Extrapolation.CLAMP);
-      const opacity = interpolate(scrollX.value, inputRange, [0.5, 1, 0.5], Extrapolation.CLAMP);
-      return { transform: [{ scale }], width, opacity };
-    });
   // ----------------------------------
 
   const handlePhotoScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -313,41 +344,15 @@ export default function UserProfileScreen() {
             onScroll={horizontalScrollHandler}
             onMomentumScrollEnd={handlePhotoScroll}
           >
-            {user.photos.map((photo, i) => {
-              const parallaxStyle = makePhotoParallaxStyle(i);
-              return (
-                /* Outer cell: fixed page size, clips the shifted inner layer */
-                <View
-                  key={i}
-                  style={{
-                    width: SCREEN_WIDTH,
-                    height: SCREEN_WIDTH * 1.2 + 80,
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* Inner layer: wider than container so parallax shift never shows a gap */}
-                  {/* Vertical parallax (heroImageStyle) applied here too so both axes work */}
-                  <Animated.View
-                    style={[
-                      {
-                        width: SCREEN_WIDTH * 1.3,
-                        height: SCREEN_WIDTH * 1.2 + 80,
-                        marginLeft: -(SCREEN_WIDTH * 0.15),
-                        backgroundColor: '#e5e7eb',
-                      },
-                      heroImageStyle,
-                      parallaxStyle,
-                    ]}
-                  >
-                    <Image
-                      source={{ uri: photo }}
-                      style={{ width: '100%', height: '100%' }}
-                      resizeMode="cover"
-                    />
-                  </Animated.View>
-                </View>
-              );
-            })}
+            {user.photos.map((photo, i) => (
+              <PhotoSlide
+                key={i}
+                photo={photo}
+                index={i}
+                scrollX={scrollX}
+                heroImageStyle={heroImageStyle}
+              />
+            ))}
           </Animated.ScrollView>
 
           {/* Fade overlay — darkens as user scrolls down */}
@@ -368,18 +373,9 @@ export default function UserProfileScreen() {
 
           {/* Dot indicators — active dot expands width and brightens */}
           <View className="absolute bottom-4 flex-row self-center" style={{ gap: 6 }}>
-            {user.photos.map((_, i) => {
-              const dotStyle = makeDotStyle(i);
-              return (
-                <Animated.View
-                  key={i}
-                  style={[
-                    { height: 8, borderRadius: 4, backgroundColor: colors.white },
-                    dotStyle,
-                  ]}
-                />
-              );
-            })}
+            {user.photos.map((_, i) => (
+              <DotIndicator key={i} index={i} scrollX={scrollX} />
+            ))}
           </View>
 
           {/* Back button */}
