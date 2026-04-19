@@ -491,6 +491,7 @@ export default function ChatConversationScreen() {
             data={allMessages}
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
+            style={{ flex: 1 }}
             contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', paddingVertical: 12 }}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
@@ -590,8 +591,7 @@ export default function ChatConversationScreen() {
                 onChangeText={handleChangeText}
                 multiline
                 maxLength={500}
-                onFocus={() => {}}
-                onBlur={() => {}}
+                style={{ outlineStyle: 'none' } as any}
               />
             </Animated.View>
             <ScalePressable className="w-10 h-10 items-center justify-center">
