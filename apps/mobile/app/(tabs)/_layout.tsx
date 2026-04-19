@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus, Text } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AnimatedTabIcon } from '@/components/AnimatedTabIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '@matrimonial/api-client';
+import { useAppStore } from '../../stores/useAppStore';
 import { colors } from '../../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -23,7 +24,19 @@ const LABELS: Record<string, string> = {
   profile: '我的',
 };
 
+/** Guard wrapper — redirects before any authenticated queries mount. */
 export default function TabsLayout() {
+  const token = useAppStore((s) => s.token);
+  const hydrated = useAppStore((s) => s.hydrated);
+
+  if (hydrated && !token) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  return <TabsLayoutInner />;
+}
+
+function TabsLayoutInner() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
   const updateLastActiveMut = api.user.updateLastActive.useMutation();
@@ -32,7 +45,6 @@ export default function TabsLayout() {
   const appState = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
-    // Call once on mount (app is in foreground)
     updateLastActiveMut.mutate();
 
     const sub = AppState.addEventListener('change', (nextState: AppStateStatus) => {
@@ -44,6 +56,7 @@ export default function TabsLayout() {
 
     return () => sub.remove();
   }, []);
+
   return (
     <Tabs
       screenOptions={({ route }) => ({
