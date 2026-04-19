@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, TRPCClientError, type TRPCLink } from '@trpc/client';
 import { observable } from '@trpc/server/observable';
 import type { AnyRouter } from '@trpc/server';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import Head from 'expo-router/head';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
@@ -45,6 +45,9 @@ const authRefreshLink: TRPCLink<AnyRouter> = () => {
             refreshAccessToken()
               .then((newToken) => {
                 if (!newToken) {
+                  // Refresh failed — clear stale credentials and send to login.
+                  useAppStore.getState().clearAuth();
+                  router.replace('/(auth)/login');
                   observer.error(err);
                   return;
                 }
