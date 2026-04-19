@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Modal, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, ScrollView, Text, TextInput, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withDelay, withSequence, Easing } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Button, Input, PromptCard, TagSelector, toast } from '@matrimonial/ui';
 import { ALL_TAGS, PROMPT_QUESTIONS } from '@matrimonial/shared';
@@ -89,6 +88,7 @@ export default function ProfileEditScreen() {
   const meQuery = api.user.me.useQuery();
   const utils = api.useUtils();
   const updateMut = api.user.updateProfile.useMutation();
+  const updatePhotosMut = api.user.updatePhotos.useMutation();
   const updatePromptsMut = api.user.updatePrompts.useMutation();
   const evaluatePromptMut = api.ai.evaluatePrompt.useMutation();
   const user: any = meQuery.data ?? storeUser;
@@ -104,6 +104,14 @@ export default function ProfileEditScreen() {
       (user as any)?.avatar ??
       'https://picsum.photos/seed/me/200/200',
   );
+
+  const PHOTO_SLOTS = 6;
+  const [photos, setPhotos] = useState<(string | null)[]>(() => {
+    const existing = (user as any)?.photos ?? [];
+    const urls = existing.map((p: any) => p?.url ?? null).slice(0, PHOTO_SLOTS);
+    return [...urls, ...Array(PHOTO_SLOTS - urls.length).fill(null)];
+  });
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
 
   const handleChangeAvatar = async () => {
     const result = await pickAndUpload('avatar');
@@ -169,6 +177,10 @@ export default function ProfileEditScreen() {
       setPrompts(u.prompts.map((p: any) => ({ questionId: p.questionId, answerText: p.answerText ?? '' })));
     }
     if (u.photos?.[0]?.url) setAvatarUrl(u.photos[0].url);
+    if (Array.isArray(u.photos)) {
+      const urls = u.photos.map((p: any) => p?.url ?? null).slice(0, PHOTO_SLOTS);
+      setPhotos([...urls, ...Array(PHOTO_SLOTS - urls.length).fill(null)]);
+    }
   }, [meQuery.data]);
 
   // Debounced prompt quality evaluation
@@ -189,6 +201,37 @@ export default function ProfileEditScreen() {
       if (evalDebounceRef.current) clearTimeout(evalDebounceRef.current);
     };
   }, [promptDraft, editingPromptIdx]);
+
+  const savePhotos = async (updated: (string | null)[]) => {
+    const payload = updated
+      .map((url, i) => ({ url, order: i }))
+      .filter((p): p is { url: string; order: number } => !!p.url)
+      .map((p, idx) => ({ url: p.url, order: idx, isAvatar: idx === 0 }));
+    await updatePhotosMut.mutateAsync({ photos: payload });
+    await utils.user.me.invalidate();
+    if (payload[0]) setAvatarUrl(payload[0].url);
+  };
+
+  const handleAddPhoto = async (index: number) => {
+    if (uploadingSlot !== null) return;
+    setUploadingSlot(index);
+    const result = await pickAndUpload('photo');
+    setUploadingSlot(null);
+    if (!result) return;
+    const updated = [...photos];
+    updated[index] = result.publicUrl;
+    setPhotos(updated);
+    await savePhotos(updated).catch((e: any) => toast.error(e?.message ?? '照片保存失败'));
+  };
+
+  const handleRemovePhoto = async (index: number) => {
+    const updated = [...photos];
+    updated[index] = null;
+    // Compact — move non-null photos to front
+    const compacted = [...updated.filter(Boolean), ...updated.filter((u) => !u)];
+    setPhotos(compacted);
+    await savePhotos(compacted).catch((e: any) => toast.error(e?.message ?? '照片删除失败'));
+  };
 
   const handleSave = async () => {
     saveScale.value = withSequence(
@@ -265,25 +308,42 @@ export default function ProfileEditScreen() {
         </Animated.View>
 
         <Animated.View style={contentStyle}>
-        {/* Photo grid placeholder */}
+        {/* Photo grid */}
         <View className="bg-white mt-2 p-4">
-          <Text className="text-base font-semibold text-gray-900 mb-3">照片</Text>
+          <Text className="text-base font-semibold text-gray-900 mb-3">
+            照片 <Text className="text-xs text-gray-400 font-normal">{photos.filter(Boolean).length}/6</Text>
+          </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <ScalePressable
-                key={i}
-                containerStyle={{
-                  width: '31%', aspectRatio: 1,
-                  backgroundColor: '#f3f4f6', borderRadius: 12,
-                  alignItems: 'center', justifyContent: 'center',
-                  borderWidth: 1.5, borderColor: '#d1d5db',
-                }}
-                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-                onPress={() => Alert.alert('照片', '功能开发中')}
-              >
-                <Ionicons name="add" size={28} color="#9ca3af" />
-              </ScalePressable>
-            ))}
+            {photos.map((uri, i) => {
+              const isUploading = uploadingSlot === i;
+              return (
+                <View key={i} style={{ width: '31%', aspectRatio: 1 }}>
+                  {uri ? (
+                    <View style={{ flex: 1, borderRadius: 12, overflow: 'hidden', backgroundColor: '#e5e7eb' }}>
+                      <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                      <ScalePressable
+                        onPress={() => handleRemovePhoto(i)}
+                        containerStyle={{ position: 'absolute', top: 6, right: 6, width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Ionicons name="close" size={13} color={colors.white} />
+                      </ScalePressable>
+                    </View>
+                  ) : isUploading ? (
+                    <View style={{ flex: 1, borderRadius: 12, borderWidth: 1.5, borderColor: '#fda4af', backgroundColor: '#fff1f2', alignItems: 'center', justifyContent: 'center' }}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    </View>
+                  ) : (
+                    <ScalePressable
+                      containerStyle={{ flex: 1, borderRadius: 12, borderWidth: 1.5, borderColor: '#d1d5db', backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => handleAddPhoto(i)}
+                      disabled={uploadingSlot !== null}
+                    >
+                      <Ionicons name="add" size={28} color="#9ca3af" />
+                    </ScalePressable>
+                  )}
+                </View>
+              );
+            })}
           </View>
         </View>
 
