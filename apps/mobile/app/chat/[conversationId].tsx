@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import Animated, {
   Easing,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -69,11 +68,8 @@ export default function ChatConversationScreen() {
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const canSeeReadReceipts = currentPlan === 'QUARTERLY' || currentPlan === 'YEARLY';
   const [inputText, setInputText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const focusProgress = useSharedValue(0);
   const inputAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(focusProgress.value, [0, 1], [colors.gray100, colors.primaryBgHover]),
-    borderColor: interpolateColor(focusProgress.value, [0, 1], ['transparent', colors.primary]),
+    backgroundColor: colors.gray100,
   }));
 
   const chatHeaderOpacity = useSharedValue(0);
@@ -495,7 +491,7 @@ export default function ChatConversationScreen() {
             data={allMessages}
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
-            contentContainerStyle={{ paddingVertical: 12 }}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', paddingVertical: 12 }}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
           />
@@ -583,7 +579,7 @@ export default function ChatConversationScreen() {
               <Ionicons name="mic-outline" size={22} color={colors.gray500} />
             </ScalePressable>
             <Animated.View
-              style={[inputAnimatedStyle, { borderWidth: 1.5, flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
+              style={[inputAnimatedStyle, { flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
             >
               <TextInput
                 aria-label="消息输入"
@@ -594,8 +590,8 @@ export default function ChatConversationScreen() {
                 onChangeText={handleChangeText}
                 multiline
                 maxLength={500}
-                onFocus={() => { setIsFocused(true); focusProgress.value = withTiming(1, { duration: 200 }); }}
-                onBlur={() => { setIsFocused(false); focusProgress.value = withTiming(0, { duration: 200 }); }}
+                onFocus={() => {}}
+                onBlur={() => {}}
               />
             </Animated.View>
             <ScalePressable className="w-10 h-10 items-center justify-center">
