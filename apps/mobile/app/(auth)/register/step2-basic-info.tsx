@@ -111,44 +111,18 @@ export default function RegisterStep2BasicInfo() {
           <Text className="text-sm text-gray-600 mb-2">性别</Text>
           <View className="flex-row mb-4" style={{ gap: 12 }}>
             <ScalePressable
-              className={`flex-1 h-24 rounded-2xl items-center justify-center border-2 ${
-                gender === 'MALE' ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-gray-50'
-              }`}
+              containerStyle={{ flex: 1, height: 96, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: gender === 'MALE' ? '#f43f5e' : '#e5e7eb', backgroundColor: gender === 'MALE' ? '#fff1f2' : '#f9fafb' }}
               onPress={() => setGender('MALE')}
             >
-              <Ionicons
-                name="male"
-                size={28}
-                color={gender === 'MALE' ? colors.primary : colors.gray500}
-                style={{ marginBottom: 4 }}
-              />
-              <Text
-                className={`text-base font-medium ${
-                  gender === 'MALE' ? 'text-rose-500' : 'text-gray-600'
-                }`}
-              >
-                男
-              </Text>
+              <Ionicons name="male" size={28} color={gender === 'MALE' ? colors.primary : colors.gray500} style={{ marginBottom: 4 }} />
+              <Text style={{ fontSize: 16, fontWeight: '500', color: gender === 'MALE' ? '#f43f5e' : '#4b5563' }}>男</Text>
             </ScalePressable>
             <ScalePressable
-              className={`flex-1 h-24 rounded-2xl items-center justify-center border-2 ${
-                gender === 'FEMALE' ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-gray-50'
-              }`}
+              containerStyle={{ flex: 1, height: 96, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: gender === 'FEMALE' ? '#f43f5e' : '#e5e7eb', backgroundColor: gender === 'FEMALE' ? '#fff1f2' : '#f9fafb' }}
               onPress={() => setGender('FEMALE')}
             >
-              <Ionicons
-                name="female"
-                size={28}
-                color={gender === 'FEMALE' ? colors.primary : colors.gray500}
-                style={{ marginBottom: 4 }}
-              />
-              <Text
-                className={`text-base font-medium ${
-                  gender === 'FEMALE' ? 'text-rose-500' : 'text-gray-600'
-                }`}
-              >
-                女
-              </Text>
+              <Ionicons name="female" size={28} color={gender === 'FEMALE' ? colors.primary : colors.gray500} style={{ marginBottom: 4 }} />
+              <Text style={{ fontSize: 16, fontWeight: '500', color: gender === 'FEMALE' ? '#f43f5e' : '#4b5563' }}>女</Text>
             </ScalePressable>
           </View>
 

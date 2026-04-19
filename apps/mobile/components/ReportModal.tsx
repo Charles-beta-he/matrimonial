@@ -74,7 +74,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <ScalePressable className="flex-1 bg-black/40" onPress={handleClose} />
+        <ScalePressable containerStyle={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={handleClose} />
         <View className="bg-white rounded-t-2xl max-h-[85%]">
           {/* Header */}
           <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-100">
