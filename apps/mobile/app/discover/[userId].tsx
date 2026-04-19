@@ -395,7 +395,7 @@ export default function UserProfileScreen() {
         </View>
 
         {/* User info */}
-        <Animated.View className="px-4 pt-4" style={infoSectionStyle}>
+        <Animated.View style={[infoSectionStyle, { paddingHorizontal: 16, paddingTop: 16 }]}>
           <View className="flex-row items-center mb-1">
             <Text className="text-2xl font-bold text-gray-900 mr-2">
               {user.nickname}, {user.age}

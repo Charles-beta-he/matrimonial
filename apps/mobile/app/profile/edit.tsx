@@ -251,7 +251,7 @@ export default function ProfileEditScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Avatar */}
-        <Animated.View className="items-center py-6 bg-white" style={avatarStyle}>
+        <Animated.View style={[avatarStyle, { alignItems: 'center', paddingVertical: 24, backgroundColor: '#ffffff' }]}>
           <ScalePressable onPress={handleChangeAvatar} disabled={uploading}>
             <Avatar source={{ uri: avatarUrl }} size={80} />
             <View className="absolute bottom-0 right-0 bg-rose-500 rounded-full w-7 h-7 items-center justify-center border-2 border-white">
@@ -511,7 +511,7 @@ export default function ProfileEditScreen() {
         </View>
 
         {/* Save button */}
-        <Animated.View className="p-4" style={saveStyle}>
+        <Animated.View style={[saveStyle, { padding: 16 }]}>
           <Button
             title={updateMut.isPending ? '保存中...' : '保存'}
             variant="primary"

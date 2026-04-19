@@ -173,7 +173,7 @@ export default function MembershipScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Current plan */}
-        <Animated.View style={[heroStyle, { backgroundColor: colors.white }]} className="px-4 py-6 items-center">
+        <Animated.View style={[heroStyle, { backgroundColor: colors.white, paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }]}>
           <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-2">
             <Ionicons name="diamond" size={32} color={colors.warning} />
           </View>

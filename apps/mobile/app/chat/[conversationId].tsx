@@ -423,7 +423,7 @@ export default function ChatConversationScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Animated.View className="px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, chatHeaderStyle]}>
+      <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }, chatHeaderStyle]}>
         <ScalePressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="chevron-back" size={24} color={colors.gray700} />
         </ScalePressable>

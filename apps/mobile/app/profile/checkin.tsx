@@ -267,7 +267,7 @@ export default function CheckinScreen() {
               {CONFETTI.map((p, i) => (
                 <ConfettiParticle key={i} {...p} burst={confettiBurst} />
               ))}
-              <Animated.Text className="text-4xl font-bold text-rose-500" style={streakScaleStyle}>
+              <Animated.Text style={[streakScaleStyle, { fontSize: 36, fontWeight: '700', color: '#f43f5e' }]}>
                 {history?.currentStreak ?? 0}
               </Animated.Text>
             </View>
