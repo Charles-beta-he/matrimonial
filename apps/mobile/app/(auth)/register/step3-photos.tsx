@@ -109,7 +109,7 @@ export default function RegisterStep3Photos() {
             <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
             <ScalePressable
               onPress={() => handleRemovePhoto(index)}
-              className="absolute top-2 right-2 bg-black/60 rounded-full w-6 h-6 items-center justify-center"
+              containerStyle={{ position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' }}
             >
               <Ionicons name="close" size={14} color={colors.white} />
             </ScalePressable>
