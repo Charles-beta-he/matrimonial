@@ -12,6 +12,7 @@ export interface RecommendCandidate {
 export const RecommendAdapter = {
   /** Fetch recommendations from Python service. Fallback to basic ranking on failure. */
   async getRecommendations(userId: string, limit: number = 20): Promise<RecommendCandidate[]> {
+    if (!RECOMMEND_SERVICE_URL) return [];
     try {
       const res = await fetch(`${RECOMMEND_SERVICE_URL}/api/recommend?user_id=${userId}&limit=${limit}`, {
         signal: (AbortSignal as { timeout?: (ms: number) => AbortSignal }).timeout?.(2000),
@@ -26,6 +27,7 @@ export const RecommendAdapter = {
   },
 
   async scorePair(userA: any, userB: any): Promise<number> {
+    if (!RECOMMEND_SERVICE_URL) return 0.5;
     try {
       const res = await fetch(`${RECOMMEND_SERVICE_URL}/api/score`, {
         method: 'POST',
