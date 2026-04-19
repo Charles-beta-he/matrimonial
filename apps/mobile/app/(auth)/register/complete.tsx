@@ -123,8 +123,7 @@ export default function RegisterComplete() {
               }, ring2Style]}
             />
             <Animated.View
-              className="w-20 h-20 rounded-full bg-rose-50 items-center justify-center"
-              style={iconStyle}
+              style={[{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#fff1f2', alignItems: 'center', justifyContent: 'center' }, iconStyle]}
             >
               <Ionicons name="checkmark-circle" size={56} color={colors.primary} />
             </Animated.View>

@@ -288,10 +288,7 @@ export default function QuickMatchScreen() {
             {/* Timer */}
             <View className="mb-8">
               <Animated.Text
-                style={timerAnimStyle}
-                className={`text-6xl font-bold text-center ${
-                  timeLeft <= 30 ? 'text-red-500' : 'text-gray-900'
-                }`}
+                style={[timerAnimStyle, { fontSize: 60, fontWeight: '700', textAlign: 'center', color: timeLeft <= 30 ? '#ef4444' : '#111827' }]}
               >
                 {formatTime(timeLeft)}
               </Animated.Text>
