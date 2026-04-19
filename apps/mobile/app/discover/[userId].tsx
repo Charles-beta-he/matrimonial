@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Image,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -330,15 +331,16 @@ export default function UserProfileScreen() {
                         height: SCREEN_WIDTH * 1.2 + 80,
                         marginLeft: -(SCREEN_WIDTH * 0.15),
                         backgroundColor: '#e5e7eb',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                       },
                       heroImageStyle,
                       parallaxStyle,
                     ]}
                   >
-                    <Ionicons name="person" size={72} color={colors.gray400} />
-                    <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
+                    <Image
+                      source={{ uri: photo }}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
                   </Animated.View>
                 </View>
               );
