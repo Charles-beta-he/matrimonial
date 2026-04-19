@@ -888,13 +888,13 @@ export default function DiscoverTab() {
                   明天将为你推荐更多优质用户
                 </Text>
                 <ScalePressable
-                  className="mt-6 w-full h-12 bg-rose-500 rounded-full items-center justify-center"
+                  containerStyle={{ marginTop: 24, width: '100%', height: 48, backgroundColor: '#f43f5e', borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}
                   onPress={() => router.push('/profile/membership')}
                 >
                   <Text className="text-white font-semibold text-base">升级会员解锁无限推荐</Text>
                 </ScalePressable>
                 <ScalePressable
-                  className="mt-3 w-full h-12 bg-gray-100 rounded-full items-center justify-center"
+                  containerStyle={{ marginTop: 12, width: '100%', height: 48, backgroundColor: '#f3f4f6', borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}
                   onPress={() => router.push('/(tabs)/explore' as any)}
                 >
                   <Text className="text-gray-700 font-medium text-base">去探索更多</Text>

@@ -365,13 +365,12 @@ export default function CircleDetailScreen() {
       {/* FAB - only for members */}
       {circle.isMember ? (
         <ScalePressable
-          className="absolute bottom-8 right-5 w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
-          style={{
-            shadowColor: colors.primary,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
+          containerStyle={{
+            position: 'absolute', bottom: 32, right: 20,
+            width: 56, height: 56, borderRadius: 28, backgroundColor: '#f43f5e',
+            alignItems: 'center', justifyContent: 'center',
+            shadowColor: colors.primary, shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
           }}
           onPress={() => setShowPostModal(true)}
         >
@@ -408,14 +407,14 @@ export default function CircleDetailScreen() {
             {Array.from({ length: Math.min(9, 1) }).map((_, idx) => (
               <ScalePressable
                 key={`img-slot-${idx}`}
-                className="w-16 h-16 rounded-lg bg-gray-100 items-center justify-center border border-dashed border-gray-300"
+                containerStyle={{ width: 64, height: 64, borderRadius: 8, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db' }}
               >
                 <Ionicons name="image-outline" size={24} color={colors.gray400} />
               </ScalePressable>
             ))}
-            <ScalePressable className="w-16 h-16 rounded-lg bg-gray-50 items-center justify-center border border-dashed border-gray-300">
+            <ScalePressable containerStyle={{ width: 64, height: 64, borderRadius: 8, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db' }}>
               <Ionicons name="add" size={24} color={colors.gray400} />
-              <Text className="text-[10px] text-gray-400">图片</Text>
+              <Text style={{ fontSize: 10, color: '#9ca3af' }}>图片</Text>
             </ScalePressable>
           </View>
 

@@ -564,13 +564,15 @@ export default function UserProfileScreen() {
             />
             <View className="flex-row mt-4" style={{ gap: 10 }}>
               <ScalePressable
-                className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
+                containerStyle={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb' }}
+                style={{ paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => { setShowReportModal(false); setReportReason(''); setReportDescription(''); }}
               >
                 <Text className="text-sm text-gray-600">取消</Text>
               </ScalePressable>
               <ScalePressable
-                className="flex-1 py-3 rounded-xl bg-rose-500 items-center"
+                containerStyle={{ flex: 1, borderRadius: 12, backgroundColor: '#f43f5e' }}
+                style={{ paddingVertical: 12, alignItems: 'center' }}
                 disabled={!reportReason || reportDescription.length < 10 || reportMut.isPending}
                 onPress={() => {
                   if (!userId || !reportReason) return;

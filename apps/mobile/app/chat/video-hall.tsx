@@ -123,30 +123,18 @@ export default function VideoHallScreen() {
           style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 12 }, tabGlowStyle]}
         />
         <ScalePressable
-          className={`flex-1 py-2.5 rounded-lg items-center ${
-            activeTab === '1v1' ? 'bg-white shadow-sm' : ''
-          }`}
+          containerStyle={{ flex: 1, borderRadius: 8, backgroundColor: activeTab === '1v1' ? '#fff' : 'transparent', alignItems: 'center', paddingVertical: 10 }}
           onPress={() => switchTab('1v1')}
         >
-          <Text
-            className={`text-sm font-medium ${
-              activeTab === '1v1' ? 'text-rose-500' : 'text-gray-500'
-            }`}
-          >
+          <Text style={{ fontSize: 14, fontWeight: '500', color: activeTab === '1v1' ? '#f43f5e' : '#6b7280' }}>
             1v1 快速匹配
           </Text>
         </ScalePressable>
         <ScalePressable
-          className={`flex-1 py-2.5 rounded-lg items-center ${
-            activeTab === 'hosted' ? 'bg-white shadow-sm' : ''
-          }`}
+          containerStyle={{ flex: 1, borderRadius: 8, backgroundColor: activeTab === 'hosted' ? '#fff' : 'transparent', alignItems: 'center', paddingVertical: 10 }}
           onPress={() => switchTab('hosted')}
         >
-          <Text
-            className={`text-sm font-medium ${
-              activeTab === 'hosted' ? 'text-rose-500' : 'text-gray-500'
-            }`}
-          >
+          <Text style={{ fontSize: 14, fontWeight: '500', color: activeTab === 'hosted' ? '#f43f5e' : '#6b7280' }}>
             红娘主持房
           </Text>
         </ScalePressable>
@@ -233,7 +221,7 @@ export default function VideoHallScreen() {
           {/* Floating create button */}
           <ScalePressable
             onPress={() => setCreateOpen(true)}
-            className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-rose-500 items-center justify-center shadow-lg"
+            containerStyle={{ position: 'absolute', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: '#f43f5e', alignItems: 'center', justifyContent: 'center' }}
           >
             <Ionicons name="add" size={30} color={colors.white} />
           </ScalePressable>
@@ -277,15 +265,15 @@ export default function VideoHallScreen() {
 
             <View className="flex-row gap-3">
               <ScalePressable
+                containerStyle={{ flex: 1, backgroundColor: '#f3f4f6', borderRadius: 24, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => setCreateOpen(false)}
-                className="flex-1 bg-gray-100 rounded-full py-3 items-center"
               >
                 <Text className="text-gray-700 font-medium">取消</Text>
               </ScalePressable>
               <ScalePressable
+                containerStyle={{ flex: 1, backgroundColor: '#f43f5e', borderRadius: 24, paddingVertical: 12, alignItems: 'center' }}
                 onPress={handleCreate}
                 disabled={createRoom.isPending}
-                className="flex-1 bg-rose-500 rounded-full py-3 items-center"
               >
                 <Text className="text-white font-medium">
                   {createRoom.isPending ? '创建中...' : '创建'}
