@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
@@ -19,6 +20,9 @@ async function bootstrap() {
   assertRequiredEnv();
 
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+
+  // Attach Socket.io adapter so @WebSocketGateway uses the same HTTP server
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // CORS — restrict in production
   app.enableCors({
