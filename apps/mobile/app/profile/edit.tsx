@@ -268,15 +268,20 @@ export default function ProfileEditScreen() {
         {/* Photo grid placeholder */}
         <View className="bg-white mt-2 p-4">
           <Text className="text-base font-semibold text-gray-900 mb-3">照片</Text>
-          <View className="flex-row flex-wrap" style={{ gap: 8 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <ScalePressable
                 key={i}
-                className="bg-gray-100 rounded-xl items-center justify-center"
-                style={{ width: '31%', aspectRatio: 1 }}
+                containerStyle={{
+                  width: '31%', aspectRatio: 1,
+                  backgroundColor: '#f3f4f6', borderRadius: 12,
+                  alignItems: 'center', justifyContent: 'center',
+                  borderWidth: 1.5, borderColor: '#d1d5db',
+                }}
+                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
                 onPress={() => Alert.alert('照片', '功能开发中')}
               >
-                <Text className="text-2xl text-gray-300">+</Text>
+                <Ionicons name="add" size={28} color="#9ca3af" />
               </ScalePressable>
             ))}
           </View>
