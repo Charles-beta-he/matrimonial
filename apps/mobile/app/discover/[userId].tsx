@@ -53,18 +53,25 @@ function PhotoSlide({
     transform: [{ translateX: (index * SCREEN_WIDTH - scrollX.value) * -0.3 }],
   }));
   return (
-    <View
-      style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 + 80, overflow: 'hidden' }}
-    >
-      <Animated.Image
-        source={{ uri: photo }}
+    <View style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.2 + 80, overflow: 'hidden' }}>
+      <Animated.View
         style={[
-          { width: SCREEN_WIDTH * 1.2, height: SCREEN_WIDTH * 1.2 + 80, left: -SCREEN_WIDTH * 0.1 },
+          {
+            width: SCREEN_WIDTH * 1.3,
+            height: SCREEN_WIDTH * 1.2 + 80,
+            marginLeft: -(SCREEN_WIDTH * 0.15),
+            backgroundColor: '#e5e7eb',
+          },
           heroImageStyle,
           parallaxStyle,
         ]}
-        resizeMode="cover"
-      />
+      >
+        <Image
+          source={{ uri: photo }}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="cover"
+        />
+      </Animated.View>
     </View>
   );
 }
