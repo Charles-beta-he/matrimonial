@@ -329,11 +329,13 @@ export default function UserProfileScreen() {
                         width: SCREEN_WIDTH * 1.3,
                         height: SCREEN_WIDTH * 1.2 + 80,
                         marginLeft: -(SCREEN_WIDTH * 0.15),
+                        backgroundColor: '#e5e7eb',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       },
                       heroImageStyle,
                       parallaxStyle,
                     ]}
-                    className="bg-gray-200 items-center justify-center"
                   >
                     <Ionicons name="person" size={72} color={colors.gray400} />
                     <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
