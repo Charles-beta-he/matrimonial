@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../../stores/useAppStore';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { colors } from '../../../constants/colors';
 
 function Checkbox({
   checked,
@@ -30,7 +31,7 @@ function Checkbox({
         checked ? 'bg-rose-500 border-rose-500' : 'border-gray-300 bg-white'
       }`}
     >
-      {checked && <Ionicons name="checkmark" size={14} color="#ffffff" />}
+      {checked && <Ionicons name="checkmark" size={14} color={colors.white} />}
     </ScalePressable>
   );
 }
@@ -161,12 +162,13 @@ export default function RegisterStep1Phone() {
         <View className="flex-1 px-6 pt-4">
           <Animated.View style={headingStyle}>
             <Text className="text-2xl font-bold text-gray-900 mb-2">输入手机号</Text>
-            <Text className="text-sm text-gray-400 mb-8">我们将发送验证码到您的手机</Text>
+            <Text className="text-sm text-gray-500 mb-8">我们将发送验证码到您的手机</Text>
           </Animated.View>
 
           <Animated.View style={formStyle}>
             <View className="mb-4">
               <Input
+                aria-label="手机号"
                 label="手机号"
                 placeholder="请输入手机号"
                 value={phone}
@@ -177,6 +179,7 @@ export default function RegisterStep1Phone() {
 
             <View className="mb-8">
               <Input
+                aria-label="验证码"
                 label="验证码"
                 placeholder="请输入验证码"
                 value={code}

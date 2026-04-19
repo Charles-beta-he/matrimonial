@@ -31,6 +31,7 @@ import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
 import type { ChatMessage } from '../../stores/useChatStore';
+import { colors } from '../../constants/colors';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { AnimatedMessageBubble } from '../../components/AnimatedMessageBubble';
 import { AnimatedTypingIndicator } from '../../components/AnimatedTypingIndicator';
@@ -71,8 +72,8 @@ export default function ChatConversationScreen() {
   const [isFocused, setIsFocused] = useState(false);
   const focusProgress = useSharedValue(0);
   const inputAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(focusProgress.value, [0, 1], ['#f3f4f6', '#fff5f5']),
-    borderColor: interpolateColor(focusProgress.value, [0, 1], ['transparent', '#f43f5e']),
+    backgroundColor: interpolateColor(focusProgress.value, [0, 1], [colors.gray100, colors.primaryBgHover]),
+    borderColor: interpolateColor(focusProgress.value, [0, 1], ['transparent', colors.primary]),
   }));
 
   const chatHeaderOpacity = useSharedValue(0);
@@ -386,7 +387,7 @@ export default function ChatConversationScreen() {
                 <Ionicons
                   name="play-circle"
                   size={24}
-                  color={isMe ? '#fff' : '#f43f5e'}
+                  color={isMe ? colors.white : colors.primary}
                 />
                 <Text
                   className={`ml-2 text-sm ${isMe ? 'text-white' : 'text-gray-600'}`}
@@ -424,7 +425,7 @@ export default function ChatConversationScreen() {
       {/* Header */}
       <Animated.View className="px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, chatHeaderStyle]}>
         <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
+          <Ionicons name="chevron-back" size={24} color={colors.gray700} />
         </ScalePressable>
         <Avatar
           source={{ uri: conversationMeta?.avatarUrl ?? FALLBACK_AVATAR }}
@@ -443,7 +444,7 @@ export default function ChatConversationScreen() {
           onPress={handleStartVideoCall}
           style={{ marginRight: 4 }}
         >
-          <Ionicons name="videocam-outline" size={24} color="#374151" />
+          <Ionicons name="videocam-outline" size={24} color={colors.gray700} />
         </ScalePressable>
       </Animated.View>
 
@@ -470,7 +471,7 @@ export default function ChatConversationScreen() {
           </View>
         ) : allMessages.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
-            <Ionicons name="chatbubbles-outline" size={48} color="#9ca3af" />
+            <Ionicons name="chatbubbles-outline" size={48} color={colors.gray400} />
             <Text className="text-base text-gray-700 mt-2">还没有消息</Text>
             <Text className="text-sm text-gray-400 mt-1">发送第一条消息打个招呼吧</Text>
             {icebreakers.length > 0 ? (
@@ -506,7 +507,7 @@ export default function ChatConversationScreen() {
             onPress={() => router.push('/profile/membership')}
             className="px-4 pb-1 items-end"
           >
-            <Text style={{ fontSize: 10, color: '#9CA3AF' }}>升级查看已读</Text>
+            <Text style={{ fontSize: 10, color: colors.gray400 }}>升级查看已读</Text>
           </ScalePressable>
         )}
 
@@ -526,12 +527,12 @@ export default function ChatConversationScreen() {
               className="w-10 h-10 items-center justify-center"
               onPress={cancelRecording}
             >
-              <Ionicons name="close-circle" size={28} color="#6b7280" />
+              <Ionicons name="close-circle" size={28} color={colors.gray500} />
             </ScalePressable>
             <View className="flex-1 flex-row items-center justify-center" style={{ gap: 8 }}>
               {isUploading ? (
                 <>
-                  <ActivityIndicator size="small" color="#f43f5e" />
+                  <ActivityIndicator size="small" color={colors.primary} />
                   <Text className="text-sm text-gray-600">发送中...</Text>
                 </>
               ) : (
@@ -549,7 +550,7 @@ export default function ChatConversationScreen() {
               onPress={handleVoiceSend}
               disabled={isUploading}
             >
-              <Ionicons name="arrow-up" size={18} color="#ffffff" />
+              <Ionicons name="arrow-up" size={18} color={colors.white} />
             </ScalePressable>
           </View>
         ) : (
@@ -559,7 +560,7 @@ export default function ChatConversationScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={{ height: 48, borderTopWidth: 1, borderTopColor: '#f9fafb' }}
+              style={{ height: 48, borderTopWidth: 1, borderTopColor: colors.gray50 }}
               contentContainerStyle={{ paddingHorizontal: 12, alignItems: 'center', gap: 8 }}
             >
               {icebreakers.slice(0, 3).map((s: string, i: number) => (
@@ -579,7 +580,7 @@ export default function ChatConversationScreen() {
               className="w-10 h-10 items-center justify-center"
               onPress={startRecording}
             >
-              <Ionicons name="mic-outline" size={22} color="#6b7280" />
+              <Ionicons name="mic-outline" size={22} color={colors.gray500} />
             </ScalePressable>
             <Animated.View
               style={[inputAnimatedStyle, { borderWidth: 1.5, flex: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, minHeight: 40, justifyContent: 'center' }]}
@@ -588,7 +589,7 @@ export default function ChatConversationScreen() {
                 aria-label="消息输入"
                 className="text-base text-gray-900"
                 placeholder="输入消息..."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.gray400}
                 value={inputText}
                 onChangeText={handleChangeText}
                 multiline
@@ -598,7 +599,7 @@ export default function ChatConversationScreen() {
               />
             </Animated.View>
             <ScalePressable className="w-10 h-10 items-center justify-center">
-              <Ionicons name="camera-outline" size={22} color="#6b7280" />
+              <Ionicons name="camera-outline" size={22} color={colors.gray500} />
             </ScalePressable>
             {inputText.trim() ? (
               <AnimatedSendButton key="send-btn">
@@ -607,7 +608,7 @@ export default function ChatConversationScreen() {
                     className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
                     style={sendMessageMutation.isPending ? { opacity: 0.5 } : undefined}
                   >
-                    <Ionicons name="arrow-up" size={18} color="#ffffff" />
+                    <Ionicons name="arrow-up" size={18} color={colors.white} />
                   </View>
                 </PressScale>
               </AnimatedSendButton>

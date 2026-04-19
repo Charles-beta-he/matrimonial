@@ -27,8 +27,10 @@ import Animated, {
 
 const RING_SIZE = 120;       // outer diameter of the ring
 const RING_BORDER = 4;       // stroke width
-const BG = '#0a0a0f';
-const ACCENT = '#f43f5e';
+import { colors } from '../constants/colors';
+
+const BG = colors.gray900;
+const ACCENT = colors.primary;
 
 interface SplashScreenProps {
   onComplete: () => void;

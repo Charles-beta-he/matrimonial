@@ -31,6 +31,7 @@ import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ChromaTransition } from '../../components/ChromaTransition';
 import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -211,7 +212,7 @@ export default function UserProfileScreen() {
   if (isLoading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#f43f5e" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -334,7 +335,7 @@ export default function UserProfileScreen() {
                     ]}
                     className="bg-gray-200 items-center justify-center"
                   >
-                    <Ionicons name="person" size={72} color="#9ca3af" />
+                    <Ionicons name="person" size={72} color={colors.gray400} />
                     <Text className="text-gray-400 text-sm mt-2">照片 {i + 1}</Text>
                   </Animated.View>
                 </View>
@@ -352,7 +353,7 @@ export default function UserProfileScreen() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: '#000000',
+                backgroundColor: colors.black,
               },
               overlayStyle,
             ]}
@@ -366,7 +367,7 @@ export default function UserProfileScreen() {
                 <Animated.View
                   key={i}
                   style={[
-                    { height: 8, borderRadius: 4, backgroundColor: '#ffffff' },
+                    { height: 8, borderRadius: 4, backgroundColor: colors.white },
                     dotStyle,
                   ]}
                 />
@@ -381,13 +382,13 @@ export default function UserProfileScreen() {
                 className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
                 onPress={() => router.back()}
               >
-                <Ionicons name="chevron-back" size={22} color="#ffffff" />
+                <Ionicons name="chevron-back" size={22} color={colors.white} />
               </ScalePressable>
               <ScalePressable
                 className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
                 onPress={() => setShowReportModal(true)}
               >
-                <Ionicons name="ellipsis-horizontal" size={20} color="#ffffff" />
+                <Ionicons name="ellipsis-horizontal" size={20} color={colors.white} />
               </ScalePressable>
             </View>
           </SafeAreaView>
@@ -469,14 +470,14 @@ export default function UserProfileScreen() {
         <View className="flex-row items-center justify-center py-3 px-6" style={{ gap: 16 }}>
           <PressScale onPress={handleSkip} scale={0.9}>
             <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center">
-              <Ionicons name="close" size={24} color="#6b7280" />
+              <Ionicons name="close" size={24} color={colors.gray500} />
             </View>
           </PressScale>
           <View style={{ flex: 1 }}>
             <PressScale onPress={handleLike} scale={0.96}>
               <View className="h-12 rounded-full bg-rose-500 flex-row items-center justify-center" style={{ gap: 6 }}>
                 <Animated.View style={heartStyle}>
-                  <Ionicons name="heart" size={20} color="#ffffff" />
+                  <Ionicons name="heart" size={20} color={colors.white} />
                 </Animated.View>
                 <Text className="text-white font-semibold text-base">喜欢</Text>
               </View>
@@ -485,7 +486,7 @@ export default function UserProfileScreen() {
           <PressScale onPress={handleSuperLike} scale={0.9}>
             <View className="w-12 h-12 rounded-full bg-amber-100 items-center justify-center">
               <Animated.View style={starStyle}>
-                <Ionicons name="star" size={22} color="#f59e0b" />
+                <Ionicons name="star" size={22} color={colors.warning} />
               </Animated.View>
             </View>
           </PressScale>
@@ -509,7 +510,7 @@ export default function UserProfileScreen() {
       >
         <SafeAreaView edges={['top']}>
           <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-            <Text style={{ color: '#ffffff', fontSize: 17, fontWeight: '600' }}>
+            <Text style={{ color: colors.white, fontSize: 17, fontWeight: '600' }}>
               {user.nickname}, {user.age}
             </Text>
           </View>
@@ -541,7 +542,7 @@ export default function UserProfileScreen() {
               >
                 <View
                   className="w-5 h-5 rounded-full border-2 items-center justify-center"
-                  style={{ borderColor: reportReason === opt.value ? '#f43f5e' : '#d1d5db' }}
+                  style={{ borderColor: reportReason === opt.value ? colors.primary : colors.gray300 }}
                 >
                   {reportReason === opt.value ? (
                     <View className="w-2.5 h-2.5 rounded-full bg-rose-500" />
@@ -554,7 +555,7 @@ export default function UserProfileScreen() {
               aria-label="举报原因"
               className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 mt-3 min-h-[64px]"
               placeholder="请简述举报原因（至少10个字）"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
               value={reportDescription}
               onChangeText={setReportDescription}
               multiline
@@ -581,11 +582,11 @@ export default function UserProfileScreen() {
                 }}
               >
                 {reportMut.isPending ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={colors.white} />
                 ) : (
                   <Text
                     className="text-sm font-medium"
-                    style={{ color: !reportReason || reportDescription.length < 10 ? '#fca5a5' : '#fff' }}
+                    style={{ color: !reportReason || reportDescription.length < 10 ? colors.primaryMuted : colors.white }}
                   >
                     提交举报
                   </Text>

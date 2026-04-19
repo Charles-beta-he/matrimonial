@@ -3,6 +3,7 @@ import { Alert, Modal, ScrollView, Text, TextInput, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withDelay, withSequence, Easing } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Button, Input, PromptCard, TagSelector, toast } from '@matrimonial/ui';
@@ -12,6 +13,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { useUpload } from '../../hooks/useUpload';
 import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 
 const EDUCATION_LABEL_TO_ENUM: Record<string, 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD'> = {
   '高中': 'HIGH_SCHOOL',
@@ -58,25 +60,17 @@ export default function ProfileEditScreen() {
   const router = useRouter();
 
   // Entrance animations
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-16);
   const avatarScale = useSharedValue(0.85);
   const avatarOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   const contentY = useSharedValue(24);
   useEffect(() => {
     const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 300, easing: e });
-    headerY.value = withTiming(0, { duration: 300, easing: e });
     avatarScale.value = withDelay(80, withSpring(1, { damping: 14, stiffness: 180 }));
     avatarOpacity.value = withDelay(80, withTiming(1, { duration: 250 }));
     contentOpacity.value = withDelay(180, withTiming(1, { duration: 350, easing: e }));
     contentY.value = withDelay(180, withTiming(0, { duration: 350, easing: e }));
   }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const avatarStyle = useAnimatedStyle(() => ({
     opacity: avatarOpacity.value,
     transform: [{ scale: avatarScale.value }],
@@ -241,20 +235,19 @@ export default function ProfileEditScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white" style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-lg font-semibold text-gray-900">编辑资料</Text>
-        <PressScale onPress={handleSave}>
-          {updateMut.isPending ? (
-            <ActivityIndicator size="small" color="#f43f5e" />
-          ) : (
-            <Text className="text-rose-500 font-medium">保存</Text>
-          )}
-        </PressScale>
-      </Animated.View>
+      <ScreenHeader
+        title="编辑资料"
+        centered
+        right={
+          <PressScale onPress={handleSave}>
+            {updateMut.isPending ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Text className="text-rose-500 font-medium">保存</Text>
+            )}
+          </PressScale>
+        }
+      />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Avatar */}
@@ -263,9 +256,9 @@ export default function ProfileEditScreen() {
             <Avatar source={{ uri: avatarUrl }} size={80} />
             <View className="absolute bottom-0 right-0 bg-rose-500 rounded-full w-7 h-7 items-center justify-center border-2 border-white">
               {uploading ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
-                <Ionicons name="camera" size={14} color="#ffffff" />
+                <Ionicons name="camera" size={14} color={colors.white} />
               )}
             </View>
           </ScalePressable>
@@ -291,8 +284,9 @@ export default function ProfileEditScreen() {
 
         {/* Form fields */}
         <View className="bg-white mt-2 p-4" style={{ gap: 12 }}>
-          <Input label="昵称" value={nickname} onChangeText={setNickname} maxLength={20} />
+          <Input aria-label="昵称" label="昵称" value={nickname} onChangeText={setNickname} maxLength={20} />
           <Input
+            aria-label="个人简介"
             label="个人简介"
             value={bio}
             onChangeText={setBio}
@@ -300,9 +294,9 @@ export default function ProfileEditScreen() {
             maxLength={200}
             placeholder="介绍一下自己..."
           />
-          <Input label="身高 (cm)" value={height} onChangeText={setHeight} placeholder="170" />
-          <Input label="职业" value={occupation} onChangeText={setOccupation} />
-          <Input label="家乡" value={hometown} onChangeText={setHometown} />
+          <Input aria-label="身高 (cm)" label="身高 (cm)" value={height} onChangeText={setHeight} placeholder="170" />
+          <Input aria-label="职业" label="职业" value={occupation} onChangeText={setOccupation} />
+          <Input aria-label="家乡" label="家乡" value={hometown} onChangeText={setHometown} />
 
           {/* Education picker */}
           <View>
@@ -437,19 +431,19 @@ export default function ProfileEditScreen() {
                   {/* AI quality feedback */}
                   {evaluatePromptMut.isPending && (
                     <View className="flex-row items-center mt-2" style={{ gap: 6 }}>
-                      <ActivityIndicator size="small" color="#f43f5e" />
+                      <ActivityIndicator size="small" color={colors.primary} />
                       <Text className="text-xs text-gray-400">AI 评估中...</Text>
                     </View>
                   )}
                   {promptEval && !evaluatePromptMut.isPending && (
                     <View
                       className="mt-2 rounded-xl px-3 py-2"
-                      style={{ backgroundColor: promptEval.score >= 7 ? '#f0fdf4' : promptEval.score >= 4 ? '#fffbeb' : '#fff1f2' }}
+                      style={{ backgroundColor: promptEval.score >= 7 ? colors.successBg : promptEval.score >= 4 ? colors.warningBg : colors.primaryBg }}
                     >
                       <View className="flex-row items-center" style={{ gap: 6 }}>
                         <Text
                           className="text-xs font-semibold"
-                          style={{ color: promptEval.score >= 7 ? '#16a34a' : promptEval.score >= 4 ? '#d97706' : '#e11d48' }}
+                          style={{ color: promptEval.score >= 7 ? colors.success : promptEval.score >= 4 ? colors.warning : colors.primary }}
                         >
                           吸引力评分 {promptEval.score}/10
                         </Text>
@@ -491,7 +485,7 @@ export default function ProfileEditScreen() {
                     >
                       <View className="py-3 rounded-xl bg-rose-500 items-center">
                         {updatePromptsMut.isPending ? (
-                          <ActivityIndicator size="small" color="#fff" />
+                          <ActivityIndicator size="small" color={colors.white} />
                         ) : (
                           <Text className="text-sm text-white font-medium">保存</Text>
                         )}

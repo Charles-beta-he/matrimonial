@@ -13,6 +13,7 @@ import { ScalePressable } from './ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
+import { colors } from '../constants/colors';
 
 const REPORT_REASONS = [
   { value: 'FAKE_PROFILE', label: '虚假资料' },
@@ -79,7 +80,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
           <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-100">
             <Text className="text-lg font-semibold text-gray-900">举报用户</Text>
             <ScalePressable onPress={handleClose} hitSlop={8}>
-              <Ionicons name="close" size={24} color="#6b7280" />
+              <Ionicons name="close" size={24} color={colors.gray500} />
             </ScalePressable>
           </View>
 
@@ -116,7 +117,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
             <TextInput
               className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900 min-h-[100px]"
               placeholder="请描述具体情况（至少10个字符）"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
               multiline
               textAlignVertical="top"
               maxLength={1000}
@@ -132,7 +133,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
               上传证据（可选，最多5张）
             </Text>
             <ScalePressable className="bg-gray-50 rounded-xl px-4 py-6 items-center justify-center border border-dashed border-gray-300 mb-4">
-              <Ionicons name="cloud-upload-outline" size={28} color="#9ca3af" />
+              <Ionicons name="cloud-upload-outline" size={28} color={colors.gray400} />
               <Text className="text-sm text-gray-400 mt-1">点击上传图片</Text>
             </ScalePressable>
 
@@ -145,7 +146,7 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
               disabled={!canSubmit}
             >
               {reportMutation.isPending ? (
-                <ActivityIndicator color="#ffffff" />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <Text
                   className={`text-base font-semibold ${

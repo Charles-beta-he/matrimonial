@@ -15,6 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { calculateAge, PROMPT_QUESTIONS } from '@matrimonial/shared';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 type ProfileCardUserWithId = ProfileCardUser & { id: string };
 
@@ -70,32 +72,15 @@ export default function DailyPicksScreen() {
   const router = useRouter();
   const { data, isLoading, error, refetch } = api.match.dailyPicks.useQuery();
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
-
   const picks: ProfileCardUserWithId[] = (data ?? []).map(toProfileCardUser);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">今日精选</Text>
-      </Animated.View>
+      <ScreenHeader title="每日精选" />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center">

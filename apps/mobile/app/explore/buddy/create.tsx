@@ -15,21 +15,11 @@ import { Button, toast } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
+import { colors } from '../../../constants/colors';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 export default function BuddyCreateScreen() {
   const router = useRouter();
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
-
   const [selectedType, setSelectedType] = useState<BuddyType | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -63,10 +53,10 @@ export default function BuddyCreateScreen() {
     descCountProgress.value = withTiming(description.length / 500, { duration: 120 });
   }, [description.length]);
   const titleCountStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(titleCountProgress.value, [0, 0.7, 1], ['#9ca3af', '#9ca3af', '#ef4444']),
+    color: interpolateColor(titleCountProgress.value, [0, 0.7, 1], [colors.gray400, colors.gray400, colors.error]),
   }));
   const descCountStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(descCountProgress.value, [0, 0.8, 1], ['#9ca3af', '#9ca3af', '#ef4444']),
+    color: interpolateColor(descCountProgress.value, [0, 0.8, 1], [colors.gray400, colors.gray400, colors.error]),
   }));
 
   const canSubmit =
@@ -130,13 +120,7 @@ export default function BuddyCreateScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">发布搭子帖</Text>
-      </Animated.View>
+      <ScreenHeader title="发布搭子" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -161,15 +145,15 @@ export default function BuddyCreateScreen() {
                   className="rounded-xl px-4 py-3 items-center border-2"
                   style={{
                     width: '30%',
-                    backgroundColor: isActive ? color + '12' : '#f9fafb',
-                    borderColor: isActive ? color : '#f3f4f6',
+                    backgroundColor: isActive ? color + '12' : colors.gray50,
+                    borderColor: isActive ? color : colors.gray100,
                   }}
                   onPress={() => setSelectedType(bt.id as BuddyType)}
                 >
                   <Ionicons
                     name={bt.icon as keyof typeof Ionicons.glyphMap}
                     size={24}
-                    color={isActive ? color : '#9ca3af'}
+                    color={isActive ? color : colors.gray400}
                   />
                   <Text
                     className={`text-sm mt-1 ${
@@ -192,7 +176,7 @@ export default function BuddyCreateScreen() {
             className="border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 mb-1"
             aria-label="标题"
             placeholder="给你的搭子帖起个名字"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.gray400}
             value={title}
             onChangeText={(t) => setTitle(t.slice(0, 50))}
             maxLength={50}
@@ -209,7 +193,7 @@ export default function BuddyCreateScreen() {
             className="border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 mb-1"
             aria-label="详细描述"
             placeholder="描述一下你的计划，至少10个字"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.gray400}
             value={description}
             onChangeText={(t) => setDescription(t.slice(0, 500))}
             maxLength={500}
@@ -227,12 +211,12 @@ export default function BuddyCreateScreen() {
             地点 <Text className="text-xs text-gray-400 font-normal">（选填）</Text>
           </Text>
           <View className="flex-row items-center border border-gray-200 rounded-xl px-4 py-3 mb-5">
-            <Ionicons name="location-outline" size={18} color="#9ca3af" />
+            <Ionicons name="location-outline" size={18} color={colors.gray400} />
             <TextInput
               className="flex-1 ml-2 text-base text-gray-900"
               aria-label="地点"
               placeholder="活动地点"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
               value={location}
               onChangeText={setLocation}
             />
@@ -246,7 +230,7 @@ export default function BuddyCreateScreen() {
             className="flex-row items-center border border-gray-200 rounded-xl px-4 py-3 mb-2"
             onPress={() => setShowDatePicker(!showDatePicker)}
           >
-            <Ionicons name="calendar-outline" size={18} color="#9ca3af" />
+            <Ionicons name="calendar-outline" size={18} color={colors.gray400} />
             <Text
               className={`flex-1 ml-2 text-base ${
                 scheduledAt && timeText ? 'text-gray-900' : 'text-gray-400'
@@ -265,7 +249,7 @@ export default function BuddyCreateScreen() {
                   setShowDatePicker(false);
                 }}
               >
-                <Ionicons name="close-circle" size={18} color="#9ca3af" />
+                <Ionicons name="close-circle" size={18} color={colors.gray400} />
               </ScalePressable>
             ) : null}
           </ScalePressable>
@@ -343,7 +327,7 @@ export default function BuddyCreateScreen() {
               <Ionicons
                 name="remove"
                 size={20}
-                color={maxPeople <= 2 ? '#d1d5db' : '#f43f5e'}
+                color={maxPeople <= 2 ? colors.gray300 : colors.primary}
               />
             </ScalePressable>
             <Text className="text-xl font-bold text-gray-900 w-8 text-center">
@@ -359,7 +343,7 @@ export default function BuddyCreateScreen() {
               <Ionicons
                 name="add"
                 size={20}
-                color={maxPeople >= 10 ? '#d1d5db' : '#f43f5e'}
+                color={maxPeople >= 10 ? colors.gray300 : colors.primary}
               />
             </ScalePressable>
             <Text className="text-sm text-gray-400">人</Text>

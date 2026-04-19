@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { colors } from '../constants/colors';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -47,11 +48,11 @@ export function ChromaTransition({ children }: ChromaTransitionProps) {
       </Animated.View>
       <Animated.View
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: '#f43f5e' }, redOverlayStyle]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: colors.primary }, redOverlayStyle]}
       />
       <Animated.View
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: '#3b82f6' }, blueOverlayStyle]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: colors.blue }, blueOverlayStyle]}
       />
     </View>
   );

@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { AnimatedProgressBar, Button, ChromaText } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { colors } from '../../../constants/colors';
 
 
 export default function RegisterComplete() {
@@ -107,7 +108,7 @@ export default function RegisterComplete() {
                 height: 80,
                 borderRadius: 40,
                 borderWidth: 2,
-                borderColor: '#f43f5e',
+                borderColor: colors.primary,
               }, ringStyle]}
             />
             <Animated.View
@@ -118,21 +119,21 @@ export default function RegisterComplete() {
                 height: 80,
                 borderRadius: 40,
                 borderWidth: 1.5,
-                borderColor: '#fb7185',
+                borderColor: colors.primaryLight,
               }, ring2Style]}
             />
             <Animated.View
               className="w-20 h-20 rounded-full bg-rose-50 items-center justify-center"
               style={iconStyle}
             >
-              <Ionicons name="checkmark-circle" size={56} color="#f43f5e" />
+              <Ionicons name="checkmark-circle" size={56} color={colors.primary} />
             </Animated.View>
           </View>
 
           <Animated.View style={titleStyle}>
             <ChromaText
               text="注册成功！"
-              style={{ fontSize: 30, fontWeight: '700', color: '#111827', textAlign: 'center' }}
+              style={{ fontSize: 30, fontWeight: '700', color: colors.gray900, textAlign: 'center' }}
             />
           </Animated.View>
 

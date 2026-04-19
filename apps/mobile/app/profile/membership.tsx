@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -14,6 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Button } from '@matrimonial/ui';
 import { ScalePressable } from '../../components/ScalePressable';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { colors } from '../../constants/colors';
 import { MEMBERSHIP_PLAN_DETAILS } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { usePayment } from '../../hooks/usePayment';
@@ -97,7 +98,6 @@ const FEATURE_COMPARISON = [
 
 /** Membership screen */
 export default function MembershipScreen() {
-  const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState('QUARTERLY');
   const { pay, processing } = usePayment();
   const { track } = useAnalytics();
@@ -106,13 +106,6 @@ export default function MembershipScreen() {
   const utils = api.useUtils();
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const expiresAt = (membershipQuery.data as any)?.expiry;
-
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   const heroScale = useSharedValue(0.88);
   const heroOpacity = useSharedValue(0);
@@ -123,8 +116,6 @@ export default function MembershipScreen() {
 
   useEffect(() => {
     const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
     track('membership_view', {});
     heroScale.value = withSpring(1, { damping: 14, stiffness: 160 });
     heroOpacity.value = withTiming(1, { duration: 350, easing: e });
@@ -178,18 +169,13 @@ export default function MembershipScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-lg font-semibold text-gray-900">会员中心</Text>
-      </Animated.View>
+      <ScreenHeader title="会员中心" />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Current plan */}
-        <Animated.View style={[heroStyle, { backgroundColor: '#fff' }]} className="px-4 py-6 items-center">
+        <Animated.View style={[heroStyle, { backgroundColor: colors.white }]} className="px-4 py-6 items-center">
           <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-2">
-            <Ionicons name="diamond" size={32} color="#f59e0b" />
+            <Ionicons name="diamond" size={32} color={colors.warning} />
           </View>
           <Text className="text-base text-gray-500">
             当前: {PLAN_LABEL[currentPlan] ?? currentPlan}
@@ -241,7 +227,7 @@ export default function MembershipScreen() {
           {MEMBERSHIP_PLAN_DETAILS.find((p) => p.plan === selectedPlan)?.features.map(
             (feature, i) => (
               <View key={i} className="flex-row items-center mb-2" style={{ gap: 8 }}>
-                <Ionicons name="checkmark-circle" size={16} color="#f43f5e" />
+                <Ionicons name="checkmark-circle" size={16} color={colors.primary} />
                 <Text className="text-sm text-gray-700">{feature}</Text>
               </View>
             ),

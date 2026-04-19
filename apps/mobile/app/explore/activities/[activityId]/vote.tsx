@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useState } from 'react';
 import { StaggeredListItem } from '../../../../components/StaggeredListItem';
 import {
   ActivityIndicator,
@@ -15,6 +14,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { Card, EmptyState, toast } from '@matrimonial/ui';
+import { colors } from '../../../../constants/colors';
+import { ScreenHeader } from '../../../../components/ScreenHeader';
 
 function calculateAge(birthday: string | Date | null): number | null {
   if (!birthday) return null;
@@ -48,7 +49,7 @@ function StarRating({
           <Ionicons
             name={star <= rating ? 'heart' : 'heart-outline'}
             size={24}
-            color={star <= rating ? '#f43f5e' : '#d1d5db'}
+            color={star <= rating ? colors.primary : colors.gray300}
           />
         </ScalePressable>
       ))}
@@ -69,18 +70,6 @@ type Participant = {
 export default function ActivityVoteScreen() {
   const router = useRouter();
   const { activityId } = useLocalSearchParams<{ activityId: string }>();
-
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   const activityQuery = api.activity.getById.useQuery(activityId ?? '');
   const participantsQuery = api.activity.votableParticipants.useQuery(
@@ -127,20 +116,7 @@ export default function ActivityVoteScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <View className="flex-1">
-          <Text className="text-lg font-bold text-gray-900">活动互评</Text>
-          {activity?.title ? (
-            <Text className="text-sm text-gray-500" numberOfLines={1}>
-              {activity.title}
-            </Text>
-          ) : null}
-        </View>
-      </Animated.View>
+      <ScreenHeader title="活动投票" />
 
       {/* Info banner */}
       <View className="mx-4 mt-3 mb-2 rounded-lg bg-rose-50 px-4 py-3">
@@ -151,12 +127,12 @@ export default function ActivityVoteScreen() {
 
       {participantsQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : !participants || participants.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
           <EmptyState
-            icon={<Ionicons name="people-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="people-outline" size={56} color={colors.gray400} />}
             title="暂无参与者"
             description="该活动暂无其他参与者可评价"
           />
@@ -192,7 +168,7 @@ export default function ActivityVoteScreen() {
                       <Ionicons
                         name="person"
                         size={36}
-                        color="#9ca3af"
+                        color={colors.gray400}
                       />
                     </View>
                   )}
@@ -225,7 +201,7 @@ export default function ActivityVoteScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={14}
-                        color="#22c55e"
+                        color={colors.success}
                       />
                       <Text className="text-xs text-green-600">已评价</Text>
                     </View>

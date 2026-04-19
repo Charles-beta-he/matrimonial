@@ -10,13 +10,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../constants/colors';
 
 interface HeartBurstProps {
   onPress: () => void;
   size?: number;
 }
 
-const PARTICLE_COLORS = ['#f43f5e', '#fb7185', '#fda4af'];
+const PARTICLE_COLORS = [colors.primary, colors.primaryLight, colors.primaryMuted];
 const PARTICLE_COUNT = 8;
 const BASE_ANGLES = Array.from({ length: PARTICLE_COUNT }, (_, i) => (i * 360) / PARTICLE_COUNT);
 
@@ -120,7 +121,7 @@ function RingPulse({ fireCount }: { fireCount: number }) {
           height: 68,
           borderRadius: 34,
           borderWidth: 2,
-          borderColor: '#f43f5e',
+          borderColor: colors.primary,
         },
         style,
       ]}
@@ -166,10 +167,10 @@ export function HeartBurst({ onPress, size = 68 }: HeartBurstProps) {
           width: buttonSize,
           height: buttonSize,
           borderRadius,
-          backgroundColor: '#f43f5e',
+          backgroundColor: colors.primary,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#f43f5e',
+          shadowColor: colors.primary,
           shadowOffset: { width: 0, height: 6 },
           shadowOpacity: 0.35,
           shadowRadius: 6,
@@ -178,7 +179,7 @@ export function HeartBurst({ onPress, size = 68 }: HeartBurstProps) {
         })}
       >
         <Animated.View style={heartStyle}>
-          <Ionicons name="heart" size={32} color="#ffffff" />
+          <Ionicons name="heart" size={32} color={colors.white} />
         </Animated.View>
       </Pressable>
     </View>

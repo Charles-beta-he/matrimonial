@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AnimatedTabIcon } from '@/components/AnimatedTabIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '@matrimonial/api-client';
+import { colors } from '../../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -46,12 +47,12 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: '#f43f5e',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.gray400,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopColor: '#f3f4f6',
+          backgroundColor: colors.white,
+          borderTopColor: colors.gray100,
           height: 64 + bottomInset,
           paddingBottom: bottomInset + 6,
           paddingTop: 8,

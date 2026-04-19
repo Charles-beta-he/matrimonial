@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal, ScrollView, Text, TextInput, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, toast } from '@matrimonial/ui';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { colors } from '../../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 import { VERIFICATION_LEVEL_LABELS } from '@matrimonial/shared';
@@ -16,7 +16,6 @@ type Modals = null | 'L2' | 'L3' | 'L4';
 
 /** Verification center screen */
 export default function VerificationScreen() {
-  const router = useRouter();
   const statusQuery = api.verification.getStatus.useQuery();
   const utils = api.useUtils();
 
@@ -25,18 +24,6 @@ export default function VerificationScreen() {
   const submitEduMut = api.verification.submitEduVerify.useMutation();
 
   const [modal, setModal] = useState<Modals>(null);
-
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   // L2 modal state
   const [realName, setRealName] = useState('');
@@ -113,7 +100,7 @@ export default function VerificationScreen() {
       description: '绑定手机号码，验证真实身份',
       unlocks: '解锁基础匹配功能',
       icon: 'phone-portrait-outline',
-      iconColor: '#3b82f6',
+      iconColor: colors.blue,
       completed: l1Done,
       enabled: true,
       onAction: () => {},
@@ -124,7 +111,7 @@ export default function VerificationScreen() {
       description: '上传身份证件，平台审核',
       unlocks: '解锁查看匹配对象的详细资料',
       icon: 'card-outline',
-      iconColor: '#8b5cf6',
+      iconColor: colors.purple,
       completed: l2Done,
       enabled: l1Done,
       onAction: () => setModal('L2'),
@@ -135,7 +122,7 @@ export default function VerificationScreen() {
       description: '进行活体检测，确认真人',
       unlocks: '获得真人认证标识，匹配优先级提升',
       icon: 'person-circle-outline',
-      iconColor: '#10b981',
+      iconColor: colors.green,
       completed: l3Done,
       enabled: l2Done,
       onAction: handleSubmitFace,
@@ -146,7 +133,7 @@ export default function VerificationScreen() {
       description: '上传学位证书，平台审核',
       unlocks: '获得学历认证标识，专属匹配池',
       icon: 'school-outline',
-      iconColor: '#f59e0b',
+      iconColor: colors.warning,
       completed: l4Done,
       enabled: l3Done,
       onAction: () => setModal('L4'),
@@ -155,12 +142,7 @@ export default function VerificationScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-lg font-semibold text-gray-900">认证中心</Text>
-      </Animated.View>
+      <ScreenHeader title="认证中心" />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="bg-white px-4 py-6 items-center">
@@ -185,12 +167,12 @@ export default function VerificationScreen() {
               <View className="flex-row items-start">
                 <View
                   className="w-12 h-12 rounded-2xl items-center justify-center mr-4"
-                  style={{ backgroundColor: (item.completed ? '#10b981' : item.iconColor) + '15' }}
+                  style={{ backgroundColor: (item.completed ? colors.green : item.iconColor) + '15' }}
                 >
                   <Ionicons
                     name={item.icon}
                     size={24}
-                    color={item.completed ? '#10b981' : item.iconColor}
+                    color={item.completed ? colors.green : item.iconColor}
                   />
                 </View>
                 <View className="flex-1">
@@ -200,7 +182,7 @@ export default function VerificationScreen() {
                     </Text>
                     {item.completed && (
                       <View className="flex-row items-center" style={{ gap: 2 }}>
-                        <Ionicons name="checkmark-circle" size={14} color="#10b981" />
+                        <Ionicons name="checkmark-circle" size={14} color={colors.green} />
                         <Text className="text-green-500 text-xs">已完成</Text>
                       </View>
                     )}
@@ -241,7 +223,7 @@ export default function VerificationScreen() {
               onChangeText={setRealName}
               placeholder="请输入真实姓名"
               className="border border-gray-200 rounded-lg px-4 py-3 mb-4 text-gray-900"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
             />
             <Text className="text-sm text-gray-600 mb-2">身份证号</Text>
             <TextInput
@@ -251,7 +233,7 @@ export default function VerificationScreen() {
               placeholder="18位身份证号"
               maxLength={18}
               className="border border-gray-200 rounded-lg px-4 py-3 mb-4 text-gray-900"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
             />
             <View className="flex-row" style={{ gap: 12 }}>
               <View className="flex-1">
@@ -282,7 +264,7 @@ export default function VerificationScreen() {
               onChangeText={setSchool}
               placeholder="请输入学校名称"
               className="border border-gray-200 rounded-lg px-4 py-3 mb-4 text-gray-900"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
             />
             <Text className="text-sm text-gray-600 mb-2">学历</Text>
             <View className="flex-row flex-wrap mb-4" style={{ gap: 8 }}>
@@ -318,7 +300,7 @@ export default function VerificationScreen() {
               keyboardType="number-pad"
               maxLength={4}
               className="border border-gray-200 rounded-lg px-4 py-3 mb-4 text-gray-900"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
             />
             <View className="flex-row" style={{ gap: 12 }}>
               <View className="flex-1">

@@ -21,6 +21,8 @@ import Animated, {
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
+import { colors } from '../../../constants/colors';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 function AnimatedBanner({ color, index }: { color: string; index: number }) {
   const width = useSharedValue(0);
@@ -44,31 +46,19 @@ const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  reading: '#6366f1',
-  fitness: '#ef4444',
-  travel: '#0ea5e9',
-  photography: '#8b5cf6',
-  gaming: '#22c55e',
-  food: '#f97316',
-  music: '#ec4899',
-  movies: '#eab308',
+  reading: colors.indigo500,
+  fitness: colors.error,
+  travel: colors.sky,
+  photography: colors.purple,
+  gaming: colors.success,
+  food: colors.orange,
+  music: colors.pink,
+  movies: colors.yellow,
 };
 
 export default function CirclesScreen() {
   const router = useRouter();
   const [category, setCategory] = useState<string | undefined>(undefined);
-
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   const { data, isLoading, error, refetch, isRefetching } =
     api.circle.list.useQuery({ category, limit: 20 });
@@ -77,13 +67,7 @@ export default function CirclesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">兴趣圈子</Text>
-      </Animated.View>
+      <ScreenHeader title="兴趣圈子" />
 
       {/* Category tabs */}
       <ScrollView
@@ -116,7 +100,7 @@ export default function CirclesScreen() {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
@@ -129,7 +113,7 @@ export default function CirclesScreen() {
       ) : circles.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            icon={<Ionicons name="chatbubbles-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="chatbubbles-outline" size={56} color={colors.gray400} />}
             title="暂无圈子"
             description="换个分类看看吧"
           />
@@ -148,7 +132,7 @@ export default function CirclesScreen() {
           }}
           renderItem={({ item, index }) => {
             const catInfo = CIRCLE_CATEGORIES.find((c) => c.id === item.category);
-            const accentColor = CATEGORY_COLORS[item.category] ?? '#6b7280';
+            const accentColor = CATEGORY_COLORS[item.category] ?? colors.gray500;
 
             return (
               <StaggeredListItem index={index}>
@@ -194,7 +178,7 @@ export default function CirclesScreen() {
                         <Badge label={catInfo.label} variant="tag" />
                       ) : null}
                       <View className="flex-row items-center" style={{ gap: 4 }}>
-                        <Ionicons name="people-outline" size={14} color="#6b7280" />
+                        <Ionicons name="people-outline" size={14} color={colors.gray500} />
                         <Text className="text-sm text-gray-500">
                           {item.memberCount} 成员
                         </Text>

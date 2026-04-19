@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,12 +12,12 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { ScalePressable } from '../../components/ScalePressable';
 import { Button, toast } from '@matrimonial/ui';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
-const CONFETTI_COLORS = ['#f43f5e', '#f59e0b', '#22c55e', '#3b82f6', '#c084fc', '#fde68a', '#fb7185', '#34d399'];
+const CONFETTI_COLORS = [colors.primary, colors.warning, colors.success, colors.blue, colors.purpleLight, colors.warningText, colors.primaryLight, colors.green];
 const CONFETTI_COUNT = 12;
 
 function jitter(seed: number) { return ((seed * 9301 + 49297) % 233280) / 233280; }
@@ -106,7 +106,7 @@ function AchievementBadge({ ach, index }: { ach: any; index: number }) {
         alignItems: 'center',
         padding: 12,
         borderRadius: 12,
-        backgroundColor: ach.unlocked ? '#fffbeb' : '#f9fafb',
+        backgroundColor: ach.unlocked ? colors.warningBg : colors.gray50,
         width: '28%',
         overflow: 'visible',
       }, badgeStyle]}
@@ -119,7 +119,7 @@ function AchievementBadge({ ach, index }: { ach: any; index: number }) {
             width: 48,
             height: 48,
             borderRadius: 24,
-            backgroundColor: '#f59e0b',
+            backgroundColor: colors.warning,
           }, glowStyle]}
         />
       )}
@@ -130,14 +130,14 @@ function AchievementBadge({ ach, index }: { ach: any; index: number }) {
           fontWeight: '600',
           marginTop: 4,
           textAlign: 'center',
-          color: ach.unlocked ? '#111827' : '#9ca3af',
+          color: ach.unlocked ? colors.gray900 : colors.gray400,
         }}
         numberOfLines={1}
       >
         {ach.name}
       </Text>
       <Text
-        style={{ fontSize: 10, marginTop: 2, textAlign: 'center', color: ach.unlocked ? '#6b7280' : '#d1d5db' }}
+        style={{ fontSize: 10, marginTop: 2, textAlign: 'center', color: ach.unlocked ? colors.gray500 : colors.gray300 }}
         numberOfLines={2}
       >
         {ach.description}
@@ -170,9 +170,9 @@ function CheckinDot({ isChecked, isToday, day, index }: {
           borderRadius: 16,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: isChecked ? '#f43f5e' : isToday ? 'transparent' : 'transparent',
+          backgroundColor: isChecked ? colors.primary : 'transparent',
           borderWidth: isToday && !isChecked ? 1 : 0,
-          borderColor: '#fda4af',
+          borderColor: colors.primaryMuted,
         }]}
       >
         <Text
@@ -201,7 +201,6 @@ function getCalendarDays(year: number, month: number) {
 
 /** Check-in and Achievements page */
 export default function CheckinScreen() {
-  const router = useRouter();
   const { track } = useAnalytics();
   const utils = api.useUtils();
   const [confettiBurst, setConfettiBurst] = useState(0);
@@ -227,18 +226,6 @@ export default function CheckinScreen() {
       toast.error(err.message);
     },
   });
-
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   useEffect(() => {
     track('screen_view', { screen_name: 'checkin' });
@@ -269,17 +256,11 @@ export default function CheckinScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="bg-white px-4 py-3 border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#111827" />
-        </ScalePressable>
-        <Text className="text-lg font-bold text-gray-900">签到中心</Text>
-      </Animated.View>
+      <ScreenHeader title="签到中心" />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Streak & Check-in card */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-5" style={{ shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
+        <View className="bg-white mx-4 mt-4 rounded-2xl p-5" style={{ shadowColor: colors.black, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
           <View className="items-center" style={{ overflow: 'visible' }}>
             {/* Confetti origin point */}
             <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
@@ -309,7 +290,7 @@ export default function CheckinScreen() {
                     <Ionicons
                       name={reached ? 'checkmark' : 'gift-outline'}
                       size={20}
-                      color={reached ? '#fff' : '#9ca3af'}
+                      color={reached ? colors.white : colors.gray400}
                     />
                   </View>
                   <Text className={`text-xs mt-1 ${reached ? 'text-rose-500 font-medium' : 'text-gray-400'}`}>

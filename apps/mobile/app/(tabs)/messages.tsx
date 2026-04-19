@@ -20,6 +20,7 @@ import { formatLastActive } from '@matrimonial/shared';
 import { useSocketStore } from '../../stores/useSocketStore';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { colors } from '../../constants/colors';
 import { ChromaTransition } from '../../components/ChromaTransition';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/avatar/100/100';
@@ -40,7 +41,7 @@ function UnreadDot() {
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   return (
     <Animated.View
-      style={[{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#f43f5e' }, style]}
+      style={[{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }, style]}
     />
   );
 }
@@ -225,7 +226,7 @@ export default function MessagesTab() {
       {/* Conversation list */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text className="text-sm text-gray-500 mt-2">正在加载...</Text>
         </View>
       ) : isError ? (
@@ -253,7 +254,7 @@ export default function MessagesTab() {
       ) : (
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            icon={<Ionicons name="chatbubbles-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="chatbubbles-outline" size={56} color={colors.gray400} />}
             title="还没有消息"
             description="去发现页匹配新朋友吧"
             action={{

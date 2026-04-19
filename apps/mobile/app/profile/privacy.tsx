@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Switch, Text, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import * as Contacts from 'expo-contacts';
 import * as Crypto from 'expo-crypto';
-import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 interface PrivacySetting {
   key: string;
@@ -45,20 +43,49 @@ const SETTINGS: PrivacySetting[] = [
   },
 ];
 
+interface PrivacySettingRowProps {
+  setting: PrivacySetting;
+  value: boolean;
+  saving: boolean;
+  loading: boolean;
+  onToggle: () => void;
+  showDivider: boolean;
+}
+
+function PrivacySettingRow({ setting, value, saving, loading, onToggle, showDivider }: PrivacySettingRowProps) {
+  return (
+    <View key={setting.key}>
+      <View className="flex-row items-center justify-between px-4 py-4">
+        <View className="flex-1 mr-4">
+          <View className="flex-row items-center">
+            <Text className="text-base text-gray-900">{setting.title}</Text>
+            {setting.memberOnly && (
+              <View className="bg-rose-100 rounded-full px-2 py-0.5 ml-2">
+                <Text className="text-xs text-rose-500">会员</Text>
+              </View>
+            )}
+          </View>
+          <Text className="text-sm text-gray-400 mt-0.5">{setting.description}</Text>
+        </View>
+        {saving ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : (
+          <Switch
+            value={value}
+            onValueChange={onToggle}
+            trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
+            thumbColor={value ? colors.primary : colors.zinc100}
+            disabled={loading}
+          />
+        )}
+      </View>
+      {showDivider && <View className="border-b border-gray-100 ml-4" />}
+    </View>
+  );
+}
+
 /** Privacy settings screen */
 export default function PrivacyScreen() {
-  const router = useRouter();
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const meQuery = api.user.me.useQuery();
   const utils = api.useUtils();
   const updatePrivacy = api.user.updatePrivacy.useMutation({
@@ -177,47 +204,20 @@ export default function PrivacyScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-lg font-semibold text-gray-900">隐私设置</Text>
-      </Animated.View>
+      <ScreenHeader title="隐私设置" />
 
       <ScrollView className="flex-1">
         <View className="bg-white mt-2">
           {SETTINGS.map((setting, index) => (
-            <View key={setting.key}>
-              <View className="flex-row items-center justify-between px-4 py-4">
-                <View className="flex-1 mr-4">
-                  <View className="flex-row items-center">
-                    <Text className="text-base text-gray-900">{setting.title}</Text>
-                    {setting.memberOnly && (
-                      <View className="bg-rose-100 rounded-full px-2 py-0.5 ml-2">
-                        <Text className="text-xs text-rose-500">会员</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text className="text-sm text-gray-400 mt-0.5">
-                    {setting.description}
-                  </Text>
-                </View>
-                {savingKey === setting.key ? (
-                  <ActivityIndicator size="small" color="#f43f5e" />
-                ) : (
-                  <Switch
-                    value={values[setting.key] ?? false}
-                    onValueChange={() => toggleSetting(setting.key)}
-                    trackColor={{ false: '#d1d5db', true: '#fda4af' }}
-                    thumbColor={values[setting.key] ? '#f43f5e' : '#f4f4f5'}
-                    disabled={savingKey !== null || meQuery.isLoading}
-                  />
-                )}
-              </View>
-              {index < SETTINGS.length - 1 && (
-                <View className="border-b border-gray-100 ml-4" />
-              )}
-            </View>
+            <PrivacySettingRow
+              key={setting.key}
+              setting={setting}
+              value={values[setting.key] ?? false}
+              saving={savingKey === setting.key}
+              loading={savingKey !== null || meQuery.isLoading}
+              onToggle={() => toggleSetting(setting.key)}
+              showDivider={index < SETTINGS.length - 1}
+            />
           ))}
         </View>
       </ScrollView>

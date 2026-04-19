@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { colors } from '../constants/colors';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -172,23 +173,23 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
         {/* Directional glow — green (like) */}
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, styles.glowOverlay, { backgroundColor: '#22c55e' }, likeGlowStyle]}
+          style={[StyleSheet.absoluteFillObject, styles.glowOverlay, { backgroundColor: colors.success }, likeGlowStyle]}
         />
         {/* Directional glow — rose (skip) */}
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, styles.glowOverlay, { backgroundColor: '#f43f5e' }, skipGlowStyle]}
+          style={[StyleSheet.absoluteFillObject, styles.glowOverlay, { backgroundColor: colors.primary }, skipGlowStyle]}
         />
 
         {/* Left edge shimmer strip (like direction) */}
         <Animated.View
           pointerEvents="none"
-          style={[styles.edgeLeft, { backgroundColor: '#4ade80' }, likeEdgeStyle]}
+          style={[styles.edgeLeft, { backgroundColor: colors.successBg }, likeEdgeStyle]}
         />
         {/* Right edge shimmer strip (skip direction) */}
         <Animated.View
           pointerEvents="none"
-          style={[styles.edgeRight, { backgroundColor: '#fb7185' }, skipEdgeStyle]}
+          style={[styles.edgeRight, { backgroundColor: colors.primaryLight }, skipEdgeStyle]}
         />
 
         {/* Recommend reason pill */}
@@ -201,25 +202,25 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
         {/* Decision flash — green for like, rose for skip */}
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, { backgroundColor: '#22c55e', borderRadius: 24 }, isRight]}
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.success, borderRadius: 24 }, isRight]}
         />
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, { backgroundColor: '#f43f5e', borderRadius: 24 }, isLeft]}
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.primary, borderRadius: 24 }, isLeft]}
         />
 
         {/* LIKE label */}
         <Animated.View
           style={[styles.likeLabel, likeOverlayStyle]}
         >
-          <Text style={[styles.labelText, { color: '#22c55e' }]}>LIKE</Text>
+          <Text style={[styles.labelText, { color: colors.success }]}>LIKE</Text>
         </Animated.View>
 
         {/* SKIP label */}
         <Animated.View
           style={[styles.skipLabel, skipOverlayStyle]}
         >
-          <Text style={[styles.labelText, { color: '#f43f5e' }]}>SKIP</Text>
+          <Text style={[styles.labelText, { color: colors.primary }]}>SKIP</Text>
         </Animated.View>
       </Animated.View>
     </GestureDetector>
@@ -230,7 +231,7 @@ export function SwipeCard({ user, onSwipeLeft, onSwipeRight, isNext = false, rec
 const styles = StyleSheet.create({
   ghostCard: {
     borderRadius: 24,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.gray200,
     zIndex: 0,
   },
   glowOverlay: {
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   reasonText: {
-    color: '#ffffff',
+    color: colors.white,
     fontSize: 12,
     fontWeight: '500',
   },
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
     top: 64,
     left: 24,
     borderWidth: 3,
-    borderColor: '#22c55e',
+    borderColor: colors.success,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
     top: 64,
     right: 24,
     borderWidth: 3,
-    borderColor: '#f43f5e',
+    borderColor: colors.primary,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,

@@ -14,6 +14,7 @@ import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
 import { ChromaTransition } from '../../components/ChromaTransition';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { colors } from '../../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -31,24 +32,24 @@ const SECTIONS: Section[] = [
     title: '兴趣圈子',
     description: '找到志同道合的人，从共同爱好开始',
     icon: 'people-circle-outline',
-    iconColor: '#8b5cf6',
-    bgColor: '#f5f3ff',
+    iconColor: colors.purple,
+    bgColor: colors.purpleBg,
     route: '/explore/circles',
   },
   {
     title: '线下活动',
     description: '参加精心组织的线下活动，面对面认识',
     icon: 'calendar-outline',
-    iconColor: '#f59e0b',
-    bgColor: '#fffbeb',
+    iconColor: colors.warning,
+    bgColor: colors.warningBg,
     route: '/explore/activities',
   },
   {
     title: '搭子广场',
     description: '找饭搭子、运动搭子，轻松开始社交',
     icon: 'sparkles-outline',
-    iconColor: '#10b981',
-    bgColor: '#ecfdf5',
+    iconColor: colors.green,
+    bgColor: colors.greenBg,
     route: '/explore/buddy',
   },
 ];
@@ -87,22 +88,22 @@ export default function ExploreTab() {
           <ScalePressable
             onPress={() => router.push('/chat/quick-match')}
             style={{
-              backgroundColor: '#fef2f2', borderRadius: 12,
+              backgroundColor: colors.errorBg, borderRadius: 12,
               padding: 16, flexDirection: 'row', alignItems: 'center',
             }}
           >
             <View style={{
               width: 48, height: 48, borderRadius: 24,
-              backgroundColor: '#f43f5e', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center',
               marginRight: 12,
             }}>
-              <Ionicons name="videocam" size={24} color="white" />
+              <Ionicons name="videocam" size={24} color={colors.white} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#111827' }}>视频快速匹配</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>随机匹配，3分钟视频相亲</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.gray900 }}>视频快速匹配</Text>
+              <Text style={{ fontSize: 13, color: colors.gray500, marginTop: 2 }}>随机匹配，3分钟视频相亲</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            <Ionicons name="chevron-forward" size={20} color={colors.gray400} />
           </ScalePressable>
         </StaggeredListItem>
 
@@ -125,7 +126,7 @@ export default function ExploreTab() {
                   </Text>
                   <Text className="text-sm text-gray-500">{section.description}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                <Ionicons name="chevron-forward" size={20} color={colors.gray300} />
               </View>
             </Card>
           </StaggeredListItem>

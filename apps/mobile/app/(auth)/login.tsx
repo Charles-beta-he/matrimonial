@@ -16,6 +16,7 @@ import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -139,12 +140,12 @@ export default function LoginScreen() {
           {/* Logo */}
           <View className="items-center mb-12">
             <Animated.View style={[{ marginBottom: 8 }, iconStyle]}>
-              <Ionicons name="heart" size={48} color="#f43f5e" />
+              <Ionicons name="heart" size={48} color={colors.primary} />
             </Animated.View>
             <Animated.View style={titleStyle}>
               <ChromaText
                 text="缘分"
-                style={{ fontSize: 26, fontWeight: '700', color: '#f43f5e' }}
+                style={{ fontSize: 26, fontWeight: '700', color: colors.primary }}
                 trigger={chromaTrigger}
               />
             </Animated.View>
@@ -157,6 +158,7 @@ export default function LoginScreen() {
           <Animated.View style={formStyle}>
             <View className="mb-4">
               <Input
+                aria-label="手机号"
                 label="手机号"
                 placeholder="请输入手机号"
                 value={phone}
@@ -166,6 +168,7 @@ export default function LoginScreen() {
             </View>
             <View className="mb-6">
               <Input
+                aria-label="验证码"
                 label="验证码"
                 placeholder="请输入验证码"
                 value={code}

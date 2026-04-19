@@ -14,13 +14,13 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
-  Easing,
 } from 'react-native-reanimated';
 import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
+import { colors } from '../../../constants/colors';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 const TYPE_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -32,7 +32,7 @@ function getBuddyTypeInfo(type: string) {
   return {
     label: found?.label ?? type,
     icon: (found?.icon ?? 'ellipsis-horizontal-outline') as keyof typeof Ionicons.glyphMap,
-    color: BUDDY_TYPE_COLORS[type as BuddyType] ?? '#6b7280',
+    color: BUDDY_TYPE_COLORS[type as BuddyType] ?? colors.gray500,
   };
 }
 
@@ -58,18 +58,9 @@ function formatScheduledTime(value: unknown): string {
 export default function BuddyScreen() {
   const router = useRouter();
   const [type, setType] = useState<string | undefined>(undefined);
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const fabScale = useSharedValue(0);
 
   useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
     fabScale.value = withSpring(1, { damping: 10, stiffness: 180 });
   }, []);
 
@@ -84,13 +75,7 @@ export default function BuddyScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">搭子广场</Text>
-      </Animated.View>
+      <ScreenHeader title="搭子广场" />
 
       {/* Type filter tabs */}
       <ScrollView
@@ -123,7 +108,7 @@ export default function BuddyScreen() {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
@@ -136,7 +121,7 @@ export default function BuddyScreen() {
       ) : posts.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            icon={<Ionicons name="people-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="people-outline" size={56} color={colors.gray400} />}
             title="暂无搭子帖"
             description="换个类型看看，或者发起第一个帖子"
           />
@@ -205,7 +190,7 @@ export default function BuddyScreen() {
                     <View style={{ gap: 4 }}>
                       {item.location ? (
                         <View className="flex-row items-center" style={{ gap: 4 }}>
-                          <Ionicons name="location-outline" size={13} color="#6b7280" />
+                          <Ionicons name="location-outline" size={13} color={colors.gray500} />
                           <Text className="text-sm text-gray-500" numberOfLines={1}>
                             {item.location}
                           </Text>
@@ -213,12 +198,12 @@ export default function BuddyScreen() {
                       ) : null}
                       {timeText ? (
                         <View className="flex-row items-center" style={{ gap: 4 }}>
-                          <Ionicons name="time-outline" size={13} color="#6b7280" />
+                          <Ionicons name="time-outline" size={13} color={colors.gray500} />
                           <Text className="text-sm text-gray-500">{timeText}</Text>
                         </View>
                       ) : null}
                       <View className="flex-row items-center" style={{ gap: 4 }}>
-                        <Ionicons name="people-outline" size={13} color="#6b7280" />
+                        <Ionicons name="people-outline" size={13} color={colors.gray500} />
                         <Text className="text-sm text-gray-500">
                           {applyCount} 人报名
                           {item.maxPeople ? ` / 共 ${item.maxPeople} 人` : ''}
@@ -245,7 +230,7 @@ export default function BuddyScreen() {
         <ScalePressable
           className="w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
           style={{
-            shadowColor: '#f43f5e',
+            shadowColor: colors.primary,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
@@ -253,7 +238,7 @@ export default function BuddyScreen() {
           }}
           onPress={() => router.push('/explore/buddy/create' as any)}
         >
-          <Ionicons name="add" size={28} color="#fff" />
+          <Ionicons name="add" size={28} color={colors.white} />
         </ScalePressable>
       </Animated.View>
     </SafeAreaView>

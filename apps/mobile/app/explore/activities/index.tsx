@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   ActivityIndicator,
   Alert,
@@ -18,6 +17,8 @@ import { formatPrice } from '@matrimonial/shared';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
 import { ScalePressable } from '../../../components/ScalePressable';
+import { colors } from '../../../constants/colors';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 const CATEGORY_TABS: { label: string; value: string | undefined }[] = [
   { label: '全部', value: undefined },
@@ -56,18 +57,9 @@ export default function ActivitiesScreen() {
   const { track } = useAnalytics();
   const [category, setCategory] = useState<string | undefined>(undefined);
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
   useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
     track('screen_view', { screen_name: 'explore_activities' });
   }, [track]);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   const {
     data: activities,
@@ -116,12 +108,7 @@ export default function ActivitiesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">线下活动</Text>
-      </Animated.View>
+      <ScreenHeader title="线下活动" />
 
       {/* Category tabs */}
       <ScrollView
@@ -189,7 +176,7 @@ export default function ActivitiesScreen() {
           onPress={() => router.push('/explore/activities/matches' as any)}
         >
           <View className="flex-row items-center" style={{ gap: 8 }}>
-            <Ionicons name="heart-circle" size={22} color="#f43f5e" />
+            <Ionicons name="heart-circle" size={22} color={colors.primary} />
             <View>
               <Text className="text-sm font-semibold text-rose-700">
                 你有 {activityMatches.length} 位活动缘分
@@ -197,13 +184,13 @@ export default function ActivitiesScreen() {
               <Text className="text-xs text-rose-400">活动中双方互相欣赏的人</Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={18} color="#f43f5e" />
+          <Ionicons name="chevron-forward" size={18} color={colors.primary} />
         </ScalePressable>
       ) : null}
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
@@ -216,7 +203,7 @@ export default function ActivitiesScreen() {
       ) : !activities || activities.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            icon={<Ionicons name="sparkles-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="sparkles-outline" size={56} color={colors.gray400} />}
             title="暂无活动"
             description="换个分类看看吧"
           />
@@ -253,7 +240,7 @@ export default function ActivitiesScreen() {
                   />
                 ) : (
                   <View className="h-32 bg-gray-200 items-center justify-center">
-                    <Ionicons name="sparkles-outline" size={56} color="#9ca3af" />
+                    <Ionicons name="sparkles-outline" size={56} color={colors.gray400} />
                   </View>
                 )}
                 <View className="p-4">
@@ -279,13 +266,13 @@ export default function ActivitiesScreen() {
                   <View style={{ gap: 4 }}>
                     {startTimeText ? (
                       <View className="flex-row items-center" style={{ gap: 4 }}>
-                        <Ionicons name="time-outline" size={14} color="#6b7280" />
+                        <Ionicons name="time-outline" size={14} color={colors.gray500} />
                         <Text className="text-sm text-gray-500">{startTimeText}</Text>
                       </View>
                     ) : null}
                     {item.location ? (
                       <View className="flex-row items-center" style={{ gap: 4 }}>
-                        <Ionicons name="location-outline" size={14} color="#6b7280" />
+                        <Ionicons name="location-outline" size={14} color={colors.gray500} />
                         <Text className="text-sm text-gray-500">{item.location}</Text>
                       </View>
                     ) : null}

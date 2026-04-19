@@ -8,30 +8,17 @@ import {
   Text,
   View,
 } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { Button, Card, Input } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 
 /** Safety tools screen */
 export default function SafetyScreen() {
-  const router = useRouter();
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
-
   // ---- Emergency contact ----
   const contactQuery = api.safety.getEmergencyContact.useQuery();
   const setContactMut = api.safety.setEmergencyContact.useMutation({
@@ -140,18 +127,13 @@ export default function SafetyScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-lg font-semibold text-gray-900">安全工具</Text>
-      </Animated.View>
+      <ScreenHeader title="安全工具" />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Emergency contact */}
         <View className="bg-white mt-2 p-4">
           <View className="flex-row items-center mb-3" style={{ gap: 8 }}>
-            <Ionicons name="call" size={18} color="#3b82f6" />
+            <Ionicons name="call" size={18} color={colors.blue} />
             <Text className="text-base font-semibold text-gray-900">
               紧急联系人
             </Text>
@@ -160,6 +142,7 @@ export default function SafetyScreen() {
             设置紧急联系人，在遇到危险时可以一键发送求助信息
           </Text>
           <Input
+            aria-label="紧急联系人手机号"
             label="紧急联系人手机号"
             placeholder="输入手机号"
             value={emergencyContact}
@@ -183,7 +166,7 @@ export default function SafetyScreen() {
         {/* Date check-in */}
         <Card className="mx-4 mt-4 p-4">
           <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
-            <Ionicons name="location" size={18} color="#f59e0b" />
+            <Ionicons name="location" size={18} color={colors.warning} />
             <Text className="text-base font-semibold text-gray-900">
               约会报备
             </Text>
@@ -245,7 +228,7 @@ export default function SafetyScreen() {
               Platform.OS === 'web'
                 ? { boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
                 : {
-                    shadowColor: '#ef4444',
+                    shadowColor: colors.error,
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.3,
                     shadowRadius: 8,
@@ -267,7 +250,7 @@ export default function SafetyScreen() {
         {/* Post-date feedback */}
         <Card className="mx-4 mt-6 p-4 mb-8">
           <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
-            <Ionicons name="chatbubbles" size={18} color="#10b981" />
+            <Ionicons name="chatbubbles" size={18} color={colors.green} />
             <Text className="text-base font-semibold text-gray-900">
               约后反馈
             </Text>
@@ -292,12 +275,13 @@ export default function SafetyScreen() {
                 创建约会报备
               </Text>
               <ScalePressable onPress={() => setShowCheckinModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
+                <Ionicons name="close" size={24} color={colors.gray500} />
               </ScalePressable>
             </View>
 
             <View style={{ gap: 12 }}>
               <Input
+                aria-label="对方昵称"
                 label="对方昵称"
                 placeholder="输入对方昵称或姓名"
                 value={checkinForm.partnerName}
@@ -307,6 +291,7 @@ export default function SafetyScreen() {
                 maxLength={50}
               />
               <Input
+                aria-label="约会地点"
                 label="约会地点"
                 placeholder="输入约会地点"
                 value={checkinForm.location}
@@ -316,6 +301,7 @@ export default function SafetyScreen() {
                 maxLength={200}
               />
               <Input
+                aria-label="约会时间"
                 label="约会时间"
                 placeholder="YYYY-MM-DD HH:mm"
                 value={checkinForm.scheduledAt}
@@ -325,6 +311,7 @@ export default function SafetyScreen() {
                 maxLength={16}
               />
               <Input
+                aria-label="预计结束时间"
                 label="预计结束时间"
                 placeholder="YYYY-MM-DD HH:mm"
                 value={checkinForm.expectedEndAt}

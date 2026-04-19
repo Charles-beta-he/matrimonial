@@ -1,9 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, Easing, Image, Platform, ScrollView, Text, View } from 'react-native';
+import { colors } from '../../constants/colors';
 
 /** Cross-platform shadow style — RN-web 18+ deprecates shadow* in favor of boxShadow */
 function shadowStyle(opts: { color?: string; x?: number; y: number; blur: number; opacity: number; elevation?: number }) {
-  const color = opts.color ?? '#000';
+  const color = opts.color ?? colors.black;
   if (Platform.OS === 'web') {
     // Convert hex to rgba
     const hex = color.replace('#', '');
@@ -169,15 +170,15 @@ function ChipGroup({
               paddingHorizontal: 12,
               paddingVertical: 6,
               borderRadius: 16,
-              backgroundColor: isSelected ? '#f43f5e' : '#f3f4f6',
+              backgroundColor: isSelected ? colors.primary : colors.gray100,
               borderWidth: 1,
-              borderColor: isSelected ? '#f43f5e' : '#e5e7eb',
+              borderColor: isSelected ? colors.primary : colors.gray200,
             }}
           >
             <Text
               style={{
                 fontSize: 13,
-                color: isSelected ? '#ffffff' : '#374151',
+                color: isSelected ? colors.white : colors.gray700,
               }}
             >
               {label}
@@ -429,7 +430,7 @@ export default function DiscoverTab() {
             <Ionicons
               name={showFilters ? 'close-outline' : 'options-outline'}
               size={20}
-              color={hasActiveFilters ? '#f43f5e' : '#4b5563'}
+              color={hasActiveFilters ? colors.primary : colors.gray600}
             />
             {hasActiveFilters && (
               <View
@@ -440,7 +441,7 @@ export default function DiscoverTab() {
                   width: 8,
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: '#f43f5e',
+                  backgroundColor: colors.primary,
                 }}
               />
             )}
@@ -460,15 +461,15 @@ export default function DiscoverTab() {
         >
           <ScrollView
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: colors.white,
               borderBottomWidth: 1,
-              borderBottomColor: '#e5e7eb',
+              borderBottomColor: colors.gray200,
             }}
             contentContainerStyle={{ padding: 16, gap: 16 }}
           >
             {/* Age range */}
             <View>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                 年龄范围
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -483,14 +484,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>-</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
+                <Text style={{ fontSize: 14, color: colors.gray700, minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMin ?? 18}
                 </Text>
                 <ScalePressable
@@ -504,14 +505,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>+</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
+                <Text style={{ fontSize: 14, color: colors.gray400 }}>至</Text>
                 <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
@@ -523,14 +524,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>-</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#374151', minWidth: 24, textAlign: 'center' }}>
+                <Text style={{ fontSize: 14, color: colors.gray700, minWidth: 24, textAlign: 'center' }}>
                   {draftFilters.ageMax ?? 60}
                 </Text>
                 <ScalePressable
@@ -544,19 +545,19 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>+</Text>
                 </ScalePressable>
               </View>
             </View>
 
             {/* Height range */}
             <View>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                 身高范围 (cm)
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -571,14 +572,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>-</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
+                <Text style={{ fontSize: 14, color: colors.gray700, minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMin ?? 150}
                 </Text>
                 <ScalePressable
@@ -592,14 +593,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>+</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#9ca3af' }}>至</Text>
+                <Text style={{ fontSize: 14, color: colors.gray400 }}>至</Text>
                 <ScalePressable
                   onPress={() =>
                     setDraftFilters((p) => ({
@@ -611,14 +612,14 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>-</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>-</Text>
                 </ScalePressable>
-                <Text style={{ fontSize: 14, color: '#374151', minWidth: 30, textAlign: 'center' }}>
+                <Text style={{ fontSize: 14, color: colors.gray700, minWidth: 30, textAlign: 'center' }}>
                   {draftFilters.heightMax ?? 200}
                 </Text>
                 <ScalePressable
@@ -632,19 +633,19 @@ export default function DiscoverTab() {
                     width: 32,
                     height: 32,
                     borderRadius: 16,
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: colors.gray100,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ fontSize: 18, color: '#374151' }}>+</Text>
+                  <Text style={{ fontSize: 18, color: colors.gray700 }}>+</Text>
                 </ScalePressable>
               </View>
             </View>
 
             {/* Education */}
             <View>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                 最低学历
               </Text>
               <ChipGroup
@@ -661,7 +662,7 @@ export default function DiscoverTab() {
 
             {/* Verification level */}
             <View>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                 认证等级
               </Text>
               <ChipGroup
@@ -672,26 +673,26 @@ export default function DiscoverTab() {
             </View>
 
             {/* Advanced filters section */}
-            <View style={{ borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingTop: 12 }}>
+            <View style={{ borderTopWidth: 1, borderTopColor: colors.gray200, paddingTop: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.gray900 }}>
                   高级筛选
                 </Text>
                 <View
                   style={{
-                    backgroundColor: '#fef3c7',
+                    backgroundColor: colors.warningBgLight,
                     paddingHorizontal: 6,
                     paddingVertical: 2,
                     borderRadius: 4,
                   }}
                 >
-                  <Text style={{ fontSize: 10, color: '#d97706', fontWeight: '600' }}>会员</Text>
+                  <Text style={{ fontSize: 10, color: colors.amber600, fontWeight: '600' }}>会员</Text>
                 </View>
               </View>
 
               {/* Income */}
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                   收入范围
                 </Text>
                 <ChipGroup
@@ -703,7 +704,7 @@ export default function DiscoverTab() {
 
               {/* Zodiac */}
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                   星座
                 </Text>
                 <ChipGroup
@@ -715,7 +716,7 @@ export default function DiscoverTab() {
 
               {/* MBTI */}
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.gray900, marginBottom: 8 }}>
                   MBTI
                 </Text>
                 <ChipGroup
@@ -734,12 +735,12 @@ export default function DiscoverTab() {
                   flex: 1,
                   height: 44,
                   borderRadius: 22,
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: colors.gray100,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#374151' }}>重置</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.gray700 }}>重置</Text>
               </ScalePressable>
               <ScalePressable
                 onPress={applyFilters}
@@ -747,12 +748,12 @@ export default function DiscoverTab() {
                   flex: 2,
                   height: 44,
                   borderRadius: 22,
-                  backgroundColor: '#f43f5e',
+                  backgroundColor: colors.primary,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#ffffff' }}>应用</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.white }}>应用</Text>
               </ScalePressable>
             </View>
           </ScrollView>
@@ -792,7 +793,7 @@ export default function DiscoverTab() {
             <Text className="text-base font-semibold text-gray-900">今日精选</Text>
             <View className="flex-row items-center" style={{ gap: 2 }}>
               <Text className="text-sm text-rose-500">查看全部</Text>
-              <Ionicons name="chevron-forward" size={14} color="#f43f5e" />
+              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
             </View>
           </ScalePressable>
           <ScrollView
@@ -825,7 +826,7 @@ export default function DiscoverTab() {
                       />
                     ) : (
                       <View className="w-full h-full items-center justify-center">
-                        <Ionicons name="person" size={32} color="#9ca3af" />
+                        <Ionicons name="person" size={32} color={colors.gray400} />
                       </View>
                     )}
                     {user.isOnline && (
@@ -873,7 +874,7 @@ export default function DiscoverTab() {
             ) : quotaExhausted ? (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
                 <Animated.View style={{ transform: [{ translateY: moonFloat }] }}>
-                  <Ionicons name="moon-outline" size={56} color="#f43f5e" />
+                  <Ionicons name="moon-outline" size={56} color={colors.primary} />
                 </Animated.View>
                 <Text className="text-xl font-bold text-gray-900 mt-4 text-center">今日推荐已用完</Text>
                 <Text className="text-sm text-gray-500 mt-2 text-center">
@@ -936,13 +937,13 @@ export default function DiscoverTab() {
                 width: 56,
                 height: 56,
                 borderRadius: 28,
-                backgroundColor: '#ffffff',
+                backgroundColor: colors.white,
                 alignItems: 'center',
                 justifyContent: 'center',
                 ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
               }}
             >
-              <Ionicons name="close" size={28} color="#ef4444" />
+              <Ionicons name="close" size={28} color={colors.error} />
             </ScalePressable>
 
             <HeartBurst onPress={handleSwipeRight} />
@@ -952,7 +953,7 @@ export default function DiscoverTab() {
               {credits?.superLikes !== undefined && (
                 <View style={{
                   position: 'absolute', top: -4, right: -4,
-                  backgroundColor: '#f43f5e', borderRadius: 8,
+                  backgroundColor: colors.primary, borderRadius: 8,
                   minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
                 }}>
                   <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>

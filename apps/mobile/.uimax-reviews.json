@@ -1,0 +1,4351 @@
+{
+  "version": 1,
+  "reviews": [
+    {
+      "id": "df53eed6-b6ab-4ba3-9cb7-418225efd812",
+      "timestamp": "2026-04-18T17:26:24.849Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9520,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 2,
+        "codeIssues": {
+          "total": 850,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 417,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1268,
+          "lcp": 2688,
+          "cls": 0.000006363329475308642,
+          "tbt": 23
+        }
+      },
+      "findings": {
+        "total": 852,
+        "bySeverity": {
+          "critical": 0,
+          "high": 70,
+          "medium": 417,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 531,
+          "accessibility": 24,
+          "ux": 81,
+          "performance": 1,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 173
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 299
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 852 issues (70 high, 417 medium, 365 low)"
+    },
+    {
+      "id": "566a083a-8b86-4837-a78c-a33f25252f3e",
+      "timestamp": "2026-04-18T17:32:13.464Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9134,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 1,
+        "codeIssues": {
+          "total": 850,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 417,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1364,
+          "lcp": 2676,
+          "cls": 0.000005297985521690672,
+          "tbt": 24
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 69,
+          "medium": 417,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 532,
+          "accessibility": 23,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 173
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (69 high, 417 medium, 365 low)"
+    },
+    {
+      "id": "7f1620aa-0711-4d3d-aab7-1e09dd5d3c5c",
+      "timestamp": "2026-04-18T17:34:22.543Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9327,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 850,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 417,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1272,
+          "lcp": 2712,
+          "cls": 0.000006278432838220166,
+          "tbt": 22
+        }
+      },
+      "findings": {
+        "total": 850,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 417,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 532,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 850 issues (68 high, 417 medium, 365 low)"
+    },
+    {
+      "id": "e33500e4-6e9f-4b4b-abc2-7c0a059d533a",
+      "timestamp": "2026-04-18T17:35:37.652Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9667,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1268,
+          "lcp": 2696,
+          "cls": 0.000006304554880401236,
+          "tbt": 23
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "1e698c8c-17b3-4313-9910-0bdcc7acd11f",
+      "timestamp": "2026-04-18T17:36:39.309Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9145,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1296,
+          "lcp": 2740,
+          "cls": 0.000006278432838220166,
+          "tbt": 23
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "3f252f3b-14b5-4ee4-902e-281b915c144d",
+      "timestamp": "2026-04-18T17:37:05.680Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8670,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1268,
+          "lcp": 2684,
+          "cls": 0.000006304554880401236,
+          "tbt": 23
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "782b856a-52d7-417e-9333-bb1c115a5581",
+      "timestamp": "2026-04-18T17:37:44.406Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9105,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1196,
+          "lcp": 2672,
+          "cls": 0.000006193536201131688,
+          "tbt": 22
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "7e768d69-53bf-46f0-9e29-814a9bb26bd0",
+      "timestamp": "2026-04-18T18:10:31.503Z",
+      "url": "http://localhost:8081",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8725,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 1276,
+          "lcp": 2700,
+          "cls": 0.000006363329475308642,
+          "tbt": 24
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/chat/video-hall.tsx",
+            "line": 226
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/chat/quick-match.tsx",
+            "line": 140
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/chat/quick-match.tsx",
+            "line": 309
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/chat/[conversationId].tsx",
+            "line": 481
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "021ed272-082c-4c5a-8e4c-3ddc2b591b1c",
+      "timestamp": "2026-04-19T02:37:14.134Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 9004,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 688,
+          "lcp": 2148,
+          "cls": 0.000005802576303155007,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/chat/video-hall.tsx",
+            "line": 226
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/chat/quick-match.tsx",
+            "line": 140
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/chat/quick-match.tsx",
+            "line": 309
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/chat/[conversationId].tsx",
+            "line": 481
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/(tabs)/profile.tsx",
+            "line": 141
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/(tabs)/profile.tsx",
+            "line": 294
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "61148396-2584-4452-9241-60d50c7244a4",
+      "timestamp": "2026-04-19T02:45:30.229Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7648,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 696,
+          "lcp": 2136,
+          "cls": 0.000005802576303155007,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "577e88b3-ce6b-44b6-b61b-7ec263a31c68",
+      "timestamp": "2026-04-19T02:48:41.510Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 6982,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 851,
+          "bySeverity": {
+            "critical": 0,
+            "high": 68,
+            "medium": 418,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 632,
+          "lcp": 2092,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 851,
+        "bySeverity": {
+          "critical": 0,
+          "high": 68,
+          "medium": 418,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 22,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/visitors.tsx",
+            "line": 97
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "empty-catch",
+            "severity": "high",
+            "message": "Empty catch block swallows errors silently",
+            "file": "app/profile/settings.tsx",
+            "line": 98
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 162
+          },
+          {
+            "rule": "no-form-label",
+            "severity": "high",
+            "message": "Input element may be missing an associated label",
+            "file": "app/profile/safety.tsx",
+            "line": 300
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 851 issues (68 high, 418 medium, 365 low)"
+    },
+    {
+      "id": "bd7ac404-6cc7-4a3c-9ad8-b60c54dab424",
+      "timestamp": "2026-04-19T02:57:07.777Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7522,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 831,
+          "bySeverity": {
+            "critical": 0,
+            "high": 43,
+            "medium": 423,
+            "low": 365
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 660,
+          "lcp": 2100,
+          "cls": 0.000006304554880401236,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 831,
+        "bySeverity": {
+          "critical": 0,
+          "high": 43,
+          "medium": 423,
+          "low": 365
+        },
+        "byCategory": {
+          "code-quality": 533,
+          "accessibility": 2,
+          "ux": 81,
+          "design": 215
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 179
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 157
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 100
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 242
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 222
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 41
+          }
+        ]
+      },
+      "filesAnalyzed": 88,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 831 issues (43 high, 423 medium, 365 low)"
+    },
+    {
+      "id": "3e540112-3938-44b2-b3b7-1bed27c68171",
+      "timestamp": "2026-04-19T03:04:14.965Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 6993,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 809,
+          "bySeverity": {
+            "critical": 0,
+            "high": 40,
+            "medium": 423,
+            "low": 346
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 656,
+          "lcp": 2088,
+          "cls": 0.000006304554880401236,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 809,
+        "bySeverity": {
+          "critical": 0,
+          "high": 40,
+          "medium": 423,
+          "low": 346
+        },
+        "byCategory": {
+          "code-quality": 532,
+          "ux": 81,
+          "design": 196
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 590
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 242
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 222
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 41
+          }
+        ]
+      },
+      "filesAnalyzed": 89,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 809 issues (40 high, 423 medium, 346 low)"
+    },
+    {
+      "id": "96f95198-f99c-4ade-93d9-f1434e313c43",
+      "timestamp": "2026-04-19T03:08:51.451Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8026,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 795,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 423,
+            "low": 333
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 664,
+          "lcp": 2088,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 795,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 423,
+          "low": 333
+        },
+        "byCategory": {
+          "code-quality": 531,
+          "ux": 81,
+          "design": 183
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/discover/daily-picks.tsx",
+            "line": 121
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/discover/[userId].tsx",
+            "line": 328
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 242
+          }
+        ]
+      },
+      "filesAnalyzed": 89,
+      "filesWithIssues": [
+        "(project-level)",
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 795 issues (39 high, 423 medium, 333 low)"
+    },
+    {
+      "id": "bbd308ed-6117-408e-9dc3-b4da5e12933e",
+      "timestamp": "2026-04-19T03:12:01.969Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7526,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 785,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 322
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 668,
+          "lcp": 2092,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 785,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 322
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 170
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 203
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 163
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 242
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 222
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 41
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 785 issues (39 high, 424 medium, 322 low)"
+    },
+    {
+      "id": "eca3bdd9-3088-4f75-9644-063ec7f10b43",
+      "timestamp": "2026-04-19T03:13:45.765Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8042,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 770,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 307
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 656,
+          "lcp": 2088,
+          "cls": 0.000006304554880401236,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 770,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 307
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 155
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 242
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 222
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 41
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 770 issues (39 high, 424 medium, 307 low)"
+    },
+    {
+      "id": "2bba8dd6-96a8-4708-83a1-b722419016aa",
+      "timestamp": "2026-04-19T03:15:13.247Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8001,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 751,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 288
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 668,
+          "lcp": 2092,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 751,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 288
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 136
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 222
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 41
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 751 issues (39 high, 424 medium, 288 low)"
+    },
+    {
+      "id": "b1b9dfe6-4cf1-41ef-83a7-8a357e5bdfbe",
+      "timestamp": "2026-04-19T03:17:07.657Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8060,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 737,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 274
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 644,
+          "lcp": 2092,
+          "cls": 0.000006304554880401236,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 737,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 274
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 122
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 42
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 737 issues (39 high, 424 medium, 274 low)"
+    },
+    {
+      "id": "73d01b93-681d-496e-9405-6bac5ab0945c",
+      "timestamp": "2026-04-19T03:18:53.635Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7518,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 727,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 264
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 660,
+          "lcp": 2088,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 727,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 264
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 112
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 42
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 727 issues (39 high, 424 medium, 264 low)"
+    },
+    {
+      "id": "c525d6f0-d9c4-4752-aed1-f1752684d221",
+      "timestamp": "2026-04-19T03:20:35.743Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 8049,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 719,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 256
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 676,
+          "lcp": 2100,
+          "cls": 0.000006363329475308642,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 719,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 256
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 104
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 42
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 719 issues (39 high, 424 medium, 256 low)"
+    },
+    {
+      "id": "f3944644-bd52-4270-bfce-8ab7a8794077",
+      "timestamp": "2026-04-19T03:40:41.880Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7494,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 616,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 153
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 636,
+          "lcp": 2096,
+          "cls": 0.000006278432838220166,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 616,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 153
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80,
+          "design": 1
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 42
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 616 issues (39 high, 424 medium, 153 low)"
+    },
+    {
+      "id": "af96f5ea-14a2-4af2-974c-b83fc924e535",
+      "timestamp": "2026-04-19T03:41:32.029Z",
+      "url": "http://localhost:8082",
+      "codeDir": "/Users/charles/Desktop/folder/matrimonial/apps/mobile",
+      "duration": 7502,
+      "scores": {
+        "lighthouse": {
+          "performance": null,
+          "accessibility": null,
+          "bestPractices": null,
+          "seo": null
+        },
+        "accessibilityViolations": 0,
+        "codeIssues": {
+          "total": 615,
+          "bySeverity": {
+            "critical": 0,
+            "high": 39,
+            "medium": 424,
+            "low": 152
+          }
+        },
+        "performanceMetrics": {
+          "fcp": 652,
+          "lcp": 2092,
+          "cls": 0.000005802576303155007,
+          "tbt": 0
+        }
+      },
+      "findings": {
+        "total": 615,
+        "bySeverity": {
+          "critical": 0,
+          "high": 39,
+          "medium": 424,
+          "low": 152
+        },
+        "byCategory": {
+          "code-quality": 535,
+          "ux": 80
+        },
+        "topFindings": [
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/SplashScreen.tsx",
+            "line": 159
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (11 levels)",
+            "file": "components/ReportModal.tsx",
+            "line": 101
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "components/MatchAnimation.tsx",
+            "line": 591
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/_layout.tsx",
+            "line": 180
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (12 levels)",
+            "file": "app/profile/verification.tsx",
+            "line": 204
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (9 levels)",
+            "file": "app/profile/settings.tsx",
+            "line": 164
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/safety.tsx",
+            "line": 224
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/preferences.tsx",
+            "line": 243
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/membership.tsx",
+            "line": 223
+          },
+          {
+            "rule": "deep-nesting",
+            "severity": "high",
+            "message": "Deep nesting detected (10 levels)",
+            "file": "app/profile/liked-me.tsx",
+            "line": 42
+          }
+        ]
+      },
+      "filesAnalyzed": 90,
+      "filesWithIssues": [
+        "app/(auth)/_layout.tsx",
+        "app/(auth)/login.tsx",
+        "app/(auth)/register/complete.tsx",
+        "app/(auth)/register/step1-phone.tsx",
+        "app/(auth)/register/step2-basic-info.tsx",
+        "app/(auth)/register/step3-photos.tsx",
+        "app/(auth)/register/step4-preferences.tsx",
+        "app/(auth)/register/step5-tags.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/explore.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/messages.tsx",
+        "app/(tabs)/profile.tsx",
+        "app/_layout.tsx",
+        "app/chat/[conversationId].tsx",
+        "app/chat/quick-match.tsx",
+        "app/chat/video-call.tsx",
+        "app/chat/video-hall.tsx",
+        "app/discover/[userId].tsx",
+        "app/discover/daily-picks.tsx",
+        "app/explore/_layout.tsx",
+        "app/explore/activities/[activityId]/vote.tsx",
+        "app/explore/activities/index.tsx",
+        "app/explore/activities/matches.tsx",
+        "app/explore/buddy/[postId].tsx",
+        "app/explore/buddy/create.tsx",
+        "app/explore/buddy/index.tsx",
+        "app/explore/circles/[circleId].tsx",
+        "app/explore/circles/index.tsx",
+        "app/index.tsx",
+        "app/legal/_layout.tsx",
+        "app/legal/privacy.tsx",
+        "app/legal/terms.tsx",
+        "app/onboarding.tsx",
+        "app/profile/checkin.tsx",
+        "app/profile/delete-account.tsx",
+        "app/profile/edit.tsx",
+        "app/profile/invite.tsx",
+        "app/profile/liked-me.tsx",
+        "app/profile/membership.tsx",
+        "app/profile/my-reports.tsx",
+        "app/profile/preferences.tsx",
+        "app/profile/privacy.tsx",
+        "app/profile/safety.tsx",
+        "app/profile/settings.tsx",
+        "app/profile/verification.tsx",
+        "app/profile/visitors.tsx",
+        "components/AnimatedCounter.tsx",
+        "components/AnimatedMessageBubble.tsx",
+        "components/AnimatedTabIcon.tsx",
+        "components/AnimatedTypingIndicator.tsx",
+        "components/CardStack.tsx",
+        "components/ChromaTransition.tsx",
+        "components/ErrorBoundary.tsx",
+        "components/HeartBurst.tsx",
+        "components/MatchAnimation.tsx",
+        "components/NativeMap.tsx",
+        "components/PressScale.tsx",
+        "components/ReportModal.tsx",
+        "components/ScalePressable.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/SplashScreen.tsx",
+        "components/StaggeredListItem.tsx",
+        "components/StarBurst.tsx",
+        "components/SwipeCard.tsx",
+        "components/VideoCall.tsx",
+        "components/WebMap.tsx",
+        "hooks/useAnalytics.ts",
+        "hooks/useErrorHandler.ts",
+        "hooks/useOnlineStatus.ts",
+        "hooks/usePayment.ts",
+        "hooks/useUpload.ts",
+        "hooks/useVoiceRecorder.ts",
+        "public/sw.js",
+        "stores/useSocketStore.ts"
+      ],
+      "status": "completed",
+      "summary": "Found 615 issues (39 high, 424 medium, 152 low)"
+    }
+  ]
+}

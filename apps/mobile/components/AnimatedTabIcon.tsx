@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
+import { colors } from '../constants/colors';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -200,7 +201,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
             height: 44,
             borderRadius: 22,
             borderWidth: 1.5,
-            borderColor: '#f43f5e',
+            borderColor: colors.primary,
           }, burstRingStyle]}
         />
         {/* Inner crisp ring — stays closer, lingers */}
@@ -217,10 +218,10 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
         />
         {/* Chromatic aberration layers — red left, blue right */}
         <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, chromaRedStyle]}>
-          <Ionicons name={name} size={size} color="#f43f5e" />
+          <Ionicons name={name} size={size} color={colors.primary} />
         </Animated.View>
         <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, chromaBlueStyle]}>
-          <Ionicons name={name} size={size} color="#818cf8" />
+          <Ionicons name={name} size={size} color={colors.indigo} />
         </Animated.View>
         <Animated.View style={iconStyle}>
           <Ionicons name={name} size={size} color={color} />
@@ -234,13 +235,13 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
               minWidth: 16,
               height: 16,
               borderRadius: 8,
-              backgroundColor: '#f43f5e',
+              backgroundColor: colors.primary,
               alignItems: 'center',
               justifyContent: 'center',
               paddingHorizontal: 3,
             }, badgeStyle]}
           >
-            <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700', lineHeight: 11 }}>
+            <Text style={{ color: colors.white, fontSize: 9, fontWeight: '700', lineHeight: 11 }}>
               {badgeCount > 99 ? '99+' : badgeCount}
             </Text>
           </Animated.View>
@@ -251,7 +252,7 @@ export function AnimatedTabIcon({ name, focused, color, size = 24, badgeCount = 
           width: 4,
           height: 4,
           borderRadius: 2,
-          backgroundColor: '#f43f5e',
+          backgroundColor: colors.primary,
           marginTop: 3,
         }, dotStyle]}
       />

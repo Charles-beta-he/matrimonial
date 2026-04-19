@@ -2,10 +2,12 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Alert, Text, View } from 'react-native';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuickMatch, useLeaveQuickMatch, useQuickMatchStatus } from '@matrimonial/api-client';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 type CallState = 'idle' | 'matching' | 'matched' | 'in_call' | 'ended';
 
@@ -52,7 +54,7 @@ function AnimatedMatchingDots() {
   const s1 = useAnimatedStyle(() => ({ opacity: d1.value }));
   const s2 = useAnimatedStyle(() => ({ opacity: d2.value }));
   const s3 = useAnimatedStyle(() => ({ opacity: d3.value }));
-  const dotBase = { width: 12, height: 12, borderRadius: 6, backgroundColor: '#f43f5e' } as const;
+  const dotBase = { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.primary } as const;
   return (
     <View style={{ flexDirection: 'row', gap: 8, marginBottom: 32 }}>
       <Animated.View style={[dotBase, s1]} />
@@ -92,18 +94,6 @@ export default function QuickMatchScreen() {
   const leaveQuickMatch = useLeaveQuickMatch();
   const statusQuery = useQuickMatchStatus(callState === 'matching');
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
-
   const timerScale = useSharedValue(1);
   useEffect(() => {
     if (timeLeft === 180) return;
@@ -137,8 +127,8 @@ export default function QuickMatchScreen() {
           // Auto-transition to in_call after brief display
           setTimeout(() => setCallState('in_call'), 2000);
         }
-      } catch {
-        // Ignore poll errors
+      } catch (_err) {
+        void _err; // ignore transient poll errors
       }
     }, 3000);
 
@@ -218,23 +208,17 @@ export default function QuickMatchScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">视频速配</Text>
-      </Animated.View>
+      <ScreenHeader title="视频速配" />
 
       <View className="flex-1 items-center justify-center px-8">
         {/* Idle state — start button */}
         {callState === 'idle' && (
           <>
             <View style={{ width: 176, height: 176, alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-              <PulsingRing baseSize={176} color="#f43f5e" delay={0} />
-              <PulsingRing baseSize={176} color="#f43f5e" delay={700} />
+              <PulsingRing baseSize={176} color={colors.primary} delay={0} />
+              <PulsingRing baseSize={176} color={colors.primary} delay={700} />
               <View className="w-44 h-44 rounded-full bg-rose-100 items-center justify-center">
-                <Ionicons name="flash-outline" size={80} color="#f43f5e" />
+                <Ionicons name="flash-outline" size={80} color={colors.primary} />
               </View>
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">3分钟视频速配</Text>
@@ -260,7 +244,7 @@ export default function QuickMatchScreen() {
         {callState === 'matching' && (
           <>
             <View className="w-44 h-44 rounded-full bg-rose-50 items-center justify-center mb-6 border-4 border-rose-300">
-              <Ionicons name="search-outline" size={72} color="#f43f5e" />
+              <Ionicons name="search-outline" size={72} color={colors.primary} />
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">正在匹配中...</Text>
             <Text className="text-sm text-gray-500 text-center mb-2">
@@ -285,9 +269,9 @@ export default function QuickMatchScreen() {
         {callState === 'matched' && (
           <MatchedEntrance>
             <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-              <PulsingRing baseSize={176} color="#22c55e" delay={0} />
+              <PulsingRing baseSize={176} color={colors.success} delay={0} />
               <View className="w-44 h-44 rounded-full bg-green-100 items-center justify-center">
-                <Ionicons name="checkmark-circle-outline" size={80} color="#22c55e" />
+                <Ionicons name="checkmark-circle-outline" size={80} color={colors.success} />
               </View>
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">匹配成功!</Text>
@@ -318,7 +302,7 @@ export default function QuickMatchScreen() {
 
             {/* Video placeholder */}
             <View className="w-full aspect-[3/4] max-h-80 bg-gray-200 rounded-2xl items-center justify-center mb-6">
-              <Ionicons name="videocam" size={64} color="#9ca3af" />
+              <Ionicons name="videocam" size={64} color={colors.gray400} />
               <Text className="text-sm text-gray-400 mt-2">视频通话区域</Text>
             </View>
 
@@ -328,13 +312,13 @@ export default function QuickMatchScreen() {
                 onPress={handleNavigateToCall}
                 className="w-14 h-14 rounded-full bg-rose-100 items-center justify-center"
               >
-                <Ionicons name="expand-outline" size={24} color="#f43f5e" />
+                <Ionicons name="expand-outline" size={24} color={colors.primary} />
               </ScalePressable>
               <ScalePressable
                 onPress={() => setCallState('ended')}
                 className="w-14 h-14 rounded-full bg-red-500 items-center justify-center"
               >
-                <Ionicons name="call" size={24} color="#ffffff" style={{ transform: [{ rotate: '135deg' }] }} />
+                <Ionicons name="call" size={24} color={colors.white} style={{ transform: [{ rotate: '135deg' }] }} />
               </ScalePressable>
             </View>
           </>
@@ -344,7 +328,7 @@ export default function QuickMatchScreen() {
         {callState === 'ended' && (
           <>
             <View className="w-44 h-44 rounded-full bg-gray-100 items-center justify-center mb-6">
-              <Ionicons name="time-outline" size={80} color="#6b7280" />
+              <Ionicons name="time-outline" size={80} color={colors.gray500} />
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-2">
               {timeLeft <= 0 ? '时间到' : '通话结束'}

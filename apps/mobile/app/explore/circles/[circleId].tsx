@@ -18,6 +18,7 @@ import { Avatar, Badge, Button, EmptyState, Modal, toast } from '@matrimonial/ui
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { CIRCLE_CATEGORIES } from '@matrimonial/shared';
+import { colors } from '../../../constants/colors';
 
 /** Relative time display in Chinese */
 function timeAgo(value: unknown): string {
@@ -45,14 +46,14 @@ function timeAgo(value: unknown): string {
 }
 
 const GRADIENT_COLORS: Record<string, string> = {
-  reading: '#6366f1',
-  fitness: '#ef4444',
-  travel: '#0ea5e9',
-  photography: '#8b5cf6',
-  gaming: '#22c55e',
-  food: '#f97316',
-  music: '#ec4899',
-  movies: '#eab308',
+  reading: colors.indigo500,
+  fitness: colors.error,
+  travel: colors.sky,
+  photography: colors.purple,
+  gaming: colors.success,
+  food: colors.orange,
+  music: colors.pink,
+  movies: colors.yellow,
 };
 
 export default function CircleDetailScreen() {
@@ -147,11 +148,11 @@ export default function CircleDetailScreen() {
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-row items-center px-4 py-3">
           <ScalePressable onPress={() => router.back()} className="mr-3">
-            <Ionicons name="chevron-back" size={24} color="#374151" />
+            <Ionicons name="chevron-back" size={24} color={colors.gray700} />
           </ScalePressable>
         </View>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -162,7 +163,7 @@ export default function CircleDetailScreen() {
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-row items-center px-4 py-3">
           <ScalePressable onPress={() => router.back()} className="mr-3">
-            <Ionicons name="chevron-back" size={24} color="#374151" />
+            <Ionicons name="chevron-back" size={24} color={colors.gray700} />
           </ScalePressable>
           <Text className="text-xl font-bold text-gray-900">圈子详情</Text>
         </View>
@@ -191,7 +192,7 @@ export default function CircleDetailScreen() {
           style={{
             width: '100%',
             height: 180,
-            backgroundColor: GRADIENT_COLORS[circle.category] ?? '#6b7280',
+            backgroundColor: GRADIENT_COLORS[circle.category] ?? colors.gray500,
           }}
           className="items-center justify-center"
         >
@@ -233,7 +234,7 @@ export default function CircleDetailScreen() {
             <Badge label={categoryLabel} variant="tag" />
           ) : null}
           <View className="flex-row items-center" style={{ gap: 4 }}>
-            <Ionicons name="people-outline" size={14} color="#6b7280" />
+            <Ionicons name="people-outline" size={14} color={colors.gray500} />
             <Text className="text-sm text-gray-500">
               {circle.memberCount} 成员
             </Text>
@@ -301,7 +302,7 @@ export default function CircleDetailScreen() {
 
       {/* Like count */}
       <View className="flex-row items-center" style={{ gap: 4 }}>
-        <Ionicons name="heart-outline" size={14} color="#9ca3af" />
+        <Ionicons name="heart-outline" size={14} color={colors.gray400} />
         <Text className="text-xs text-gray-400">{(item as any).likeCount ?? 0}</Text>
       </View>
     </View>
@@ -316,7 +317,7 @@ export default function CircleDetailScreen() {
           onPress={() => router.back()}
           className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
         >
-          <Ionicons name="chevron-back" size={22} color="#fff" />
+          <Ionicons name="chevron-back" size={22} color={colors.white} />
         </ScalePressable>
       </Animated.View>
 
@@ -324,7 +325,7 @@ export default function CircleDetailScreen() {
         <>
           {renderHeader()}
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#f43f5e" />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         </>
       ) : (
@@ -345,7 +346,7 @@ export default function CircleDetailScreen() {
                   <Ionicons
                     name="chatbubble-ellipses-outline"
                     size={48}
-                    color="#9ca3af"
+                    color={colors.gray400}
                   />
                 }
                 title="暂无动态"
@@ -366,7 +367,7 @@ export default function CircleDetailScreen() {
         <ScalePressable
           className="absolute bottom-8 right-5 w-14 h-14 rounded-full bg-rose-500 items-center justify-center"
           style={{
-            shadowColor: '#f43f5e',
+            shadowColor: colors.primary,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
@@ -374,7 +375,7 @@ export default function CircleDetailScreen() {
           }}
           onPress={() => setShowPostModal(true)}
         >
-          <Ionicons name="add" size={28} color="#fff" />
+          <Ionicons name="add" size={28} color={colors.white} />
         </ScalePressable>
       ) : null}
 
@@ -391,7 +392,7 @@ export default function CircleDetailScreen() {
             aria-label="发帖内容"
             className="border border-gray-200 rounded-xl p-3 text-sm text-gray-900 min-h-[120px]"
             placeholder="分享你的想法..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.gray400}
             multiline
             textAlignVertical="top"
             maxLength={2000}
@@ -409,11 +410,11 @@ export default function CircleDetailScreen() {
                 key={`img-slot-${idx}`}
                 className="w-16 h-16 rounded-lg bg-gray-100 items-center justify-center border border-dashed border-gray-300"
               >
-                <Ionicons name="image-outline" size={24} color="#9ca3af" />
+                <Ionicons name="image-outline" size={24} color={colors.gray400} />
               </ScalePressable>
             ))}
             <ScalePressable className="w-16 h-16 rounded-lg bg-gray-50 items-center justify-center border border-dashed border-gray-300">
-              <Ionicons name="add" size={24} color="#9ca3af" />
+              <Ionicons name="add" size={24} color={colors.gray400} />
               <Text className="text-[10px] text-gray-400">图片</Text>
             </ScalePressable>
           </View>

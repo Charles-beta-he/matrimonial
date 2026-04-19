@@ -16,7 +16,9 @@ interface StarBurstProps {
   size?: number;
 }
 
-const PARTICLE_COLORS = ['#f59e0b', '#fbbf24', '#fde68a', '#ffffff'];
+import { colors } from '../constants/colors';
+
+const PARTICLE_COLORS = [colors.warning, colors.amber, colors.warningText, colors.white];
 const PARTICLE_COUNT = 6;
 const BASE_ANGLES = Array.from({ length: PARTICLE_COUNT }, (_, i) => (i * 360) / PARTICLE_COUNT);
 
@@ -154,7 +156,7 @@ function Sparkle({
           position: 'absolute',
           width: 6,
           height: 6,
-          backgroundColor: '#fbbf24',
+          backgroundColor: colors.amber,
         },
         style,
       ]}
@@ -188,7 +190,7 @@ function RingPulse({ fireCount }: { fireCount: number }) {
           height: 56,
           borderRadius: 28,
           borderWidth: 2,
-          borderColor: '#f59e0b',
+          borderColor: colors.warning,
         },
         style,
       ]}
@@ -238,10 +240,10 @@ export function StarBurst({ onPress, size = 56 }: StarBurstProps) {
           width: size,
           height: size,
           borderRadius,
-          backgroundColor: '#fef3c7',
+          backgroundColor: colors.warningBgLight,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#f59e0b',
+          shadowColor: colors.warning,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.15,
           shadowRadius: 4,
@@ -250,7 +252,7 @@ export function StarBurst({ onPress, size = 56 }: StarBurstProps) {
         })}
       >
         <Animated.View style={starStyle}>
-          <Ionicons name="star" size={30} color="#f59e0b" />
+          <Ionicons name="star" size={30} color={colors.warning} />
         </Animated.View>
       </Pressable>
     </View>

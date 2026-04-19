@@ -4,6 +4,7 @@ import { Platform, View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useAppStore } from '../stores/useAppStore';
 import { SplashScreen } from '../components/SplashScreen';
+import { colors } from '../constants/colors';
 
 async function getOnboardingFlag(): Promise<string | null> {
   if (Platform.OS === 'web') return localStorage.getItem('hasSeenOnboarding');
@@ -29,7 +30,7 @@ export default function Index() {
 
   // After splash: wait for store hydration + onboarding flag before redirecting.
   if (!hydrated || hasSeenOnboarding === null) {
-    return <View style={{ flex: 1, backgroundColor: '#0a0a0f' }} />;
+    return <View style={{ flex: 1, backgroundColor: colors.gray900 }} />;
   }
 
   if (!hasSeenOnboarding) {

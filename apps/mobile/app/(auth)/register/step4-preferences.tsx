@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { AnimatedProgressBar, Button, Input, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { colors } from '../../../constants/colors';
 
 
 const EDUCATION_OPTIONS = [
@@ -95,7 +96,7 @@ export default function RegisterStep4Preferences() {
 
         <Animated.View style={headingStyle}>
           <Text className="text-2xl font-bold text-gray-900 mb-2">择偶偏好</Text>
-          <Text className="text-sm text-gray-400 mb-8">帮助我们为你推荐合适的人</Text>
+          <Text className="text-sm text-gray-500 mb-8">帮助我们为你推荐合适的人</Text>
         </Animated.View>
 
         <Animated.View style={formStyle}>
@@ -103,11 +104,11 @@ export default function RegisterStep4Preferences() {
         <Text className="text-sm text-gray-600 mb-2 font-medium">年龄范围</Text>
         <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
           <View className="flex-1">
-            <Input label="最小年龄" placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
+            <Input aria-label="最小年龄" label="最小年龄" placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
           </View>
           <Text className="text-gray-400">—</Text>
           <View className="flex-1">
-            <Input label="最大年龄" placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
+            <Input aria-label="最大年龄" label="最大年龄" placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
           </View>
           <Text className="text-gray-400 text-sm">岁</Text>
         </View>
@@ -116,11 +117,11 @@ export default function RegisterStep4Preferences() {
         <Text className="text-sm text-gray-600 mb-2 font-medium">身高范围</Text>
         <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
           <View className="flex-1">
-            <Input label="最低身高" placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
+            <Input aria-label="最低身高" label="最低身高" placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
           </View>
           <Text className="text-gray-400">—</Text>
           <View className="flex-1">
-            <Input label="最高身高" placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
+            <Input aria-label="最高身高" label="最高身高" placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
           </View>
           <Text className="text-gray-400 text-sm">cm</Text>
         </View>
@@ -128,6 +129,7 @@ export default function RegisterStep4Preferences() {
         {/* City preferences */}
         <View className="mb-4">
           <Input
+            aria-label="城市偏好"
             label="城市偏好"
             placeholder="如: 北京、上海、深圳"
             value={cityPref}
@@ -166,8 +168,8 @@ export default function RegisterStep4Preferences() {
           <Switch
             value={acceptLongDistance}
             onValueChange={setAcceptLongDistance}
-            trackColor={{ false: '#d1d5db', true: '#fda4af' }}
-            thumbColor={acceptLongDistance ? '#f43f5e' : '#f4f4f5'}
+            trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
+            thumbColor={acceptLongDistance ? colors.primary : colors.zinc100}
           />
         </View>
 

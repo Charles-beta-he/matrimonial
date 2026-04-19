@@ -15,6 +15,7 @@ import { AnimatedProgressBar, Button, Input, toast } from '@matrimonial/ui';
 import type { Gender } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { colors } from '../../../constants/colors';
 
 
 export default function RegisterStep2BasicInfo() {
@@ -90,13 +91,14 @@ export default function RegisterStep2BasicInfo() {
 
           <Animated.View style={headingStyle}>
             <Text className="text-2xl font-bold text-gray-900 mb-2">基本资料</Text>
-            <Text className="text-sm text-gray-400 mb-8">让我们更好地了解你</Text>
+            <Text className="text-sm text-gray-500 mb-8">让我们更好地了解你</Text>
           </Animated.View>
 
           <Animated.View style={formStyle}>
           {/* Nickname */}
           <View className="mb-4">
             <Input
+              aria-label="昵称"
               label="昵称"
               placeholder="给自己起个名字"
               value={nickname}
@@ -117,7 +119,7 @@ export default function RegisterStep2BasicInfo() {
               <Ionicons
                 name="male"
                 size={28}
-                color={gender === 'MALE' ? '#f43f5e' : '#6b7280'}
+                color={gender === 'MALE' ? colors.primary : colors.gray500}
                 style={{ marginBottom: 4 }}
               />
               <Text
@@ -137,7 +139,7 @@ export default function RegisterStep2BasicInfo() {
               <Ionicons
                 name="female"
                 size={28}
-                color={gender === 'FEMALE' ? '#f43f5e' : '#6b7280'}
+                color={gender === 'FEMALE' ? colors.primary : colors.gray500}
                 style={{ marginBottom: 4 }}
               />
               <Text
@@ -153,6 +155,7 @@ export default function RegisterStep2BasicInfo() {
           {/* Birthday */}
           <View className="mb-4">
             <Input
+              aria-label="生日"
               label="生日"
               placeholder="YYYY-MM-DD"
               value={birthday}
@@ -164,6 +167,7 @@ export default function RegisterStep2BasicInfo() {
           {/* City */}
           <View className="mb-8">
             <Input
+              aria-label="所在城市"
               label="所在城市"
               placeholder="你目前在哪个城市"
               value={city}

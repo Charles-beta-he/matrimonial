@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +15,8 @@ import { api } from '@matrimonial/api-client';
 import { BUDDY_TYPES, BUDDY_TYPE_COLORS, type BuddyType } from '@matrimonial/shared';
 import { ScalePressable } from '../../../components/ScalePressable';
 import { StaggeredListItem } from '../../../components/StaggeredListItem';
+import { colors } from '../../../constants/colors';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/buddy/100/100';
 
@@ -24,7 +25,7 @@ function getBuddyTypeInfo(type: string) {
   return {
     label: found?.label ?? type,
     icon: (found?.icon ?? 'ellipsis-horizontal-outline') as keyof typeof Ionicons.glyphMap,
-    color: BUDDY_TYPE_COLORS[type as BuddyType] ?? '#6b7280',
+    color: BUDDY_TYPE_COLORS[type as BuddyType] ?? colors.gray500,
   };
 }
 
@@ -48,9 +49,9 @@ function formatScheduledTime(value: unknown): string {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  OPEN: { label: '招募中', color: '#22c55e', bg: '#f0fdf4' },
-  FULL: { label: '已满员', color: '#f97316', bg: '#fff7ed' },
-  CLOSED: { label: '已关闭', color: '#6b7280', bg: '#f3f4f6' },
+  OPEN: { label: '招募中', color: colors.success, bg: colors.successBg },
+  FULL: { label: '已满员', color: colors.orange, bg: colors.orangeBg },
+  CLOSED: { label: '已关闭', color: colors.gray500, bg: colors.gray100 },
 };
 
 export default function BuddyPostDetailScreen() {
@@ -58,17 +59,6 @@ export default function BuddyPostDetailScreen() {
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const [applyMessage, setApplyMessage] = useState('');
   const [showApplyInput, setShowApplyInput] = useState(false);
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
 
   const { data: myPostsData } = api.buddy.myPosts.useQuery(undefined, { enabled: !!postId });
 
@@ -126,7 +116,7 @@ export default function BuddyPostDetailScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#f43f5e" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -134,15 +124,10 @@ export default function BuddyPostDetailScreen() {
   if (!post) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-          <ScalePressable onPress={() => router.back()} className="mr-3">
-            <Ionicons name="chevron-back" size={24} color="#374151" />
-          </ScalePressable>
-          <Text className="text-xl font-bold text-gray-900">帖子详情</Text>
-        </Animated.View>
+        <ScreenHeader title="帖子详情" />
         <View className="flex-1 items-center justify-center">
           <EmptyState
-            icon={<Ionicons name="document-outline" size={56} color="#9ca3af" />}
+            icon={<Ionicons name="document-outline" size={56} color={colors.gray400} />}
             title="帖子不存在"
             description="该帖子可能已被删除"
             action={{ label: '返回', onPress: () => router.back() }}
@@ -162,21 +147,16 @@ export default function BuddyPostDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900 flex-1">帖子详情</Text>
-        <View
-          className="rounded-full px-3 py-1"
-          style={{ backgroundColor: statusConf.bg }}
-        >
-          <Text className="text-xs font-medium" style={{ color: statusConf.color }}>
-            {statusConf.label}
-          </Text>
-        </View>
-      </Animated.View>
+      <ScreenHeader
+        title="帖子详情"
+        right={
+          <View className="rounded-full px-3 py-1" style={{ backgroundColor: statusConf.bg }}>
+            <Text className="text-xs font-medium" style={{ color: statusConf.color }}>
+              {statusConf.label}
+            </Text>
+          </View>
+        }
+      />
 
       <ScrollView
         className="flex-1"
@@ -214,18 +194,18 @@ export default function BuddyPostDetailScreen() {
             <View style={{ gap: 8 }}>
               {post.location ? (
                 <View className="flex-row items-center" style={{ gap: 6 }}>
-                  <Ionicons name="location-outline" size={16} color="#6b7280" />
+                  <Ionicons name="location-outline" size={16} color={colors.gray500} />
                   <Text className="text-sm text-gray-500">{post.location}</Text>
                 </View>
               ) : null}
               {timeText ? (
                 <View className="flex-row items-center" style={{ gap: 6 }}>
-                  <Ionicons name="time-outline" size={16} color="#6b7280" />
+                  <Ionicons name="time-outline" size={16} color={colors.gray500} />
                   <Text className="text-sm text-gray-500">{timeText}</Text>
                 </View>
               ) : null}
               <View className="flex-row items-center" style={{ gap: 6 }}>
-                <Ionicons name="people-outline" size={16} color="#6b7280" />
+                <Ionicons name="people-outline" size={16} color={colors.gray500} />
                 <Text className="text-sm text-gray-500">
                   已有{applyCount}人报名
                   {post.maxPeople ? ` / 共${post.maxPeople}人` : ''}
@@ -263,7 +243,7 @@ export default function BuddyPostDetailScreen() {
                   ) : null}
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={20} color={colors.gray300} />
             </ScalePressable>
           </Card>
           </StaggeredListItem>
@@ -317,7 +297,7 @@ export default function BuddyPostDetailScreen() {
                     <Badge
                       label={apply.status === 'ACCEPTED' ? '已接受' : '已拒绝'}
                       variant="tag"
-                      color={apply.status === 'ACCEPTED' ? '#dcfce7' : '#fee2e2'}
+                      color={apply.status === 'ACCEPTED' ? colors.successLight : colors.errorLight}
                     />
                   )}
                 </View>
@@ -330,7 +310,7 @@ export default function BuddyPostDetailScreen() {
 
         {isOwner && applicants.length === 0 ? (
           <View className="mx-4 mt-4 items-center py-6">
-            <Ionicons name="hourglass-outline" size={32} color="#d1d5db" />
+            <Ionicons name="hourglass-outline" size={32} color={colors.gray300} />
             <Text className="text-sm text-gray-400 mt-2">暂无报名，耐心等待吧</Text>
           </View>
         ) : null}
@@ -345,7 +325,7 @@ export default function BuddyPostDetailScreen() {
                 aria-label="申请留言"
                 className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900"
                 placeholder="写一句打招呼的话（选填）"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.gray400}
                 value={applyMessage}
                 onChangeText={setApplyMessage}
                 maxLength={100}

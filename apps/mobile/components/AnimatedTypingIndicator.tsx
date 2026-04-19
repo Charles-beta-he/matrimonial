@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
+import { colors } from '../constants/colors';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -38,7 +39,7 @@ function Dot({ delayMs }: { delayMs: number }) {
         width: 7,
         height: 7,
         borderRadius: 3.5,
-        backgroundColor: '#9ca3af',
+        backgroundColor: colors.gray400,
         marginHorizontal: 3,
       }, style]}
     />
@@ -51,7 +52,7 @@ export function AnimatedTypingIndicator() {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f3f4f6',
+        backgroundColor: colors.gray100,
         borderRadius: 16,
         borderTopLeftRadius: 4,
         paddingHorizontal: 12,

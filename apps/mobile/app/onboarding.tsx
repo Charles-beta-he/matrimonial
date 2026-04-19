@@ -22,6 +22,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { ScalePressable } from '../components/ScalePressable';
+import { colors } from '../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -45,21 +46,21 @@ interface OnboardingPage {
 const PAGES: OnboardingPage[] = [
   {
     icon: 'heart',
-    iconColor: '#f43f5e',
+    iconColor: colors.primary,
     title: '遇见对的人',
     description:
       '基于AI智能匹配算法，从性格、兴趣、价值观等多维度分析，为您精准推荐最合适的另一半。不再盲目寻找，让缘分有迹可循。',
   },
   {
     icon: 'shield-checkmark',
-    iconColor: '#3b82f6',
+    iconColor: colors.blue,
     title: '真实可信',
     description:
       '四级认证体系层层把关——手机验证、实名认证、学历认证、人脸识别，确保每位用户身份真实可靠。告别虚假信息，安心交友。',
   },
   {
     icon: 'lock-closed',
-    iconColor: '#10b981',
+    iconColor: colors.green,
     title: '安全放心',
     description:
       '约会报备功能让亲友随时掌握您的动态，一键SOS紧急求助保障人身安全。平台24小时风控监测，为每一次相遇保驾护航。',
@@ -173,7 +174,7 @@ export default function OnboardingScreen() {
       {/* Skip button */}
       <View className="flex-row justify-end px-6 pt-2">
         <ScalePressable onPress={handleSkip}>
-          <Text className="text-sm text-gray-400">跳过</Text>
+          <Text className="text-sm text-gray-600">跳过</Text>
         </ScalePressable>
       </View>
 
@@ -236,7 +237,7 @@ export default function OnboardingScreen() {
         {/* Action button */}
         <Animated.View style={btnStyle}>
           <ScalePressable
-            className="bg-rose-500 rounded-full py-4 items-center"
+            className="bg-rose-700 rounded-full py-4 items-center"
             onPress={handleNext}
           >
             <Text className="text-white font-bold text-base">

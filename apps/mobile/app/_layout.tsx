@@ -15,6 +15,7 @@ import { useSocketStore } from '../stores/useSocketStore';
 import { useGlobalErrorHandler } from '../hooks/useErrorHandler';
 import { config } from '../env';
 import { refreshAccessToken } from '../lib/authRefresh';
+import { colors } from '../constants/colors';
 
 /**
  * tRPC link that intercepts UNAUTHORIZED errors, attempts a single-flight
@@ -211,8 +212,8 @@ export default function RootLayout() {
   // Show loading screen while hydrating auth state
   if (!hydrated) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-        <ActivityIndicator size="large" color="#f43f5e" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.white }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -222,13 +223,15 @@ export default function RootLayout() {
     {Platform.OS === 'web' && (
       <Head>
         <title>缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台 | 立即遇见对的人</title>
-        <meta name="theme-color" content="#f43f5e" />
+        <meta name="theme-color" content={colors.primary} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="canonical" href="https://yuanfen.app/" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="缘分" />
+        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <meta name="description" content="缘分是基于AI智能匹配算法的婚恋交友平台，专注高质量婚恋匹配服务。从性格、兴趣、价值观等多维度深度分析，为您精准推荐最合适的另一半。四级实名认证体系，安全可靠有保障。不再盲目寻找，让缘分有迹可循，美好爱情触手可及，诚邀您加入。立即免费注册！" />
         <meta property="og:title" content="缘分婚恋 — 基于AI智能算法的婚恋交友匹配平台" />

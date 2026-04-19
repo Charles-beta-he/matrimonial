@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Switch, Text, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 
 const EDUCATION_OPTIONS: Array<{ label: string; value: string }> = [
   { label: '不限', value: '' },
@@ -105,18 +106,6 @@ function RangePicker({
 
 /** Dating preferences edit screen */
 export default function PreferencesScreen() {
-  const router = useRouter();
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const meQuery = api.user.me.useQuery();
   const updateMut = api.user.updatePreferences.useMutation({
     onSuccess: () => toast.success('偏好已保存'),
@@ -157,16 +146,11 @@ export default function PreferencesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">择偶偏好</Text>
-      </Animated.View>
+      <ScreenHeader title="择偶偏好" />
 
       {meQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f43f5e" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
@@ -260,8 +244,8 @@ export default function PreferencesScreen() {
               <Switch
                 value={acceptLongDistance}
                 onValueChange={setAcceptLongDistance}
-                trackColor={{ false: '#e5e7eb', true: '#fda4af' }}
-                thumbColor={acceptLongDistance ? '#f43f5e' : '#fff'}
+                trackColor={{ false: colors.gray200, true: colors.primaryMuted }}
+                thumbColor={acceptLongDistance ? colors.primary : colors.white}
               />
             </View>
           </View>

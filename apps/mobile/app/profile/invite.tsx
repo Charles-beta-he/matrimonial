@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Share, Text, TextInput, View } from 'react-native';
+import { ScrollView, Share, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing,
 } from 'react-native-reanimated';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 import { toast } from '@matrimonial/ui';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
 /** Invite / Referral page */
 export default function InvitePage() {
-  const router = useRouter();
   const { track } = useAnalytics();
   const [inputCode, setInputCode] = useState('');
 
@@ -32,13 +32,6 @@ export default function InvitePage() {
     },
   });
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
-
   const heroOpacity = useSharedValue(0);
   const heroY = useSharedValue(24);
   const heroStyle = useAnimatedStyle(() => ({
@@ -49,8 +42,6 @@ export default function InvitePage() {
   useEffect(() => {
     track('screen_view', { screen_name: 'invite' });
     const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
     const cfg = { duration: 420, easing: e };
     heroOpacity.value = withDelay(80, withTiming(1, cfg));
     heroY.value = withDelay(80, withTiming(0, cfg));
@@ -76,8 +67,8 @@ export default function InvitePage() {
         message: `我在用一款很不错的交友App，用我的邀请码 ${myCode} 注册，我们都能获得 Super Like 奖励！`,
       });
       track('invite_shared', {});
-    } catch {
-      // user cancelled
+    } catch (_err) {
+      void _err; // user cancelled share dialog
     }
   };
 
@@ -92,24 +83,17 @@ export default function InvitePage() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
-        </ScalePressable>
-        <Text className="flex-1 text-center text-lg font-bold text-gray-900">邀请好友</Text>
-        <View style={{ width: 24 }} />
-      </Animated.View>
+      <ScreenHeader title="邀请好友" centered />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* My invite code card */}
         <Animated.View style={[heroStyle, {
-          backgroundColor: '#fff', marginHorizontal: 16, marginTop: 16,
+          backgroundColor: colors.white, marginHorizontal: 16, marginTop: 16,
           borderRadius: 16, padding: 24, alignItems: 'center',
-          shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
+          shadowColor: colors.black, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
         }]}>
           <View className="w-16 h-16 rounded-full bg-pink-50 items-center justify-center mb-3">
-            <Ionicons name="gift" size={32} color="#ec4899" />
+            <Ionicons name="gift" size={32} color={colors.pink} />
           </View>
           <Text className="text-sm text-gray-500 mb-2">我的邀请码</Text>
           <Text className="text-3xl font-bold text-gray-900 tracking-widest mb-1">
@@ -124,14 +108,14 @@ export default function InvitePage() {
               className="flex-row items-center bg-gray-100 rounded-full px-5 py-2.5"
               onPress={handleCopyCode}
             >
-              <Ionicons name="copy-outline" size={16} color="#374151" />
+              <Ionicons name="copy-outline" size={16} color={colors.gray700} />
               <Text className="text-sm font-medium text-gray-700 ml-1.5">复制</Text>
             </ScalePressable>
             <ScalePressable
               className="flex-row items-center bg-rose-500 rounded-full px-5 py-2.5"
               onPress={handleShare}
             >
-              <Ionicons name="share-outline" size={16} color="#fff" />
+              <Ionicons name="share-outline" size={16} color={colors.white} />
               <Text className="text-sm font-medium text-white ml-1.5">分享</Text>
             </ScalePressable>
           </View>
@@ -162,7 +146,7 @@ export default function InvitePage() {
               aria-label="邀请码"
               className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900 border border-gray-200"
               placeholder="输入6位邀请码"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
               value={inputCode}
               onChangeText={setInputCode}
               maxLength={6}
@@ -193,7 +177,7 @@ export default function InvitePage() {
 
           {invitees.length === 0 ? (
             <View className="items-center py-6">
-              <Ionicons name="people-outline" size={40} color="#d1d5db" />
+              <Ionicons name="people-outline" size={40} color={colors.gray300} />
               <Text className="text-sm text-gray-400 mt-2">还没有邀请记录</Text>
               <Text className="text-xs text-gray-300 mt-1">分享邀请码给好友，一起来吧</Text>
             </View>
@@ -205,7 +189,7 @@ export default function InvitePage() {
                   className={`flex-row items-center py-3 ${i < invitees.length - 1 ? 'border-b border-gray-50' : ''}`}
                 >
                   <View className="w-9 h-9 rounded-full bg-gray-100 items-center justify-center">
-                    <Ionicons name="person" size={18} color="#9ca3af" />
+                    <Ionicons name="person" size={18} color={colors.gray400} />
                   </View>
                   <View className="flex-1 ml-3">
                     <Text className="text-sm font-medium text-gray-900">{inv.nickname}</Text>

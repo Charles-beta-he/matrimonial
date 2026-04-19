@@ -22,6 +22,7 @@ import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { ChromaTransition } from '../../components/ChromaTransition';
+import { colors } from '../../constants/colors';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -33,13 +34,13 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: '#3b82f6', route: '/profile/verification' },
-  { title: '会员中心', icon: 'diamond-outline',          iconColor: '#f59e0b', route: '/profile/membership' },
-  { title: '择偶偏好', icon: 'options-outline',          iconColor: '#8b5cf6', route: '/profile/preferences' },
-  { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: '#6b7280', route: '/profile/privacy' },
-  { title: '邀请好友', icon: 'gift-outline',              iconColor: '#ec4899', route: '/profile/invite' },
-  { title: '安全工具', icon: 'shield-outline',           iconColor: '#ef4444', route: '/profile/safety' },
-  { title: '设置',     icon: 'settings-outline',         iconColor: '#64748b', route: '/profile/settings' },
+  { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: colors.blue,     route: '/profile/verification' },
+  { title: '会员中心', icon: 'diamond-outline',          iconColor: colors.warning,  route: '/profile/membership' },
+  { title: '择偶偏好', icon: 'options-outline',          iconColor: colors.purple,   route: '/profile/preferences' },
+  { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: colors.gray500,  route: '/profile/privacy' },
+  { title: '邀请好友', icon: 'gift-outline',              iconColor: colors.pink,     route: '/profile/invite' },
+  { title: '安全工具', icon: 'shield-outline',           iconColor: colors.error,    route: '/profile/safety' },
+  { title: '设置',     icon: 'settings-outline',         iconColor: colors.slate500, route: '/profile/settings' },
 ];
 
 /** My profile tab */
@@ -138,8 +139,8 @@ export default function ProfileTab() {
     track('auth_logout', {});
     try {
       await logoutMut.mutateAsync();
-    } catch {
-      // ignore network failure on logout
+    } catch (_err) {
+      void _err; // ignore network failure — user is logged out locally regardless
     }
     clearUser();
     clearAuth();
@@ -176,7 +177,7 @@ export default function ProfileTab() {
         {user?.status === 'PENDING_DELETION' && (
           <View className="mx-4 mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
             <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-              <Ionicons name="warning" size={16} color="#b45309" />
+              <Ionicons name="warning" size={16} color={colors.warningDark} />
               <Text className="text-sm font-bold text-amber-700">账号注销申请中</Text>
             </View>
             <Text className="text-xs text-amber-600 leading-5 mb-3">
@@ -197,7 +198,7 @@ export default function ProfileTab() {
         )}
 
         {/* Header profile area */}
-        <Animated.View style={[headerStyle, { backgroundColor: '#fff', alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }]}>
+        <Animated.View style={[headerStyle, { backgroundColor: colors.white, alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }]}>
           <Animated.View style={breatheStyle}>
             <Avatar
               source={{ uri: avatarUrl }}
@@ -233,11 +234,11 @@ export default function ProfileTab() {
         {/* Daily check-in card */}
         <ScalePressable
           className="bg-white mt-2 mx-4 rounded-2xl p-4 flex-row items-center"
-          style={{ shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}
+          style={{ shadowColor: colors.black, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}
           onPress={() => router.push('/profile/checkin' as any)}
         >
           <View className="w-11 h-11 rounded-xl bg-orange-50 items-center justify-center">
-            <Ionicons name="flame" size={24} color="#f97316" />
+            <Ionicons name="flame" size={24} color={colors.orange} />
           </View>
           <View className="flex-1 ml-3">
             <Text className="text-base font-bold text-gray-900">每日签到</Text>
@@ -253,12 +254,12 @@ export default function ProfileTab() {
                 <Text className="text-white text-xs font-bold">签到</Text>
               </View>
             )}
-            <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+            <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
           </View>
         </ScalePressable>
 
         {/* Stats row */}
-        <Animated.View style={[statsStyle, { backgroundColor: '#fff', marginTop: 8, flexDirection: 'row', paddingVertical: 16 }]}>
+        <Animated.View style={[statsStyle, { backgroundColor: colors.white, marginTop: 8, flexDirection: 'row', paddingVertical: 16 }]}>
           {stats.map((stat, i) => (
             stat.route ? (
               <ScalePressable
@@ -298,7 +299,7 @@ export default function ProfileTab() {
                   </View>
                 }
                 title={item.title}
-                right={<Ionicons name="chevron-forward" size={18} color="#d1d5db" />}
+                right={<Ionicons name="chevron-forward" size={18} color={colors.gray300} />}
                 onPress={() => router.push(item.route as any)}
               />
             </StaggeredListItem>
@@ -309,8 +310,8 @@ export default function ProfileTab() {
         <View className="mt-2 bg-white">
           <ListItem
             left={
-              <View className="w-9 h-9 rounded-xl items-center justify-center" style={{ backgroundColor: '#fef2f2' }}>
-                <Ionicons name="log-out-outline" size={20} color="#ef4444" />
+              <View className="w-9 h-9 rounded-xl items-center justify-center" style={{ backgroundColor: colors.errorBg }}>
+                <Ionicons name="log-out-outline" size={20} color={colors.error} />
               </View>
             }
             title="退出登录"

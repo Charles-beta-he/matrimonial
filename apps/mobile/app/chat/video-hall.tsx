@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
 import {
   ActivityIndicator,
   Alert,
@@ -20,6 +21,7 @@ import {
   useCreateVideoRoom,
   useJoinVideoRoom,
 } from '@matrimonial/api-client';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 type TabType = '1v1' | 'hosted';
 
@@ -35,18 +37,7 @@ export default function VideoHallScreen() {
   const createRoom = useCreateVideoRoom();
   const joinRoom = useJoinVideoRoom();
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
   const tabGlow = useSharedValue(0);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const tabGlowStyle = useAnimatedStyle(() => ({
     opacity: tabGlow.value,
   }));
@@ -105,13 +96,7 @@ export default function VideoHallScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View className="px-4 py-3 bg-white border-b border-gray-100" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
-        </ScalePressable>
-        <Text className="text-xl font-bold text-gray-900">视频相亲大厅</Text>
-      </Animated.View>
+      <ScreenHeader title="视频相亲大厅" />
 
       {/* Quick Match Entry Card */}
       <ScalePressable
@@ -120,13 +105,13 @@ export default function VideoHallScreen() {
       >
         <View className="bg-rose-500 rounded-2xl p-4 flex-row items-center">
           <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">
-            <Ionicons name="flash" size={28} color="#ffffff" />
+            <Ionicons name="flash" size={28} color={colors.white} />
           </View>
           <View className="flex-1">
             <Text className="text-white text-lg font-bold">视频速配</Text>
             <Text className="text-white/80 text-xs">3分钟随机匹配，快速了解新朋友</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#ffffff" />
+          <Ionicons name="chevron-forward" size={20} color={colors.white} />
         </View>
       </ScalePressable>
 
@@ -135,7 +120,7 @@ export default function VideoHallScreen() {
         {/* Glow overlay — activates on tab switch */}
         <Animated.View
           pointerEvents="none"
-          style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#f43f5e', borderRadius: 12 }, tabGlowStyle]}
+          style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 12 }, tabGlowStyle]}
         />
         <ScalePressable
           className={`flex-1 py-2.5 rounded-lg items-center ${
@@ -170,7 +155,7 @@ export default function VideoHallScreen() {
       {activeTab === '1v1' ? (
         <View className="flex-1 items-center justify-center px-8">
           <View className="w-40 h-40 rounded-full bg-rose-100 items-center justify-center mb-6">
-            <Ionicons name="videocam-outline" size={72} color="#f43f5e" />
+            <Ionicons name="videocam-outline" size={72} color={colors.primary} />
           </View>
           <Text className="text-lg font-semibold text-gray-900 mb-2">1v1 视频快聊</Text>
           <Text className="text-sm text-gray-500 text-center mb-8">
@@ -189,7 +174,7 @@ export default function VideoHallScreen() {
         <View className="flex-1">
           {roomsQuery.isLoading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#f43f5e" />
+              <ActivityIndicator size="large" color={colors.primary} />
               <Text className="text-sm text-gray-500 mt-2">正在加载房间...</Text>
             </View>
           ) : roomsQuery.isError ? (
@@ -250,7 +235,7 @@ export default function VideoHallScreen() {
             onPress={() => setCreateOpen(true)}
             className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-rose-500 items-center justify-center shadow-lg"
           >
-            <Ionicons name="add" size={30} color="#ffffff" />
+            <Ionicons name="add" size={30} color={colors.white} />
           </ScalePressable>
         </View>
       )}

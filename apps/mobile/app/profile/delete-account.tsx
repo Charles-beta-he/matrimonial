@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +7,8 @@ import { api } from '@matrimonial/api-client';
 import { toast } from '@matrimonial/ui';
 import { useAppStore } from '../../stores/useAppStore';
 import { ScalePressable } from '../../components/ScalePressable';
+import { colors } from '../../constants/colors';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 const DELETION_ITEMS = [
   '个人资料与照片',
@@ -18,17 +19,6 @@ const DELETION_ITEMS = [
 
 export default function DeleteAccountPage() {
   const router = useRouter();
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-14);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
-  }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const { token, refreshToken, user, setAuth } = useAppStore((s) => ({
     token: s.token,
     refreshToken: s.refreshToken,
@@ -101,19 +91,12 @@ export default function DeleteAccountPage() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
+      <ScreenHeader title="注销账号" />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <Animated.View className="bg-white px-6 py-4 flex-row items-center" style={headerStyle}>
-          <ScalePressable onPress={() => router.back()} className="mr-4">
-            <Ionicons name="chevron-back" size={24} color="#4b5563" />
-          </ScalePressable>
-          <Text className="text-lg font-bold text-gray-900">注销账号</Text>
-        </Animated.View>
-
         {/* Warning */}
         <View className="mx-6 mt-6 bg-red-50 rounded-xl p-4">
           <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-            <Ionicons name="warning" size={18} color="#dc2626" />
+            <Ionicons name="warning" size={18} color={colors.error} />
             <Text className="text-base font-bold text-red-600">注销须知</Text>
           </View>
           <Text className="text-sm text-red-500 leading-5">
@@ -127,7 +110,7 @@ export default function DeleteAccountPage() {
           {DELETION_ITEMS.map((item) => (
             <View key={item} className="flex-row items-center mb-3">
               <View className="w-5 h-5 rounded bg-red-100 items-center justify-center mr-3">
-                <Ionicons name="close" size={14} color="#ef4444" />
+                <Ionicons name="close" size={14} color={colors.error} />
               </View>
               <Text className="text-sm text-gray-700">{item}</Text>
             </View>
@@ -136,7 +119,7 @@ export default function DeleteAccountPage() {
 
         {/* Cooling period notice */}
         <View className="mx-6 mt-4 bg-amber-50 rounded-xl p-4 flex-row" style={{ gap: 8 }}>
-          <Ionicons name="information-circle" size={18} color="#b45309" />
+          <Ionicons name="information-circle" size={18} color={colors.warningDark} />
           <Text className="flex-1 text-sm text-amber-700 leading-5">
             注销将在14天后生效。在此期间，您可以随时登录账号撤回注销申请。14天冷静期结束后，所有数据将被永久删除。
           </Text>
@@ -155,7 +138,7 @@ export default function DeleteAccountPage() {
               aria-label="手机号"
               className="border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 mb-4"
               placeholder="请输入注册手机号"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.gray400}
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
@@ -168,7 +151,7 @@ export default function DeleteAccountPage() {
                 aria-label="验证码"
                 className="flex-1 border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900"
                 placeholder="请输入验证码"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.gray400}
                 value={code}
                 onChangeText={setCode}
                 keyboardType="number-pad"

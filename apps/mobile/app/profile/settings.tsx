@@ -10,6 +10,8 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
 import { useSocketStore } from '../../stores/useSocketStore';
@@ -54,21 +56,13 @@ export default function SettingsPage() {
     }
   }, [notifPrefs]);
 
-  const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-16);
   const contentOpacity = useSharedValue(0);
   const contentY = useSharedValue(20);
   useEffect(() => {
     const e = Easing.out(Easing.cubic);
-    headerOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headerY.value = withTiming(0, { duration: 320, easing: e });
     contentOpacity.value = withTiming(1, { duration: 380, easing: e });
     contentY.value = withTiming(0, { duration: 360, easing: e });
   }, []);
-  const headerStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerY.value }],
-  }));
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
     transform: [{ translateY: contentY.value }],
@@ -95,8 +89,8 @@ export default function SettingsPage() {
   const performLogout = async () => {
     try {
       await logoutMut.mutateAsync();
-    } catch {
-      // ignore network failures on logout
+    } catch (_err) {
+      void _err; // ignore network failures — user is logged out locally regardless
     }
     // Disconnect socket before clearing auth so the server sees a clean
     // disconnect rather than an auth-less reconnect attempt.
@@ -121,15 +115,8 @@ export default function SettingsPage() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
+      <ScreenHeader title="设置" />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <Animated.View className="bg-white px-6 py-4" style={[{ flexDirection: 'row', alignItems: 'center' }, headerStyle]}>
-          <ScalePressable onPress={() => router.back()} className="mr-4">
-            <Ionicons name="chevron-back" size={24} color="#4b5563" />
-          </ScalePressable>
-          <Text className="text-lg font-bold text-gray-900">设置</Text>
-        </Animated.View>
-
         <Animated.View style={contentStyle}>
         {/* 账号安全 */}
         <View className="mt-3">
@@ -140,14 +127,14 @@ export default function SettingsPage() {
               onPress={() => Alert.alert('修改手机号', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改手机号</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
             <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => Alert.alert('修改密码', '功能开发中')}
             >
               <Text className="text-base text-gray-900">修改密码</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>
         </View>
@@ -167,8 +154,8 @@ export default function SettingsPage() {
                 <Switch
                   value={notifications[item.key]}
                   onValueChange={() => toggleNotification(item.key)}
-                  trackColor={{ false: '#d1d5db', true: '#fda4af' }}
-                  thumbColor={notifications[item.key] ? '#f43f5e' : '#f3f4f6'}
+                  trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
+                  thumbColor={notifications[item.key] ? colors.primary : colors.gray100}
                 />
               </View>
             ))}
@@ -184,14 +171,14 @@ export default function SettingsPage() {
               onPress={handleClearCache}
             >
               <Text className="text-base text-gray-900">清除缓存</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
             <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleCheckUpdate}
             >
               <Text className="text-base text-gray-900">检查更新</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>
         </View>
@@ -209,14 +196,14 @@ export default function SettingsPage() {
               onPress={() => router.push('/legal/terms')}
             >
               <Text className="text-base text-gray-900">用户协议</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
             <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={() => router.push('/legal/privacy')}
             >
               <Text className="text-base text-gray-900">隐私政策</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>
         </View>
@@ -230,7 +217,7 @@ export default function SettingsPage() {
               onPress={() => router.push('/profile/my-reports' as any)}
             >
               <Text className="text-base text-gray-900">我提交的举报</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>
         </View>
@@ -246,14 +233,14 @@ export default function SettingsPage() {
               <Text className="text-base text-red-500">
                 {isPendingDeletion ? '账号注销申请中' : '注销账号'}
               </Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
             <ScalePressable
               className="flex-row items-center justify-between px-6 py-4"
               onPress={handleLogout}
             >
               <Text className="text-base text-red-500">退出登录</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>
         </View>

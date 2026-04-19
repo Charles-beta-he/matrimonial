@@ -14,8 +14,9 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, ChromaText, Button } from '@matrimonial/ui';
 import { useIcebreakers } from '@matrimonial/api-client';
+import { colors } from '../constants/colors';
 
-const PARTICLE_COLORS = ['#f43f5e', '#f59e0b', '#ffffff', '#fb7185', '#fde68a', '#c084fc'];
+const PARTICLE_COLORS = [colors.primary, colors.warning, colors.white, colors.primaryLight, colors.warningText, colors.purpleLight];
 
 /** Hooks-compliant: always calls useSharedValue exactly 24 times. */
 function useParticleSharedValues(): SharedValue<number>[] {
@@ -416,7 +417,7 @@ export function MatchAnimation({
             height: 100,
             borderRadius: 50,
             borderWidth: 4,
-            borderColor: '#f43f5e',
+            borderColor: colors.primary,
           },
           ringStyle,
         ]}
@@ -432,7 +433,7 @@ export function MatchAnimation({
             height: 100,
             borderRadius: 50,
             borderWidth: 2,
-            borderColor: '#fb7185',
+            borderColor: colors.primaryLight,
           },
           ringStyle2,
         ]}
@@ -464,7 +465,7 @@ export function MatchAnimation({
             height: 100,
             borderRadius: 50,
             borderWidth: 2,
-            borderColor: '#fde68a',
+            borderColor: colors.warningText,
           },
           ringStyle4,
         ]}
@@ -501,11 +502,11 @@ export function MatchAnimation({
       {/* Echo rings — second pulse at 1400ms */}
       <Animated.View
         pointerEvents="none"
-        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#f43f5e' }, echoRingStyle1]}
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: colors.primary }, echoRingStyle1]}
       />
       <Animated.View
         pointerEvents="none"
-        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1.5, borderColor: '#fb7185' }, echoRingStyle2]}
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 1.5, borderColor: colors.primaryLight }, echoRingStyle2]}
       />
       <Animated.View
         pointerEvents="none"
@@ -515,19 +516,19 @@ export function MatchAnimation({
       {/* Rose screen flash */}
       <Animated.View
         pointerEvents="none"
-        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: '#f43f5e' }, roseFlashStyle]}
+        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: colors.primary }, roseFlashStyle]}
       />
 
       {/* Central white flash */}
       <Animated.View
         pointerEvents="none"
-        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: '#ffffff' }, flashStyle]}
+        style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: colors.white }, flashStyle]}
       />
 
       {/* Iridescent purple ring — 1100ms */}
       <Animated.View
         pointerEvents="none"
-        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#c084fc' }, ringPurpleStyle]}
+        style={[{ position: 'absolute', width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: colors.purpleLight }, ringPurpleStyle]}
       />
 
       {/* Particle burst */}
@@ -578,7 +579,7 @@ export function MatchAnimation({
       {matchedUserId && (
         <View className="w-full px-8 mb-6">
           <View className="flex-row items-center justify-center mb-3" style={{ gap: 6 }}>
-            <Ionicons name="sparkles" size={14} color="#fde68a" />
+            <Ionicons name="sparkles" size={14} color={colors.warningText} />
             <Text className="text-white/90 text-sm font-semibold">AI 破冰建议</Text>
           </View>
           {icebreakersLoading ? (

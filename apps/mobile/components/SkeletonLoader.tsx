@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
+import { colors } from '../constants/colors';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -38,7 +39,7 @@ export function Shimmer({ width, height, borderRadius = 8, style }: ShimmerProps
           width,
           height,
           borderRadius,
-          backgroundColor: '#e5e7eb',
+          backgroundColor: colors.gray200,
           overflow: 'hidden',
         },
         style,

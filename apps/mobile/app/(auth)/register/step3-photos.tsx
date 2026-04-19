@@ -15,6 +15,7 @@ import { AnimatedProgressBar, Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useUpload } from '../../../hooks/useUpload';
 import { useAnalytics } from '../../../hooks/useAnalytics';
+import { colors } from '../../../constants/colors';
 
 
 const SLOTS = 6;
@@ -109,12 +110,12 @@ export default function RegisterStep3Photos() {
               onPress={() => handleRemovePhoto(index)}
               className="absolute top-2 right-2 bg-black/60 rounded-full w-6 h-6 items-center justify-center"
             >
-              <Ionicons name="close" size={14} color="#ffffff" />
+              <Ionicons name="close" size={14} color={colors.white} />
             </ScalePressable>
           </View>
         ) : isActive ? (
           <View className={`w-full h-full items-center justify-center bg-rose-50 border-2 border-dashed border-rose-300 ${radius}`}>
-            <ActivityIndicator color="#f43f5e" />
+            <ActivityIndicator color={colors.primary} />
             <Text className="text-xs text-rose-400 mt-1">上传中...</Text>
           </View>
         ) : (
@@ -122,7 +123,7 @@ export default function RegisterStep3Photos() {
             <Ionicons
               name="add"
               size={variant === 'main' ? 32 : 24}
-              color="#d1d5db"
+              color={colors.gray300}
               style={{ marginBottom: 2 }}
             />
             {variant === 'main' ? <Text className="text-xs text-gray-400">主照片</Text> : null}
