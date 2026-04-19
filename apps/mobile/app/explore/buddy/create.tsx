@@ -142,12 +142,15 @@ export default function BuddyCreateScreen() {
               return (
                 <ScalePressable
                   key={bt.id}
-                  className="rounded-xl px-4 py-3 items-center border-2"
-                  style={{
+                  containerStyle={{
                     width: '30%',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    borderWidth: 2,
                     backgroundColor: isActive ? color + '12' : colors.gray50,
                     borderColor: isActive ? color : colors.gray100,
                   }}
+                  style={{ paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' }}
                   onPress={() => setSelectedType(bt.id as BuddyType)}
                 >
                   <Ionicons
@@ -156,10 +159,8 @@ export default function BuddyCreateScreen() {
                     color={isActive ? color : colors.gray400}
                   />
                   <Text
-                    className={`text-sm mt-1 ${
-                      isActive ? 'font-semibold' : 'text-gray-500'
-                    }`}
-                    style={isActive ? { color } : undefined}
+                    numberOfLines={1}
+                    style={{ fontSize: 13, marginTop: 4, fontWeight: isActive ? '600' : '400', color: isActive ? color : colors.gray500 }}
                   >
                     {bt.label}
                   </Text>
