@@ -132,16 +132,14 @@ export function ReportModal({ visible, reportedId, onClose }: ReportModalProps) 
             <Text className="text-sm font-medium text-gray-700 mt-4 mb-2">
               上传证据（可选，最多5张）
             </Text>
-            <ScalePressable className="bg-gray-50 rounded-xl px-4 py-6 items-center justify-center border border-dashed border-gray-300 mb-4">
+            <ScalePressable containerStyle={{ backgroundColor: '#f9fafb', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d1d5db', marginBottom: 16 }}>
               <Ionicons name="cloud-upload-outline" size={28} color={colors.gray400} />
               <Text className="text-sm text-gray-400 mt-1">点击上传图片</Text>
             </ScalePressable>
 
             {/* Submit */}
             <ScalePressable
-              className={`rounded-full py-3 items-center mb-8 ${
-                canSubmit ? 'bg-rose-500' : 'bg-gray-200'
-              }`}
+              containerStyle={{ borderRadius: 24, paddingVertical: 12, alignItems: 'center', marginBottom: 32, backgroundColor: canSubmit ? '#f43f5e' : '#e5e7eb' }}
               onPress={handleSubmit}
               disabled={!canSubmit}
             >
