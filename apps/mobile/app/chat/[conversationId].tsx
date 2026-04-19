@@ -68,9 +68,6 @@ export default function ChatConversationScreen() {
   const currentPlan = (membershipQuery.data as any)?.plan ?? 'FREE';
   const canSeeReadReceipts = currentPlan === 'QUARTERLY' || currentPlan === 'YEARLY';
   const [inputText, setInputText] = useState('');
-  const inputAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: colors.gray100,
-  }));
 
   const chatHeaderOpacity = useSharedValue(0);
   const chatHeaderY = useSharedValue(-12);
@@ -579,8 +576,8 @@ export default function ChatConversationScreen() {
             >
               <Ionicons name="mic-outline" size={22} color={colors.gray500} />
             </ScalePressable>
-            <Animated.View
-              style={[inputAnimatedStyle, { flex: 1, borderRadius: 22, maxHeight: 120 }]}
+            <View
+              style={{ flex: 1, borderRadius: 22, maxHeight: 120, backgroundColor: colors.gray100 }}
             >
               <TextInput
                 aria-label="消息输入"
@@ -593,7 +590,7 @@ export default function ChatConversationScreen() {
                 maxLength={500}
                 style={{ paddingVertical: 10, paddingHorizontal: 16, minHeight: 40, textAlignVertical: 'top', outlineStyle: 'none' } as any}
               />
-            </Animated.View>
+            </View>
             <ScalePressable className="w-10 h-10 items-center justify-center">
               <Ionicons name="camera-outline" size={22} color={colors.gray500} />
             </ScalePressable>
