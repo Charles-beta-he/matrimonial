@@ -557,7 +557,7 @@ export default function ChatConversationScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={{ height: 48, borderTopWidth: 1, borderTopColor: colors.gray50 }}
+              style={{ maxHeight: 48, borderTopWidth: 1, borderTopColor: colors.gray50 }}
               contentContainerStyle={{ paddingHorizontal: 12, alignItems: 'center', gap: 8 }}
             >
               {icebreakers.slice(0, 3).map((s: string, i: number) => (
