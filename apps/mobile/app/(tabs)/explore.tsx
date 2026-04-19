@@ -131,9 +131,6 @@ export default function ExploreTab() {
             </Card>
           </StaggeredListItem>
         ))}
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
-          <Text style={{ fontSize: 13, color: '#d1d5db', textAlign: 'center' }}>更多功能即将上线</Text>
-        </View>
       </View>
     </SafeAreaView>
     </ChromaTransition>

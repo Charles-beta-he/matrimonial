@@ -529,7 +529,7 @@ export const adminRouter = router({
       });
     }),
 
-  /** Send a push campaign (computes audience size; real FCM/APNs dispatch TODO) */
+  /** Send a push campaign via Expo Push API */
   sendPushCampaign: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -566,14 +566,36 @@ export const adminRouter = router({
           where.membership = { in: ['MONTHLY', 'QUARTERLY', 'YEARLY'] };
           break;
       }
-      const recipientCount = await ctx.prisma.user.count({ where });
+      const recipients = await ctx.prisma.user.findMany({
+        where: { ...where, pushToken: { not: null } },
+        select: { pushToken: true },
+      });
+      const tokens = recipients.map((u) => u.pushToken).filter(Boolean) as string[];
 
-      // TODO: integrate real FCM/APNs dispatcher; for now we only mark delivered count.
+      // Batch-dispatch via Expo Push API (100 per chunk)
+      const CHUNK = 100;
+      let delivered = 0;
+      for (let i = 0; i < tokens.length; i += CHUNK) {
+        const chunk = tokens.slice(i, i + CHUNK);
+        try {
+          const res = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(
+              chunk.map((to) => ({ to, title: campaign.title, body: campaign.body })),
+            ),
+          });
+          if (res.ok) delivered += chunk.length;
+        } catch {
+          // individual chunk failure — continue sending others
+        }
+      }
+
       return ctx.prisma.pushCampaign.update({
         where: { id: input.id },
         data: {
           sentAt: new Date(),
-          delivered: recipientCount,
+          delivered,
           opened: 0,
         },
       });
