@@ -125,17 +125,10 @@ export default function SettingsPage() {
           <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号安全</Text>
           <View className="bg-white">
             <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
-              onPress={() => Alert.alert('修改手机号', '功能开发中')}
+              className="flex-row items-center justify-between px-6 py-4"
+              onPress={() => Alert.alert('修改手机号', '手机号为账号唯一标识，如需修改请联系客服')}
             >
               <Text className="text-base text-gray-900">修改手机号</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={() => Alert.alert('修改密码', '功能开发中')}
-            >
-              <Text className="text-base text-gray-900">修改密码</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
             </ScalePressable>
           </View>

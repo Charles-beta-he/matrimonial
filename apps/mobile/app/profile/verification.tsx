@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useScreenTracking } from '../../hooks/useAnalytics';
-import { Modal, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Modal, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, toast } from '@matrimonial/ui';
@@ -8,6 +8,8 @@ import { StaggeredListItem } from '../../components/StaggeredListItem';
 import { ScalePressable } from '../../components/ScalePressable';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { colors } from '../../constants/colors';
+import * as ImagePicker from 'expo-image-picker';
+import { useUpload } from '../../hooks/useUpload';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 import { VERIFICATION_LEVEL_LABELS } from '@matrimonial/shared';
@@ -26,10 +28,14 @@ export default function VerificationScreen() {
   const submitEduMut = api.verification.submitEduVerify.useMutation();
 
   const [modal, setModal] = useState<Modals>(null);
+  const { uploadFile, uploading: faceUploading } = useUpload();
 
   // L2 modal state
   const [realName, setRealName] = useState('');
   const [idCard, setIdCard] = useState('');
+
+  // L3 modal state
+  const [faceImageUri, setFaceImageUri] = useState<string | null>(null);
 
   // L4 modal state
   const [school, setSchool] = useState('');
@@ -58,10 +64,33 @@ export default function VerificationScreen() {
     }
   };
 
+  const handleTakeSelfie = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      toast.error('需要相机权限以进行真人认证');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+      cameraType: ImagePicker.CameraType.front,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setFaceImageUri(result.assets[0].uri);
+    }
+  };
+
   const handleSubmitFace = async () => {
+    if (!faceImageUri) return;
     try {
-      await submitFaceMut.mutateAsync({ faceImageUrl: 'https://example.com/selfie.jpg' });
+      const uploaded = await uploadFile(faceImageUri, 'verify');
+      if (!uploaded) return;
+      await submitFaceMut.mutateAsync({ faceImageUrl: uploaded.publicUrl });
       toast.success('真人认证已提交');
+      setModal(null);
+      setFaceImageUri(null);
       await utils.verification.getStatus.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? '提交失败');
@@ -127,7 +156,7 @@ export default function VerificationScreen() {
       iconColor: colors.green,
       completed: l3Done,
       enabled: l2Done,
-      onAction: handleSubmitFace,
+      onAction: () => setModal('L3'),
     },
     {
       level: 'L4',
@@ -247,6 +276,48 @@ export default function VerificationScreen() {
                   variant="primary"
                   disabled={submitRealNameMut.isPending || !realName || !idCard}
                   onPress={handleSubmitRealName}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* L3 Face modal */}
+      <Modal visible={modal === 'L3'} transparent animationType="slide" onRequestClose={() => setModal(null)}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-6">
+            <Text className="text-lg font-semibold text-gray-900 mb-2">真人认证</Text>
+            <Text className="text-sm text-gray-500 mb-4">请拍摄一张正面清晰的自拍照，确保光线充足、面部完整</Text>
+            <ScalePressable
+              onPress={handleTakeSelfie}
+              className="items-center justify-center bg-gray-100 rounded-2xl mb-4"
+              style={{ height: 200 }}
+            >
+              {faceImageUri ? (
+                <Image source={{ uri: faceImageUri }} className="w-full h-full rounded-2xl" resizeMode="cover" />
+              ) : (
+                <View className="items-center">
+                  <Ionicons name="camera-outline" size={40} color={colors.gray400} />
+                  <Text className="text-sm text-gray-400 mt-2">点击拍摄自拍照</Text>
+                </View>
+              )}
+            </ScalePressable>
+            {faceImageUri && (
+              <ScalePressable onPress={handleTakeSelfie} className="items-center mb-4">
+                <Text className="text-sm text-rose-500">重新拍摄</Text>
+              </ScalePressable>
+            )}
+            <View className="flex-row" style={{ gap: 12 }}>
+              <View className="flex-1">
+                <Button title="取消" variant="ghost" onPress={() => { setModal(null); setFaceImageUri(null); }} />
+              </View>
+              <View className="flex-1">
+                <Button
+                  title={faceUploading || submitFaceMut.isPending ? '提交中...' : '提交'}
+                  variant="primary"
+                  disabled={!faceImageUri || faceUploading || submitFaceMut.isPending}
+                  onPress={handleSubmitFace}
                 />
               </View>
             </View>
