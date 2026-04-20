@@ -65,7 +65,7 @@ export default function ActivityMatchesScreen() {
                 <ScalePressable
                   className="p-4 flex-row items-center"
                   style={{ gap: 14 }}
-                  onPress={() => router.push(`/profile/${user.id}` as any)}
+                  onPress={() => router.push(`/discover/${user.id}` as any)}
                 >
                   <Image
                     source={{ uri: avatarUrl }}

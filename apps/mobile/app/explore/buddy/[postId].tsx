@@ -225,7 +225,7 @@ export default function BuddyPostDetailScreen() {
             <ScalePressable
               className="p-4 flex-row items-center"
               style={{ gap: 12 }}
-              onPress={() => router.push(`/profile/${post.author.id}` as any)}
+              onPress={() => router.push(`/discover/${post.author.id}` as any)}
             >
               <Avatar
                 source={
