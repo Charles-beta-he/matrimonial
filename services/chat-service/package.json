@@ -12,6 +12,7 @@
     "test": "echo \"no tests yet\""
   },
   "dependencies": {
+    "@prisma/client": "^6.6.0",
     "jose": "^5.9.6",
     "socket.io": "^4.8.1"
   },
