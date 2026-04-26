@@ -1,13 +1,13 @@
 import { useCallback, type ReactNode } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Pressable, type GestureResponderEvent, type ViewStyle } from 'react-native';
+import { Pressable, type GestureResponderEvent, type StyleProp, type ViewStyle } from 'react-native';
 
 interface ScalePressableProps {
   onPress?: (e: GestureResponderEvent) => void;
   disabled?: boolean;
   className?: string;
-  style?: ViewStyle;
-  containerStyle?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   hitSlop?: number | { top?: number; right?: number; bottom?: number; left?: number };
   children?: ReactNode;
 }
