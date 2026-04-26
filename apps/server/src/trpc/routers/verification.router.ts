@@ -3,6 +3,14 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { verify } from '../../adapters/verify.adapter';
 
+/** Admin-only procedure — reuses the same pattern as admin.router.ts */
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+  }
+  return next({ ctx });
+});
+
 export const verificationRouter = router({
   /** Get current verification status */
   getStatus: protectedProcedure.query(async ({ ctx }) => {
@@ -168,11 +176,10 @@ export const verificationRouter = router({
     }),
 
   /**
-   * Approve a pending VerificationRequest.
+   * Approve a pending VerificationRequest (admin-only).
    * Flips both VerificationRequest.status → APPROVED and the corresponding User flag.
-   * TODO: wire this up to the admin UI once it exists.
    */
-  approve: protectedProcedure
+  approve: adminProcedure
     .input(z.object({ requestId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const request = await ctx.prisma.verificationRequest.findUnique({
@@ -200,6 +207,64 @@ export const verificationRouter = router({
           data: userUpdate,
         }),
       ]);
+
+      return { success: true };
+    }),
+
+  /** List all PENDING verification requests (admin-only) */
+  listPending: adminProcedure.query(async ({ ctx }) => {
+    const requests = await ctx.prisma.verificationRequest.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+            phone: true,
+            photos: { where: { isAvatar: true }, take: 1, select: { url: true } },
+          },
+        },
+      },
+      orderBy: { submittedAt: 'asc' },
+    });
+
+    return requests.map((r) => ({
+      id: r.id,
+      level: r.level,
+      submittedAt: r.submittedAt,
+      payload: r.payload as Record<string, unknown>,
+      user: {
+        id: r.user.id,
+        nickname: r.user.nickname,
+        phone: r.user.phone,
+        avatarUrl: r.user.photos[0]?.url ?? null,
+      },
+    }));
+  }),
+
+  /** Reject a pending VerificationRequest (admin-only) */
+  reject: adminProcedure
+    .input(z.object({ requestId: z.string(), reason: z.string().min(1, 'Reason required') }))
+    .mutation(async ({ input, ctx }) => {
+      const request = await ctx.prisma.verificationRequest.findUnique({
+        where: { id: input.requestId },
+      });
+      if (!request) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Request not found' });
+      }
+      if (request.status !== 'PENDING') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Request is not pending' });
+      }
+
+      await ctx.prisma.verificationRequest.update({
+        where: { id: input.requestId },
+        data: {
+          status: 'REJECTED',
+          reviewedAt: new Date(),
+          reviewerId: ctx.user.id,
+          rejectionReason: input.reason,
+        },
+      });
 
       return { success: true };
     }),
