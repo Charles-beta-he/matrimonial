@@ -172,74 +172,167 @@ export default function VerificationScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="认证中心" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="认证中心" noBorder />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="bg-white px-4 py-6 items-center">
-          <Text className="text-sm text-gray-500 mb-2">
-            当前认证等级: {status?.verificationLevel ?? 'L1'}
-          </Text>
-          <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Progress hero */}
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 8,
+            backgroundColor: '#ffffff',
+            borderRadius: 22,
+            padding: 22,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              marginBottom: 14,
+            }}
+          >
+            <View>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '600',
+                  color: '#9ca3af',
+                  letterSpacing: 1.6,
+                  marginBottom: 6,
+                }}
+              >
+                当前等级
+              </Text>
+              <Text style={{ fontSize: 30, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.5 }}>
+                {status?.verificationLevel ?? 'L1'}
+              </Text>
+            </View>
             <View
-              className="h-full bg-rose-500 rounded-full"
-              style={{ width: `${progress * 100}%` }}
+              style={{
+                backgroundColor: '#fff1f2',
+                borderRadius: 999,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+              }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#e11d48' }}>
+                {completedCount}/4 项已完成
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              width: '100%',
+              height: 6,
+              backgroundColor: '#f1ece3',
+              borderRadius: 3,
+              overflow: 'hidden',
+            }}
+          >
+            <View
+              style={{ height: '100%', backgroundColor: '#e11d48', width: `${progress * 100}%`, borderRadius: 3 }}
             />
           </View>
-          <Text className="text-xs text-gray-400 mt-2">
-            {completedCount}/4 项已完成
-          </Text>
         </View>
 
-        <View className="px-4 mt-4" style={{ gap: 12 }}>
+        <View style={{ paddingHorizontal: 24, paddingTop: 22, gap: 12 }}>
           {levels.map((item, i) => (
             <StaggeredListItem key={item.level} index={i}>
-            <Card className="p-4">
-              <View className="flex-row items-start">
-                <View
-                  className="w-12 h-12 rounded-2xl items-center justify-center mr-4"
-                  style={{ backgroundColor: (item.completed ? colors.green : item.iconColor) + '15' }}
-                >
-                  <Ionicons
-                    name={item.icon}
-                    size={24}
-                    color={item.completed ? colors.green : item.iconColor}
-                  />
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1" style={{ gap: 6 }}>
-                    <Text className="text-base font-semibold text-gray-900">
-                      {item.level}: {item.label}
-                    </Text>
-                    {item.completed && (
-                      <View className="flex-row items-center" style={{ gap: 2 }}>
-                        <Ionicons name="checkmark-circle" size={14} color={colors.green} />
-                        <Text className="text-green-500 text-xs">已完成</Text>
-                      </View>
-                    )}
+              <View
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 18,
+                  padding: 18,
+                  borderWidth: 1,
+                  borderColor: item.completed ? '#d1fae5' : '#eef0f3',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                  <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 14,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 14,
+                      backgroundColor: item.completed ? '#dcfce7' : item.iconColor + '18',
+                    }}
+                  >
+                    <Ionicons
+                      name={item.icon}
+                      size={22}
+                      color={item.completed ? '#10b981' : item.iconColor}
+                    />
                   </View>
-                  <Text className="text-sm text-gray-500 mb-1">{item.description}</Text>
-                  <Text className="text-xs text-rose-500">{item.unlocks}</Text>
-
-                  {!item.completed && (
-                    <View className="mt-3">
-                      <Button
-                        title={item.enabled ? '去认证' : '需先完成上一级'}
-                        variant="primary"
-                        size="sm"
-                        disabled={!item.enabled}
-                        onPress={item.onAction}
-                      />
+                  <View style={{ flex: 1 }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: '700',
+                          color: item.completed ? '#10b981' : '#9ca3af',
+                          letterSpacing: 1.4,
+                        }}
+                      >
+                        {item.level}
+                      </Text>
+                      {item.completed ? (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 3,
+                            backgroundColor: '#dcfce7',
+                            paddingHorizontal: 8,
+                            paddingVertical: 3,
+                            borderRadius: 999,
+                          }}
+                        >
+                          <Ionicons name="checkmark" size={11} color="#15803d" />
+                          <Text style={{ color: '#15803d', fontSize: 10, fontWeight: '700' }}>已完成</Text>
+                        </View>
+                      ) : null}
                     </View>
-                  )}
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#0b0b0f', marginBottom: 4 }}>
+                      {item.label}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 18, marginBottom: 4 }}>
+                      {item.description}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#e11d48', fontWeight: '500' }}>
+                      {item.unlocks}
+                    </Text>
+
+                    {!item.completed ? (
+                      <View style={{ marginTop: 14 }}>
+                        <Button
+                          title={item.enabled ? '去认证' : '需先完成上一级'}
+                          variant="primary"
+                          size="sm"
+                          disabled={!item.enabled}
+                          onPress={item.onAction}
+                        />
+                      </View>
+                    ) : null}
+                  </View>
                 </View>
               </View>
-            </Card>
             </StaggeredListItem>
           ))}
         </View>
-
-        <View className="h-8" />
       </ScrollView>
 
       {/* L2 Real-name modal */}

@@ -30,12 +30,22 @@ export function TagSelector({
               if (!isDisabled) onToggle(tag);
             }}
             disabled={isDisabled}
-            className={`rounded-full px-4 py-2 ${
-              isSelected ? 'bg-rose-500' : 'bg-gray-100'
-            } ${isDisabled ? 'opacity-40' : ''}`}
+            style={{
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: isSelected ? '#e11d48' : '#eef0f3',
+              backgroundColor: isSelected ? '#e11d48' : '#ffffff',
+              opacity: isDisabled ? 0.4 : 1,
+            }}
           >
             <Text
-              className={`text-sm ${isSelected ? 'text-white' : 'text-gray-700'}`}
+              style={{
+                fontSize: 13,
+                fontWeight: '500',
+                color: isSelected ? '#ffffff' : '#4b5563',
+              }}
             >
               {tag}
             </Text>

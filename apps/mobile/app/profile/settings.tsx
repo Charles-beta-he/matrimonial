@@ -115,132 +115,166 @@ export default function SettingsPage() {
     ]);
   };
 
+  const groupCardStyle = {
+    marginHorizontal: 24,
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+    overflow: 'hidden' as const,
+  };
+  const eyebrowStyle = {
+    fontSize: 11,
+    fontWeight: '600' as const,
+    color: '#9ca3af',
+    letterSpacing: 1.6,
+    paddingHorizontal: 24,
+    marginBottom: 10,
+  };
+  const itemStyle = {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  };
+  const itemDividerStyle = { borderTopWidth: 1, borderTopColor: '#f4f0ea' };
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="设置" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="设置" noBorder />
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
         <Animated.View style={contentStyle}>
-        {/* 账号安全 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号安全</Text>
-          <View className="bg-white">
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={() => Alert.alert('修改手机号', '手机号为账号唯一标识，如需修改请联系客服')}
-            >
-              <Text className="text-base text-gray-900">修改手机号</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-          </View>
-        </View>
-
-        {/* 通知设置 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">通知设置</Text>
-          <View className="bg-white">
-            {NOTIFICATION_SETTINGS.map((item, index) => (
-              <View
-                key={item.key}
-                className={`flex-row items-center justify-between px-6 py-4 ${
-                  index < NOTIFICATION_SETTINGS.length - 1 ? 'border-b border-gray-50' : ''
-                }`}
+          {/* 账号安全 */}
+          <View style={{ marginTop: 12 }}>
+            <Text style={eyebrowStyle}>账号安全</Text>
+            <View style={groupCardStyle}>
+              <ScalePressable
+                style={itemStyle}
+                onPress={() =>
+                  Alert.alert('修改手机号', '手机号为账号唯一标识，如需修改请联系客服')
+                }
               >
-                <Text className="text-base text-gray-900">{item.label}</Text>
-                <Switch
-                  value={notifications[item.key]}
-                  onValueChange={() => toggleNotification(item.key)}
-                  trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
-                  thumbColor={notifications[item.key] ? colors.primary : colors.gray100}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* 通用 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">通用</Text>
-          <View className="bg-white">
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
-              onPress={handleClearCache}
-            >
-              <Text className="text-base text-gray-900">清除缓存</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={handleCheckUpdate}
-            >
-              <Text className="text-base text-gray-900">检查更新</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-          </View>
-        </View>
-
-        {/* 关于 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">关于</Text>
-          <View className="bg-white">
-            <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50">
-              <Text className="text-base text-gray-900">版本号</Text>
-              <Text className="text-sm text-gray-400">v1.0.0</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>修改手机号</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
             </View>
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
-              onPress={() => router.push('/legal/terms')}
-            >
-              <Text className="text-base text-gray-900">用户协议</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={() => router.push('/legal/privacy')}
-            >
-              <Text className="text-base text-gray-900">隐私政策</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
           </View>
-        </View>
 
-        {/* 我的举报 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">举报记录</Text>
-          <View className="bg-white">
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={() => router.push('/profile/my-reports' as any)}
-            >
-              <Text className="text-base text-gray-900">我提交的举报</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
+          {/* 通知设置 */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={eyebrowStyle}>通知设置</Text>
+            <View style={groupCardStyle}>
+              {NOTIFICATION_SETTINGS.map((item, index) => (
+                <View
+                  key={item.key}
+                  style={[itemStyle, index > 0 ? itemDividerStyle : undefined]}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>
+                    {item.label}
+                  </Text>
+                  <Switch
+                    value={notifications[item.key]}
+                    onValueChange={() => toggleNotification(item.key)}
+                    trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
+                    thumbColor={notifications[item.key] ? colors.primary : colors.white}
+                  />
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
 
-        {/* 账号 */}
-        <View className="mt-3">
-          <Text className="px-6 py-2 text-xs text-gray-400 font-medium">账号</Text>
-          <View className="bg-white">
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4 border-b border-gray-50"
-              onPress={isPendingDeletion ? () => router.push('/(tabs)/profile' as any) : handleDeleteAccount}
-            >
-              <Text className="text-base text-red-500">
-                {isPendingDeletion ? '账号注销申请中' : '注销账号'}
-              </Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
-            <ScalePressable
-              className="flex-row items-center justify-between px-6 py-4"
-              onPress={handleLogout}
-            >
-              <Text className="text-base text-red-500">退出登录</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-            </ScalePressable>
+          {/* 通用 */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={eyebrowStyle}>通用</Text>
+            <View style={groupCardStyle}>
+              <ScalePressable style={itemStyle} onPress={handleClearCache}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>清除缓存</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
+              <ScalePressable style={[itemStyle, itemDividerStyle]} onPress={handleCheckUpdate}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>检查更新</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
+            </View>
           </View>
-        </View>
 
-        <View className="h-12" />
+          {/* 关于 */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={eyebrowStyle}>关于</Text>
+            <View style={groupCardStyle}>
+              <View style={itemStyle}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>版本号</Text>
+                <Text style={{ fontSize: 13, color: '#9ca3af' }}>v1.0.0</Text>
+              </View>
+              <ScalePressable
+                style={[itemStyle, itemDividerStyle]}
+                onPress={() => router.push('/legal/terms')}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>用户协议</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
+              <ScalePressable
+                style={[itemStyle, itemDividerStyle]}
+                onPress={() => router.push('/legal/privacy')}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>隐私政策</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
+            </View>
+          </View>
+
+          {/* 我的举报 */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={eyebrowStyle}>举报记录</Text>
+            <View style={groupCardStyle}>
+              <ScalePressable
+                style={itemStyle}
+                onPress={() => router.push('/profile/my-reports' as any)}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>
+                  我提交的举报
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+              </ScalePressable>
+            </View>
+          </View>
+
+          {/* 账号 (danger) */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={eyebrowStyle}>账号</Text>
+            <View
+              style={{
+                marginHorizontal: 24,
+                backgroundColor: '#ffffff',
+                borderRadius: 18,
+                borderWidth: 1,
+                borderColor: '#fde2e6',
+                overflow: 'hidden',
+              }}
+            >
+              <ScalePressable
+                style={itemStyle}
+                onPress={
+                  isPendingDeletion
+                    ? () => router.push('/(tabs)/profile' as any)
+                    : handleDeleteAccount
+                }
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#dc2626' }}>
+                  {isPendingDeletion ? '账号注销申请中' : '注销账号'}
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color="#fb7185" />
+              </ScalePressable>
+              <ScalePressable
+                style={[itemStyle, { borderTopWidth: 1, borderTopColor: '#fde2e6' }]}
+                onPress={handleLogout}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#dc2626' }}>退出登录</Text>
+                <Ionicons name="chevron-forward" size={16} color="#fb7185" />
+              </ScalePressable>
+            </View>
+          </View>
         </Animated.View>
       </ScrollView>
     </SafeAreaView>

@@ -81,83 +81,200 @@ export default function InvitePage() {
     applyMut.mutate({ code });
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="邀请好友" centered />
+  const cardStyle = {
+    marginHorizontal: 24,
+    marginTop: 14,
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  };
+  const eyebrowStyle = {
+    fontSize: 11,
+    fontWeight: '600' as const,
+    color: '#9ca3af',
+    letterSpacing: 1.6,
+    marginBottom: 14,
+  };
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* My invite code card */}
-        <Animated.View style={[heroStyle, {
-          backgroundColor: colors.white, marginHorizontal: 16, marginTop: 16,
-          borderRadius: 16, padding: 24, alignItems: 'center',
-          shadowColor: colors.black, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
-        }]}>
-          <View className="w-16 h-16 rounded-full bg-pink-50 items-center justify-center mb-3">
-            <Ionicons name="gift" size={32} color={colors.pink} />
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="邀请好友" centered noBorder />
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* My invite code hero — dark */}
+        <Animated.View
+          style={[
+            heroStyle,
+            {
+              marginHorizontal: 24,
+              marginTop: 8,
+              backgroundColor: '#0b0b0f',
+              borderRadius: 24,
+              padding: 26,
+              alignItems: 'center',
+              overflow: 'hidden',
+            },
+          ]}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: -50,
+              right: -40,
+              width: 160,
+              height: 160,
+              borderRadius: 80,
+              backgroundColor: 'rgba(228, 29, 72, 0.18)',
+            }}
+          />
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 28,
+              backgroundColor: 'rgba(228, 29, 72, 0.22)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 12,
+            }}
+          >
+            <Ionicons name="gift" size={26} color="#fb7185" />
           </View>
-          <Text className="text-sm text-gray-500 mb-2">我的邀请码</Text>
-          <Text className="text-3xl font-bold text-gray-900 tracking-widest mb-1">
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#fbbf24',
+              letterSpacing: 1.6,
+              marginBottom: 12,
+            }}
+          >
+            我的邀请码 · CODE
+          </Text>
+          <Text
+            style={{
+              fontSize: 36,
+              fontWeight: '700',
+              color: '#ffffff',
+              letterSpacing: 6,
+              marginBottom: 8,
+            }}
+          >
             {myCode}
           </Text>
-          <Text className="text-xs text-gray-400 mb-4">
+          <Text style={{ fontSize: 12, color: '#a1a1aa', marginBottom: 20, textAlign: 'center' }}>
             分享给好友，双方各获 Super Like 奖励
           </Text>
 
-          <View className="flex-row" style={{ gap: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
             <ScalePressable
-              className="flex-row items-center bg-gray-100 rounded-full px-5 py-2.5"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                borderRadius: 999,
+                paddingHorizontal: 18,
+                paddingVertical: 10,
+                gap: 6,
+              }}
               onPress={handleCopyCode}
             >
-              <Ionicons name="copy-outline" size={16} color={colors.gray700} />
-              <Text className="text-sm font-medium text-gray-700 ml-1.5">复制</Text>
+              <Ionicons name="copy-outline" size={14} color="#ffffff" />
+              <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: '600' }}>复制</Text>
             </ScalePressable>
             <ScalePressable
-              className="flex-row items-center bg-rose-500 rounded-full px-5 py-2.5"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#e11d48',
+                borderRadius: 999,
+                paddingHorizontal: 18,
+                paddingVertical: 10,
+                gap: 6,
+              }}
               onPress={handleShare}
             >
-              <Ionicons name="share-outline" size={16} color={colors.white} />
-              <Text className="text-sm font-medium text-white ml-1.5">分享</Text>
+              <Ionicons name="share-outline" size={14} color="#ffffff" />
+              <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: '600' }}>分享</Text>
             </ScalePressable>
           </View>
         </Animated.View>
 
         {/* Rewards info */}
-        <View className="bg-white mx-4 mt-3 rounded-2xl p-5">
-          <Text className="text-base font-bold text-gray-900 mb-3">邀请奖励</Text>
-          <View className="flex-row" style={{ gap: 12 }}>
-            <View className="flex-1 bg-amber-50 rounded-xl p-3 items-center">
-              <Text className="text-2xl mb-1">🎁</Text>
-              <Text className="text-xs text-gray-600 font-medium">邀请人获得</Text>
-              <Text className="text-sm font-bold text-amber-600 mt-0.5">3 Super Like</Text>
+        <View style={cardStyle}>
+          <Text style={eyebrowStyle}>邀请奖励</Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: '#fff8e0',
+                borderRadius: 14,
+                padding: 14,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 24, marginBottom: 6 }}>🎁</Text>
+              <Text style={{ fontSize: 11, color: '#92400e', fontWeight: '500' }}>邀请人获得</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#b45309', marginTop: 4 }}>
+                3 Super Like
+              </Text>
             </View>
-            <View className="flex-1 bg-blue-50 rounded-xl p-3 items-center">
-              <Text className="text-2xl mb-1">🎉</Text>
-              <Text className="text-xs text-gray-600 font-medium">被邀请人获得</Text>
-              <Text className="text-sm font-bold text-blue-600 mt-0.5">2 Super Like</Text>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: '#e6efff',
+                borderRadius: 14,
+                padding: 14,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 24, marginBottom: 6 }}>🎉</Text>
+              <Text style={{ fontSize: 11, color: '#1e40af', fontWeight: '500' }}>被邀请人获得</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#1d4ed8', marginTop: 4 }}>
+                2 Super Like
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Enter invite code */}
-        <View className="bg-white mx-4 mt-3 rounded-2xl p-5">
-          <Text className="text-base font-bold text-gray-900 mb-3">输入邀请码</Text>
-          <View className="flex-row items-center" style={{ gap: 8 }}>
+        <View style={cardStyle}>
+          <Text style={eyebrowStyle}>输入邀请码</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <TextInput
               aria-label="邀请码"
-              className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900 border border-gray-200"
-              placeholder="输入6位邀请码"
-              placeholderTextColor={colors.gray400}
+              style={{
+                flex: 1,
+                backgroundColor: '#fdfcfa',
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+                borderRadius: 14,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                fontSize: 15,
+                color: '#0b0b0f',
+                letterSpacing: 4,
+              }}
+              placeholder="6 位邀请码"
+              placeholderTextColor="#b8bcc4"
               value={inputCode}
               onChangeText={setInputCode}
               maxLength={6}
               autoCapitalize="characters"
             />
             <ScalePressable
-              className="bg-rose-500 rounded-xl px-5 py-3"
+              style={{
+                backgroundColor: '#e11d48',
+                borderRadius: 14,
+                paddingHorizontal: 18,
+                paddingVertical: 12,
+              }}
               onPress={handleApplyCode}
               disabled={applyMut.isPending}
             >
-              <Text className="text-white font-medium text-base">
+              <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 14 }}>
                 {applyMut.isPending ? '...' : '确认'}
               </Text>
             </ScalePressable>
@@ -165,48 +282,97 @@ export default function InvitePage() {
         </View>
 
         {/* Stats */}
-        <View className="bg-white mx-4 mt-3 rounded-2xl p-5">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-base font-bold text-gray-900">邀请记录</Text>
-            <View className="bg-rose-50 rounded-full px-3 py-1">
-              <Text className="text-sm font-bold text-rose-500">
+        <View style={cardStyle}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 14,
+            }}
+          >
+            <Text style={eyebrowStyle}>邀请记录</Text>
+            <View
+              style={{
+                backgroundColor: '#fff1f2',
+                borderRadius: 999,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#e11d48' }}>
                 已邀请 {inviteCount} 人
               </Text>
             </View>
           </View>
 
           {invitees.length === 0 ? (
-            <View className="items-center py-6">
-              <Ionicons name="people-outline" size={40} color={colors.gray300} />
-              <Text className="text-sm text-gray-400 mt-2">还没有邀请记录</Text>
-              <Text className="text-xs text-gray-300 mt-1">分享邀请码给好友，一起来吧</Text>
+            <View style={{ alignItems: 'center', paddingVertical: 18 }}>
+              <View
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 28,
+                  backgroundColor: '#fff1f2',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 12,
+                }}
+              >
+                <Ionicons name="people-outline" size={24} color="#fb7185" />
+              </View>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f', marginBottom: 4 }}>
+                还没有邀请记录
+              </Text>
+              <Text style={{ fontSize: 12, color: '#9ca3af' }}>分享邀请码给好友，一起来吧</Text>
             </View>
           ) : (
             <View>
               {invitees.map((inv, i) => (
                 <View
                   key={i}
-                  className={`flex-row items-center py-3 ${i < invitees.length - 1 ? 'border-b border-gray-50' : ''}`}
+                  style={[
+                    { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+                    i < invitees.length - 1
+                      ? { borderBottomWidth: 1, borderBottomColor: '#f4f0ea' }
+                      : undefined,
+                  ]}
                 >
-                  <View className="w-9 h-9 rounded-full bg-gray-100 items-center justify-center">
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      backgroundColor: '#f3f4f6',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
                     <Ionicons name="person" size={18} color={colors.gray400} />
                   </View>
-                  <View className="flex-1 ml-3">
-                    <Text className="text-sm font-medium text-gray-900">{inv.nickname}</Text>
-                    <Text className="text-xs text-gray-400 mt-0.5">
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>
+                      {inv.nickname}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
                       {new Date(inv.createdAt).toLocaleDateString('zh-CN')} 加入
                     </Text>
                   </View>
-                  <View className="bg-green-50 rounded-full px-2 py-0.5">
-                    <Text className="text-xs text-green-600">+3 SL</Text>
+                  <View
+                    style={{
+                      backgroundColor: '#dcfce7',
+                      borderRadius: 999,
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                    }}
+                  >
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#15803d' }}>+3 SL</Text>
                   </View>
                 </View>
               ))}
             </View>
           )}
         </View>
-
-        <View className="h-8" />
       </ScrollView>
     </SafeAreaView>
   );

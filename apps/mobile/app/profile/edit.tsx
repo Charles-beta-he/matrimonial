@@ -279,42 +279,110 @@ export default function ProfileEditScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
       <ScreenHeader
         title="编辑资料"
         centered
+        noBorder
         right={
           <PressScale onPress={handleSave}>
             {updateMut.isPending ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
-              <Text className="text-rose-500 font-medium">保存</Text>
+              <View
+                style={{
+                  backgroundColor: '#e11d48',
+                  borderRadius: 999,
+                  paddingHorizontal: 14,
+                  paddingVertical: 6,
+                }}
+              >
+                <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 13 }}>保存</Text>
+              </View>
             )}
           </PressScale>
         }
       />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Avatar */}
-        <Animated.View style={[avatarStyle, { alignItems: 'center', paddingVertical: 24, backgroundColor: '#ffffff' }]}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Avatar hero */}
+        <Animated.View
+          style={[
+            avatarStyle,
+            {
+              alignItems: 'center',
+              paddingVertical: 24,
+              marginHorizontal: 24,
+              marginTop: 8,
+              backgroundColor: '#ffffff',
+              borderRadius: 22,
+              borderWidth: 1,
+              borderColor: '#eef0f3',
+            },
+          ]}
+        >
           <ScalePressable onPress={handleChangeAvatar} disabled={uploading}>
-            <Avatar source={{ uri: avatarUrl }} size={80} />
-            <View className="absolute bottom-0 right-0 bg-rose-500 rounded-full w-7 h-7 items-center justify-center border-2 border-white">
+            <Avatar source={{ uri: avatarUrl }} size={84} />
+            <View
+              style={{
+                position: 'absolute',
+                bottom: -2,
+                right: -2,
+                backgroundColor: '#e11d48',
+                borderRadius: 14,
+                width: 28,
+                height: 28,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 2,
+                borderColor: '#ffffff',
+              }}
+            >
               {uploading ? (
                 <ActivityIndicator size="small" color={colors.white} />
               ) : (
-                <Ionicons name="camera" size={14} color={colors.white} />
+                <Ionicons name="camera" size={13} color={colors.white} />
               )}
             </View>
           </ScalePressable>
+          <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 12 }}>点击更换头像</Text>
         </Animated.View>
 
         <Animated.View style={contentStyle}>
         {/* Photo grid */}
-        <View className="bg-white mt-2 p-4">
-          <Text className="text-base font-semibold text-gray-900 mb-3">
-            照片 <Text className="text-xs text-gray-400 font-normal">{photos.filter(Boolean).length}/6</Text>
-          </Text>
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 14,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 14,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: '#9ca3af',
+                letterSpacing: 1.6,
+              }}
+            >
+              照片
+            </Text>
+            <Text style={{ fontSize: 11, color: '#e11d48', fontWeight: '700' }}>
+              {photos.filter(Boolean).length}/6
+            </Text>
+          </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {photos.map((uri, i) => {
               const isUploading = uploadingSlot === i;
@@ -350,7 +418,7 @@ export default function ProfileEditScreen() {
         </View>
 
         {/* Form fields */}
-        <View className="bg-white mt-2 p-4" style={{ gap: 12 }}>
+        <View style={{ marginHorizontal: 24, marginTop: 14, backgroundColor: '#ffffff', borderRadius: 18, padding: 18, gap: 14, borderWidth: 1, borderColor: '#eef0f3' }}>
           <Input aria-label="昵称" label="昵称" value={nickname} onChangeText={setNickname} maxLength={20} />
           <Input
             aria-label="个人简介"
@@ -451,7 +519,7 @@ export default function ProfileEditScreen() {
         </View>
 
         {/* Prompt cards */}
-        <View className="bg-white mt-2 p-4">
+        <View style={{ marginHorizontal: 24, marginTop: 14, backgroundColor: '#ffffff', borderRadius: 18, padding: 18, borderWidth: 1, borderColor: '#eef0f3' }}>
           <Text className="text-base font-semibold text-gray-900 mb-3">自我介绍</Text>
           {prompts.slice(0, 3).map((p, idx) => {
             const question = PROMPT_QUESTIONS.find((q) => q.id === p.questionId);
@@ -566,7 +634,7 @@ export default function ProfileEditScreen() {
         </Modal>
 
         {/* Tags */}
-        <View className="bg-white mt-2 p-4">
+        <View style={{ marginHorizontal: 24, marginTop: 14, backgroundColor: '#ffffff', borderRadius: 18, padding: 18, borderWidth: 1, borderColor: '#eef0f3' }}>
           <Text className="text-base font-semibold text-gray-900 mb-1">个性标签</Text>
           <Text className="text-xs text-gray-400 mb-3">已选 {selectedTags.length}/5</Text>
           <TagSelector

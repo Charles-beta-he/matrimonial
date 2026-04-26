@@ -15,18 +15,38 @@ export interface ButtonProps {
   onPress?: (event: GestureResponderEvent) => void;
 }
 
-const variantClasses: Record<ButtonVariant, { container: string; text: string }> = {
-  primary: { container: 'bg-rose-500 rounded-full', text: 'text-white' },
-  secondary: { container: 'bg-gray-100 rounded-full', text: 'text-gray-900' },
-  outline: { container: 'border border-rose-500 rounded-full', text: 'text-rose-500' },
-  ghost: { container: '', text: 'text-rose-500' },
-  danger: { container: 'bg-red-500 rounded-full', text: 'text-white' },
+const variantClasses: Record<ButtonVariant, { container: string; text: string; disabled: string }> = {
+  primary: {
+    container: 'bg-rose-600 rounded-full',
+    text: 'text-white',
+    disabled: 'bg-rose-100',
+  },
+  secondary: {
+    container: 'bg-gray-100 rounded-full',
+    text: 'text-gray-900',
+    disabled: 'bg-gray-50',
+  },
+  outline: {
+    container: 'border border-rose-600 rounded-full',
+    text: 'text-rose-600',
+    disabled: 'border-rose-200',
+  },
+  ghost: { container: '', text: 'text-rose-600', disabled: '' },
+  danger: { container: 'bg-red-600 rounded-full', text: 'text-white', disabled: 'bg-red-100' },
+};
+
+const disabledTextClasses: Record<ButtonVariant, string> = {
+  primary: 'text-rose-300',
+  secondary: 'text-gray-400',
+  outline: 'text-rose-300',
+  ghost: 'text-rose-300',
+  danger: 'text-red-300',
 };
 
 const sizeClasses: Record<ButtonSize, { container: string; text: string }> = {
-  sm: { container: 'h-8 px-3', text: 'text-sm' },
-  md: { container: 'h-10 px-5', text: 'text-base' },
-  lg: { container: 'h-12 px-6', text: 'text-lg' },
+  sm: { container: 'h-9 px-4', text: 'text-sm' },
+  md: { container: 'h-11 px-5', text: 'text-base' },
+  lg: { container: 'h-14 px-6', text: 'text-base' },
 };
 
 const loaderColor: Record<ButtonVariant, string> = {
@@ -65,12 +85,12 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
           onPress={onPress}
           onPressIn={isDisabled ? undefined : handlePressIn}
           onPressOut={isDisabled ? undefined : handlePressOut}
-          className={`flex-row items-center justify-center ${v.container} ${s.container} ${fullWidth ? 'w-full' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+          className={`flex-row items-center justify-center ${isDisabled ? v.disabled : v.container} ${s.container} ${fullWidth ? 'w-full' : ''}`}
         >
           {loading ? (
             <ActivityIndicator size="small" color={loaderColor[variant]} />
           ) : (
-            <Text className={`font-semibold ${v.text} ${s.text}`}>{title}</Text>
+            <Text className={`font-semibold ${s.text} ${isDisabled ? disabledTextClasses[variant] : v.text} tracking-wide`}>{title}</Text>
           )}
         </Pressable>
       </Animated.View>

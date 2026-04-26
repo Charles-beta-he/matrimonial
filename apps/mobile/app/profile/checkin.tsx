@@ -255,48 +255,97 @@ export default function CheckinScreen() {
   const todayDate = now.getDate();
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="签到中心" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="签到中心" noBorder />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Streak & Check-in card */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-5" style={{ shadowColor: colors.black, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
-          <View className="items-center" style={{ overflow: 'visible' }}>
-            {/* Confetti origin point */}
-            <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
-              {CONFETTI.map((p, i) => (
-                <ConfettiParticle key={i} {...p} burst={confettiBurst} />
-              ))}
-              <Animated.Text style={[streakScaleStyle, { fontSize: 36, fontWeight: '700', color: '#f43f5e' }]}>
-                {history?.currentStreak ?? 0}
-              </Animated.Text>
-            </View>
-            <Text className="text-sm text-gray-500 mt-1">连续签到天数</Text>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Streak hero — dark gradient */}
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 8,
+            backgroundColor: '#0b0b0f',
+            borderRadius: 24,
+            padding: 22,
+            overflow: 'hidden',
+          }}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              right: -50,
+              top: -50,
+              width: 160,
+              height: 160,
+              borderRadius: 80,
+              backgroundColor: 'rgba(228, 29, 72, 0.18)',
+            }}
+          />
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#fbbf24',
+              letterSpacing: 1.6,
+              marginBottom: 8,
+            }}
+          >
+            连续签到 · STREAK
+          </Text>
+          <View style={{ position: 'relative', alignItems: 'flex-start', justifyContent: 'flex-start', marginBottom: 4 }}>
+            {CONFETTI.map((p, i) => (
+              <ConfettiParticle key={i} {...p} burst={confettiBurst} />
+            ))}
+            <Animated.Text
+              style={[
+                streakScaleStyle,
+                { fontSize: 56, fontWeight: '700', color: '#ffffff', letterSpacing: -1, lineHeight: 64 },
+              ]}
+            >
+              {history?.currentStreak ?? 0}
+              <Text style={{ fontSize: 18, fontWeight: '500', color: '#a1a1aa' }}> 天</Text>
+            </Animated.Text>
           </View>
 
           {/* Reward tiers */}
-          <View className="flex-row justify-around mt-4 mb-4">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, marginBottom: 18 }}>
             {[
-              { day: 1, label: '1天', reward: '1个超级喜欢' },
-              { day: 3, label: '3天', reward: '2个超级喜欢' },
-              { day: 7, label: '7天', reward: '3个超级喜欢' },
+              { day: 1, label: '1 天', reward: '+1 超级喜欢' },
+              { day: 3, label: '3 天', reward: '+2 超级喜欢' },
+              { day: 7, label: '7 天', reward: '+3 超级喜欢' },
             ].map((tier) => {
               const reached = (history?.currentStreak ?? 0) >= tier.day;
               return (
-                <View key={tier.day} className="items-center">
+                <View key={tier.day} style={{ alignItems: 'center', flex: 1 }}>
                   <View
-                    className={`w-12 h-12 rounded-full items-center justify-center ${reached ? 'bg-rose-500' : 'bg-gray-100'}`}
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 19,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: reached ? '#e11d48' : 'rgba(255,255,255,0.08)',
+                      borderWidth: reached ? 0 : 1,
+                      borderColor: 'rgba(255,255,255,0.14)',
+                    }}
                   >
                     <Ionicons
                       name={reached ? 'checkmark' : 'gift-outline'}
-                      size={20}
-                      color={reached ? colors.white : colors.gray400}
+                      size={17}
+                      color={reached ? '#ffffff' : '#a1a1aa'}
                     />
                   </View>
-                  <Text className={`text-xs mt-1 ${reached ? 'text-rose-500 font-medium' : 'text-gray-400'}`}>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      marginTop: 6,
+                      fontWeight: '700',
+                      color: reached ? '#fbbf24' : '#a1a1aa',
+                    }}
+                  >
                     {tier.label}
                   </Text>
-                  <Text className="text-[10px] text-gray-400">{tier.reward}</Text>
+                  <Text style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{tier.reward}</Text>
                 </View>
               );
             })}
@@ -307,26 +356,43 @@ export default function CheckinScreen() {
             onPress={() => checkInMut.mutate()}
             disabled={history?.checkedInToday || checkInMut.isPending}
             variant={history?.checkedInToday ? 'secondary' : 'primary'}
+            fullWidth
           />
         </View>
 
         {/* Calendar */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-5">
-          <Text className="text-base font-bold text-gray-900 mb-3">
-            {year}年{month + 1}月 签到记录
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 16,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 12,
+            }}
+          >
+            {year} · {String(month + 1).padStart(2, '0')}
           </Text>
 
-          {/* Weekday headers */}
-          <View className="flex-row">
+          <View style={{ flexDirection: 'row' }}>
             {WEEKDAYS.map((d) => (
-              <View key={d} className="flex-1 items-center py-1">
-                <Text className="text-xs text-gray-400">{d}</Text>
+              <View key={d} style={{ flex: 1, alignItems: 'center', paddingVertical: 4 }}>
+                <Text style={{ fontSize: 11, color: '#9ca3af', fontWeight: '500' }}>{d}</Text>
               </View>
             ))}
           </View>
 
-          {/* Day grid */}
-          <View className="flex-row flex-wrap">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {calendarDays.map((day, i) => {
               if (day === null) {
                 return <View key={`empty-${i}`} style={{ width: '14.28%', aspectRatio: 1 }} />;
@@ -334,39 +400,61 @@ export default function CheckinScreen() {
               const isChecked = checkedDays.has(day);
               const isToday = day === todayDate;
               return (
-                <CheckinDot
-                  key={day}
-                  day={day}
-                  index={i}
-                  isChecked={isChecked}
-                  isToday={isToday}
-                />
+                <CheckinDot key={day} day={day} index={i} isChecked={isChecked} isToday={isToday} />
               );
             })}
           </View>
 
-          <View className="flex-row items-center mt-3" style={{ gap: 12 }}>
-            <View className="flex-row items-center" style={{ gap: 4 }}>
-              <View className="w-3 h-3 rounded-full bg-rose-500" />
-              <Text className="text-xs text-gray-500">已签到</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 14,
+              paddingTop: 14,
+              borderTopWidth: 1,
+              borderTopColor: '#f4f0ea',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#e11d48' }} />
+              <Text style={{ fontSize: 12, color: '#374151', fontWeight: '500' }}>已签到</Text>
             </View>
-            <Text className="text-xs text-gray-400">
-              本月签到 {checkedDays.size} 天 / 累计 {history?.totalCheckIns ?? 0} 天
+            <Text style={{ fontSize: 11, color: '#9ca3af' }}>
+              本月 {checkedDays.size} 天 · 累计 {history?.totalCheckIns ?? 0} 天
             </Text>
           </View>
         </View>
 
         {/* Achievements */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-5 mb-6">
-          <Text className="text-base font-bold text-gray-900 mb-3">成就徽章</Text>
-          <View className="flex-row flex-wrap" style={{ gap: 12 }}>
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 16,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 14,
+            }}
+          >
+            成就徽章
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
             {achievements.map((ach: any, i: number) => (
               <AchievementBadge key={ach.type} ach={ach} index={i} />
             ))}
           </View>
         </View>
-
-        <View className="h-8" />
       </ScrollView>
     </SafeAreaView>
   );

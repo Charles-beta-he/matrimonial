@@ -1,19 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRef, useState } from 'react';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AnimatedProgressBar, Button, TagSelector, toast } from '@matrimonial/ui';
+import { Button, TagSelector, toast } from '@matrimonial/ui';
 import { TAG_CATEGORIES } from '@matrimonial/shared';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
-
+import { RegisterShell } from '../../../components/RegisterShell';
 
 const CATEGORY_LABELS: Record<string, string> = {
   interests: '兴趣爱好',
@@ -29,26 +21,6 @@ export default function RegisterStep5Tags() {
   const { track } = useAnalytics();
   const utils = api.useUtils();
   const updateMut = api.user.updateProfile.useMutation();
-
-  const headingOpacity = useSharedValue(0);
-  const headingY = useSharedValue(-16);
-  const formOpacity = useSharedValue(0);
-  const formY = useSharedValue(24);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headingY.value = withTiming(0, { duration: 320, easing: e });
-    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
-    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
-  }, []);
-  const headingStyle = useAnimatedStyle(() => ({
-    opacity: headingOpacity.value,
-    transform: [{ translateY: headingY.value }],
-  }));
-  const formStyle = useAnimatedStyle(() => ({
-    opacity: formOpacity.value,
-    transform: [{ translateY: formY.value }],
-  }));
 
   const handleToggle = (tag: string) => {
     setSelectedTags((prev) =>
@@ -71,46 +43,73 @@ export default function RegisterStep5Tags() {
     }
   };
 
+  const remaining = Math.max(0, 3 - selectedTags.length);
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <AnimatedProgressBar step={4} total={4} />
-
-        <Animated.View style={headingStyle}>
-          <Text className="text-2xl font-bold text-gray-900 mb-1">选择你的标签</Text>
-          <Text className="text-sm text-gray-400 mb-2">选择3-5个最能代表你的标签</Text>
-          <Text className="text-sm text-rose-500 font-medium mb-6">
-            已选 {selectedTags.length}/5
+    <RegisterShell step={5} title="贴上你的标签" subtitle="选 3-5 个最像你的，让算法读懂你">
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#ffffff',
+          borderWidth: 1,
+          borderColor: '#eef0f3',
+          borderRadius: 14,
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          marginBottom: 24,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 12, color: '#9ca3af', marginBottom: 2 }}>已选</Text>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#0b0b0f' }}>
+            {selectedTags.length}{' '}
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#9ca3af' }}>/ 5</Text>
           </Text>
-        </Animated.View>
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: '600',
+            color: remaining > 0 ? '#9ca3af' : '#e11d48',
+          }}
+        >
+          {remaining > 0 ? `还需选 ${remaining} 个` : '可以提交了'}
+        </Text>
+      </View>
 
-        <Animated.View style={formStyle}>
-        {Object.entries(TAG_CATEGORIES).map(([key, tags]) => (
-          <View key={key} className="mb-6">
-            <Text className="text-base font-semibold text-gray-900 mb-3">
-              {CATEGORY_LABELS[key] ?? key}
-            </Text>
-            <TagSelector
-              tags={tags as unknown as string[]}
-              selectedTags={selectedTags}
-              onToggle={handleToggle}
-              max={5}
-            />
-          </View>
-        ))}
+      {Object.entries(TAG_CATEGORIES).map(([key, tags]) => (
+        <View key={key} style={{ marginBottom: 22 }}>
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.4,
+              textTransform: 'uppercase',
+              marginBottom: 12,
+            }}
+          >
+            {CATEGORY_LABELS[key] ?? key}
+          </Text>
+          <TagSelector
+            tags={tags as unknown as string[]}
+            selectedTags={selectedTags}
+            onToggle={handleToggle}
+            max={5}
+          />
+        </View>
+      ))}
 
-        <Button
-          title={updateMut.isPending ? '提交中...' : '完成注册'}
-          variant="primary"
-          size="lg"
-          fullWidth
-          disabled={selectedTags.length < 3 || updateMut.isPending}
-          onPress={handleComplete}
-        />
-        </Animated.View>
-
-        <View className="h-8" />
-      </ScrollView>
-    </SafeAreaView>
+      <View style={{ height: 8 }} />
+      <Button
+        title={updateMut.isPending ? '提交中...' : '完成注册'}
+        variant="primary"
+        size="lg"
+        fullWidth
+        disabled={selectedTags.length < 3 || updateMut.isPending}
+        onPress={handleComplete}
+      />
+    </RegisterShell>
   );
 }

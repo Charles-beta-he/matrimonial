@@ -55,32 +55,47 @@ interface PrivacySettingRowProps {
 
 function PrivacySettingRow({ setting, value, saving, loading, onToggle, showDivider }: PrivacySettingRowProps) {
   return (
-    <View key={setting.key}>
-      <View className="flex-row items-center justify-between px-4 py-4">
-        <View className="flex-1 mr-4">
-          <View className="flex-row items-center">
-            <Text className="text-base text-gray-900">{setting.title}</Text>
-            {setting.memberOnly && (
-              <View className="bg-rose-100 rounded-full px-2 py-0.5 ml-2">
-                <Text className="text-xs text-rose-500">会员</Text>
-              </View>
-            )}
-          </View>
-          <Text className="text-sm text-gray-400 mt-0.5">{setting.description}</Text>
+    <View
+      key={setting.key}
+      style={[
+        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+        showDivider ? { borderBottomWidth: 1, borderBottomColor: '#f4f0ea' } : undefined,
+      ]}
+    >
+      <View style={{ flex: 1, marginRight: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>{setting.title}</Text>
+          {setting.memberOnly ? (
+            <View
+              style={{
+                backgroundColor: '#fff1f2',
+                borderRadius: 999,
+                paddingHorizontal: 8,
+                paddingVertical: 2,
+                marginLeft: 8,
+              }}
+            >
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#e11d48', letterSpacing: 0.4 }}>
+                会员
+              </Text>
+            </View>
+          ) : null}
         </View>
-        {saving ? (
-          <ActivityIndicator size="small" color={colors.primary} />
-        ) : (
-          <Switch
-            value={value}
-            onValueChange={onToggle}
-            trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
-            thumbColor={value ? colors.primary : colors.zinc100}
-            disabled={loading}
-          />
-        )}
+        <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 4, lineHeight: 16 }}>
+          {setting.description}
+        </Text>
       </View>
-      {showDivider && <View className="border-b border-gray-100 ml-4" />}
+      {saving ? (
+        <ActivityIndicator size="small" color={colors.primary} />
+      ) : (
+        <Switch
+          value={value}
+          onValueChange={onToggle}
+          trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
+          thumbColor={value ? colors.primary : colors.white}
+          disabled={loading}
+        />
+      )}
     </View>
   );
 }
@@ -205,22 +220,42 @@ export default function PrivacyScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="隐私设置" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="隐私设置" noBorder />
 
-      <ScrollView className="flex-1">
-        <View className="bg-white mt-2">
-          {SETTINGS.map((setting, index) => (
-            <PrivacySettingRow
-              key={setting.key}
-              setting={setting}
-              value={values[setting.key] ?? false}
-              saving={savingKey === setting.key}
-              loading={savingKey !== null || meQuery.isLoading}
-              onToggle={() => toggleSetting(setting.key)}
-              showDivider={index < SETTINGS.length - 1}
-            />
-          ))}
+      <ScrollView style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 24, paddingTop: 8 }}>
+          <Text
+            style={{
+              fontSize: 13,
+              color: '#6b7280',
+              lineHeight: 20,
+              marginBottom: 18,
+            }}
+          >
+            控制谁能看到你、看到多少。会员功能可解锁更多细节。
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 18,
+              borderWidth: 1,
+              borderColor: '#eef0f3',
+              overflow: 'hidden',
+            }}
+          >
+            {SETTINGS.map((setting, index) => (
+              <PrivacySettingRow
+                key={setting.key}
+                setting={setting}
+                value={values[setting.key] ?? false}
+                saving={savingKey === setting.key}
+                loading={savingKey !== null || meQuery.isLoading}
+                onToggle={() => toggleSetting(setting.key)}
+                showDivider={index < SETTINGS.length - 1}
+              />
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

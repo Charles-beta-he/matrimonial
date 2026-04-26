@@ -68,30 +68,37 @@ export default function CirclesScreen() {
   const circles = data?.items ?? [];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="兴趣圈子" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="兴趣圈子" noBorder />
 
       {/* Category tabs */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingVertical: 10 }}
-        className="max-h-12 bg-white border-b border-gray-100"
+        contentContainerStyle={{ paddingHorizontal: 24, gap: 8, paddingVertical: 6, alignItems: 'center' }}
+        style={{ maxHeight: 50, marginBottom: 12 }}
       >
         {CATEGORY_TABS.map((tab) => {
           const active = category === tab.value;
           return (
             <ScalePressable
               key={tab.label}
-              className={`rounded-full px-4 py-1.5 ${
-                active ? 'bg-rose-500' : 'bg-gray-100'
-              }`}
+              style={{
+                borderRadius: 999,
+                paddingHorizontal: 14,
+                paddingVertical: 7,
+                backgroundColor: active ? '#e11d48' : '#ffffff',
+                borderWidth: 1,
+                borderColor: active ? '#e11d48' : '#eef0f3',
+              }}
               onPress={() => setCategory(tab.value)}
             >
               <Text
-                className={`text-sm ${
-                  active ? 'text-white font-medium' : 'text-gray-600'
-                }`}
+                style={{
+                  fontSize: 13,
+                  fontWeight: '600',
+                  color: active ? '#ffffff' : '#4b5563',
+                }}
               >
                 {tab.label}
               </Text>

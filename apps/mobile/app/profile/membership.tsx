@@ -168,86 +168,244 @@ export default function MembershipScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="会员中心" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="会员中心" noBorder />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Current plan */}
-        <Animated.View style={[heroStyle, { backgroundColor: colors.white, paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }]}>
-          <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-2">
-            <Ionicons name="diamond" size={32} color={colors.warning} />
-          </View>
-          <Text className="text-base text-gray-500">
-            当前: {PLAN_LABEL[currentPlan] ?? currentPlan}
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Current plan hero */}
+        <Animated.View
+          style={[
+            heroStyle,
+            {
+              marginHorizontal: 24,
+              marginTop: 8,
+              backgroundColor: '#0b0b0f',
+              borderRadius: 24,
+              paddingHorizontal: 22,
+              paddingVertical: 26,
+              overflow: 'hidden',
+            },
+          ]}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              right: -40,
+              top: -40,
+              width: 180,
+              height: 180,
+              borderRadius: 90,
+              backgroundColor: 'rgba(228, 29, 72, 0.18)',
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              right: 30,
+              top: 30,
+              width: 90,
+              height: 90,
+              borderRadius: 45,
+              backgroundColor: 'rgba(251, 191, 36, 0.10)',
+            }}
+          />
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#fbbf24',
+              letterSpacing: 1.6,
+              marginBottom: 8,
+            }}
+          >
+            会员 · MEMBERSHIP
           </Text>
-          {currentPlan !== 'FREE' && expiresAt ? (
-            <Text className="text-sm text-gray-400 mt-1">
-              到期时间: {new Date(expiresAt).toLocaleDateString('zh-CN')}
-            </Text>
-          ) : (
-            <Text className="text-sm text-gray-400 mt-1">开通会员，解锁全部功能</Text>
-          )}
+          <Text style={{ fontSize: 26, fontWeight: '700', color: '#ffffff', letterSpacing: -0.4, lineHeight: 32 }}>
+            {PLAN_LABEL[currentPlan] ?? currentPlan}
+          </Text>
+          <Text style={{ fontSize: 13, color: '#a1a1aa', marginTop: 6 }}>
+            {currentPlan !== 'FREE' && expiresAt
+              ? `到期 · ${new Date(expiresAt).toLocaleDateString('zh-CN')}`
+              : '解锁更多匹配权益与高级筛选'}
+          </Text>
         </Animated.View>
 
         {/* Plan cards */}
-        <View className="flex-row px-4 mt-4" style={{ gap: 10 }}>
-          {MEMBERSHIP_PLAN_DETAILS.map((plan, i) => {
-            const isSelected = selectedPlan === plan.plan;
-            return (
-              <PlanCardWrapper key={plan.plan} index={i} shimmer={isSelected}>
-              <ScalePressable
-                containerStyle={{ flex: 1 }}
-                className={`rounded-2xl border-2 p-3 items-center ${
-                  isSelected ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
-                }`}
-                style={{ flex: 1 }}
-                onPress={() => setSelectedPlan(plan.plan)}
-              >
-                {'badge' in plan && plan.badge && (
-                  <View className="bg-rose-500 rounded-full px-2 py-0.5 mb-2">
-                    <Text className="text-white text-xs font-medium">{plan.badge}</Text>
-                  </View>
-                )}
-                <Text className="text-sm font-semibold text-gray-900 mb-1">{plan.label}</Text>
-                <Text className="text-2xl font-bold text-rose-500">
-                  ¥{plan.price}
-                </Text>
-                <Text className="text-xs text-gray-400 line-through">
-                  ¥{plan.originalPrice}
-                </Text>
-              </ScalePressable>
-              </PlanCardWrapper>
-            );
-          })}
+        <View style={{ paddingHorizontal: 24, marginTop: 24 }}>
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 12,
+            }}
+          >
+            选择套餐
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {MEMBERSHIP_PLAN_DETAILS.map((plan, i) => {
+              const isSelected = selectedPlan === plan.plan;
+              return (
+                <PlanCardWrapper key={plan.plan} index={i} shimmer={isSelected}>
+                  <ScalePressable
+                    containerStyle={{ flex: 1 }}
+                    style={{
+                      flex: 1,
+                      borderRadius: 18,
+                      borderWidth: 1.5,
+                      borderColor: isSelected ? '#e11d48' : '#eef0f3',
+                      backgroundColor: isSelected ? '#fff1f2' : '#ffffff',
+                      paddingVertical: 16,
+                      paddingHorizontal: 8,
+                      alignItems: 'center',
+                    }}
+                    onPress={() => setSelectedPlan(plan.plan)}
+                  >
+                    {'badge' in plan && plan.badge ? (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -8,
+                          backgroundColor: '#e11d48',
+                          borderRadius: 999,
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                        }}
+                      >
+                        <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '700', letterSpacing: 0.4 }}>
+                          {plan.badge}
+                        </Text>
+                      </View>
+                    ) : null}
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '600',
+                        color: isSelected ? '#9f1239' : '#374151',
+                        marginBottom: 4,
+                        marginTop: 'badge' in plan && plan.badge ? 4 : 0,
+                      }}
+                    >
+                      {plan.label}
+                    </Text>
+                    <Text style={{ fontSize: 22, fontWeight: '700', color: '#e11d48', letterSpacing: -0.5 }}>
+                      ¥{plan.price}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#9ca3af', textDecorationLine: 'line-through', marginTop: 2 }}>
+                      ¥{plan.originalPrice}
+                    </Text>
+                  </ScalePressable>
+                </PlanCardWrapper>
+              );
+            })}
+          </View>
         </View>
 
         {/* Features of selected plan */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-4">
-          <Text className="text-base font-semibold text-gray-900 mb-3">会员特权</Text>
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 22,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 14,
+            }}
+          >
+            会员特权
+          </Text>
           {MEMBERSHIP_PLAN_DETAILS.find((p) => p.plan === selectedPlan)?.features.map(
             (feature, i) => (
-              <View key={i} className="flex-row items-center mb-2" style={{ gap: 8 }}>
-                <Ionicons name="checkmark-circle" size={16} color={colors.primary} />
-                <Text className="text-sm text-gray-700">{feature}</Text>
+              <View
+                key={i}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}
+              >
+                <View
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: '#fff1f2',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons name="checkmark" size={12} color="#e11d48" />
+                </View>
+                <Text style={{ fontSize: 14, color: '#374151', flex: 1 }}>{feature}</Text>
               </View>
             ),
           )}
         </View>
 
         {/* Comparison table */}
-        <View className="bg-white mx-4 mt-4 rounded-2xl p-4">
-          <Text className="text-base font-semibold text-gray-900 mb-3">功能对比</Text>
-          {/* Header */}
-          <View className="flex-row border-b border-gray-100 pb-2 mb-2">
-            <Text className="flex-1 text-xs text-gray-400 font-medium">功能</Text>
-            <Text className="w-16 text-xs text-gray-400 font-medium text-center">免费</Text>
-            <Text className="w-16 text-xs text-rose-500 font-medium text-center">会员</Text>
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 16,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 14,
+            }}
+          >
+            功能对比
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              borderBottomColor: '#f1ece3',
+              paddingBottom: 8,
+              marginBottom: 4,
+            }}
+          >
+            <Text style={{ flex: 1, fontSize: 11, color: '#9ca3af', fontWeight: '600', letterSpacing: 0.4 }}>
+              功能
+            </Text>
+            <Text style={{ width: 60, fontSize: 11, color: '#9ca3af', fontWeight: '600', textAlign: 'center' }}>
+              免费
+            </Text>
+            <Text style={{ width: 60, fontSize: 11, color: '#e11d48', fontWeight: '700', textAlign: 'center' }}>
+              会员
+            </Text>
           </View>
-          {FEATURE_COMPARISON.map((row) => (
-            <View key={row.feature} className="flex-row py-2 border-b border-gray-50">
-              <Text className="flex-1 text-sm text-gray-700">{row.feature}</Text>
-              <Text className="w-16 text-xs text-gray-400 text-center">{row.free}</Text>
-              <Text className="w-16 text-xs text-rose-500 text-center font-medium">
+          {FEATURE_COMPARISON.map((row, idx) => (
+            <View
+              key={row.feature}
+              style={{
+                flexDirection: 'row',
+                paddingVertical: 10,
+                borderBottomWidth: idx === FEATURE_COMPARISON.length - 1 ? 0 : 1,
+                borderBottomColor: '#fbf7f0',
+              }}
+            >
+              <Text style={{ flex: 1, fontSize: 13, color: '#374151' }}>{row.feature}</Text>
+              <Text style={{ width: 60, fontSize: 12, color: '#9ca3af', textAlign: 'center' }}>
+                {row.free}
+              </Text>
+              <Text style={{ width: 60, fontSize: 12, color: '#e11d48', textAlign: 'center', fontWeight: '600' }}>
                 {row.paid}
               </Text>
             </View>
@@ -255,7 +413,7 @@ export default function MembershipScreen() {
         </View>
 
         {/* CTA */}
-        <View className="px-4 mt-6">
+        <View style={{ paddingHorizontal: 24, marginTop: 22 }}>
           <Button
             title={processing ? '支付中...' : '立即开通'}
             variant="primary"

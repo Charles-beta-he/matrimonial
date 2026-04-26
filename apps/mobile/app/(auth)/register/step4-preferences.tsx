@@ -1,20 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Switch, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Switch, Text, View } from 'react-native';
 import { ScalePressable } from '../../../components/ScalePressable';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { AnimatedProgressBar, Button, Input, toast } from '@matrimonial/ui';
+import { Button, Input, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { colors } from '../../../constants/colors';
-
+import { RegisterShell } from '../../../components/RegisterShell';
 
 const EDUCATION_OPTIONS = [
   { value: 'HIGH_SCHOOL', label: '高中' },
@@ -25,6 +17,21 @@ const EDUCATION_OPTIONS = [
 ] as const;
 
 type EducationMin = 'HIGH_SCHOOL' | 'ASSOCIATE' | 'BACHELOR' | 'MASTER' | 'PHD';
+
+function FieldGroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Text
+      style={{
+        fontSize: 13,
+        fontWeight: '500',
+        color: '#4b5563',
+        marginBottom: 10,
+      }}
+    >
+      {children}
+    </Text>
+  );
+}
 
 export default function RegisterStep4Preferences() {
   const router = useRouter();
@@ -38,26 +45,6 @@ export default function RegisterStep4Preferences() {
   const mountedAtRef = useRef(Date.now());
   const { track } = useAnalytics();
   const updatePreferencesMut = api.user.updatePreferences.useMutation();
-
-  const headingOpacity = useSharedValue(0);
-  const headingY = useSharedValue(-16);
-  const formOpacity = useSharedValue(0);
-  const formY = useSharedValue(24);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headingY.value = withTiming(0, { duration: 320, easing: e });
-    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
-    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
-  }, []);
-  const headingStyle = useAnimatedStyle(() => ({
-    opacity: headingOpacity.value,
-    transform: [{ translateY: headingY.value }],
-  }));
-  const formStyle = useAnimatedStyle(() => ({
-    opacity: formOpacity.value,
-    transform: [{ translateY: formY.value }],
-  }));
 
   const parseIntOrUndef = (s: string): number | undefined => {
     const n = parseInt(s, 10);
@@ -90,101 +77,106 @@ export default function RegisterStep4Preferences() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <AnimatedProgressBar step={3} total={4} />
-
-        <Animated.View style={headingStyle}>
-          <Text className="text-2xl font-bold text-gray-900 mb-2">择偶偏好</Text>
-          <Text className="text-sm text-gray-500 mb-8">帮助我们为你推荐合适的人</Text>
-        </Animated.View>
-
-        <Animated.View style={formStyle}>
-        {/* Age range */}
-        <Text className="text-sm text-gray-600 mb-2 font-medium">年龄范围</Text>
-        <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
-          <View className="flex-1">
-            <Input aria-label="最小年龄" label="最小年龄" placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
+    <RegisterShell step={4} title="心仪的对象" subtitle="我们会按这些偏好为你筛选每日推荐">
+      <View>
+        <FieldGroupLabel>年龄范围</FieldGroupLabel>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+          <View style={{ flex: 1 }}>
+            <Input aria-label="最小年龄" placeholder="最小" value={ageMin} onChangeText={setAgeMin} />
           </View>
-          <Text className="text-gray-400">—</Text>
-          <View className="flex-1">
-            <Input aria-label="最大年龄" label="最大年龄" placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
+          <Text style={{ color: '#9ca3af' }}>—</Text>
+          <View style={{ flex: 1 }}>
+            <Input aria-label="最大年龄" placeholder="最大" value={ageMax} onChangeText={setAgeMax} />
           </View>
-          <Text className="text-gray-400 text-sm">岁</Text>
+          <Text style={{ color: '#9ca3af', fontSize: 13 }}>岁</Text>
         </View>
 
-        {/* Height range */}
-        <Text className="text-sm text-gray-600 mb-2 font-medium">身高范围</Text>
-        <View className="flex-row items-center mb-4" style={{ gap: 12 }}>
-          <View className="flex-1">
-            <Input aria-label="最低身高" label="最低身高" placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
+        <FieldGroupLabel>身高范围</FieldGroupLabel>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+          <View style={{ flex: 1 }}>
+            <Input aria-label="最低身高" placeholder="最低" value={heightMin} onChangeText={setHeightMin} />
           </View>
-          <Text className="text-gray-400">—</Text>
-          <View className="flex-1">
-            <Input aria-label="最高身高" label="最高身高" placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
+          <Text style={{ color: '#9ca3af' }}>—</Text>
+          <View style={{ flex: 1 }}>
+            <Input aria-label="最高身高" placeholder="最高" value={heightMax} onChangeText={setHeightMax} />
           </View>
-          <Text className="text-gray-400 text-sm">cm</Text>
+          <Text style={{ color: '#9ca3af', fontSize: 13 }}>cm</Text>
         </View>
 
-        {/* City preferences */}
-        <View className="mb-4">
+        <View style={{ marginBottom: 18 }}>
           <Input
             aria-label="城市偏好"
             label="城市偏好"
-            placeholder="如: 北京、上海、深圳"
+            placeholder="如：北京、上海、深圳"
             value={cityPref}
             onChangeText={setCityPref}
           />
         </View>
 
-        {/* Education minimum */}
-        <Text className="text-sm text-gray-600 mb-2 font-medium">最低学历</Text>
-        <View className="flex-row flex-wrap mb-4" style={{ gap: 8 }}>
-          {EDUCATION_OPTIONS.map((opt) => (
-            <ScalePressable
-              key={opt.value}
-              className={`rounded-full px-4 py-2 ${
-                educationMin === opt.value ? 'bg-rose-500' : 'bg-gray-100'
-              }`}
-              onPress={() => setEducationMin(opt.value)}
-            >
-              <Text
-                className={`text-sm ${
-                  educationMin === opt.value ? 'text-white' : 'text-gray-700'
-                }`}
+        <FieldGroupLabel>最低学历</FieldGroupLabel>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 22 }}>
+          {EDUCATION_OPTIONS.map((opt) => {
+            const active = educationMin === opt.value;
+            return (
+              <ScalePressable
+                key={opt.value}
+                containerStyle={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 9,
+                  borderRadius: 999,
+                  backgroundColor: active ? '#e11d48' : '#ffffff',
+                  borderWidth: 1,
+                  borderColor: active ? '#e11d48' : '#eef0f3',
+                }}
+                onPress={() => setEducationMin(opt.value)}
               >
-                {opt.label}
-              </Text>
-            </ScalePressable>
-          ))}
+                <Text style={{ fontSize: 13, fontWeight: '600', color: active ? '#ffffff' : '#4b5563' }}>
+                  {opt.label}
+                </Text>
+              </ScalePressable>
+            );
+          })}
         </View>
 
-        {/* Accept long distance */}
-        <View className="flex-row items-center justify-between bg-gray-50 rounded-xl px-4 py-3 mb-8">
-          <View>
-            <Text className="text-base text-gray-900">接受异地</Text>
-            <Text className="text-xs text-gray-400">是否愿意与外地的人交往</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#ffffff',
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+            borderRadius: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+            marginBottom: 28,
+          }}
+        >
+          <View style={{ flex: 1, paddingRight: 16 }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: '#111827', marginBottom: 2 }}>
+              接受异地
+            </Text>
+            <Text style={{ fontSize: 12, color: '#9ca3af', lineHeight: 18 }}>
+              是否愿意与外地的人交往
+            </Text>
           </View>
           <Switch
             value={acceptLongDistance}
             onValueChange={setAcceptLongDistance}
             trackColor={{ false: colors.gray300, true: colors.primaryMuted }}
-            thumbColor={acceptLongDistance ? colors.primary : colors.zinc100}
+            thumbColor={acceptLongDistance ? colors.primary : colors.white}
           />
         </View>
+      </View>
 
-        <Button
-          title={updatePreferencesMut.isPending ? '保存中...' : '下一步'}
-          variant="primary"
-          size="lg"
-          fullWidth
-          disabled={updatePreferencesMut.isPending}
-          onPress={handleNext}
-        />
-        </Animated.View>
-
-        <View className="h-8" />
-      </ScrollView>
-    </SafeAreaView>
+      <Button
+        title={updatePreferencesMut.isPending ? '保存中...' : '下一步'}
+        variant="primary"
+        size="lg"
+        fullWidth
+        disabled={updatePreferencesMut.isPending}
+        onPress={handleNext}
+      />
+    </RegisterShell>
   );
 }

@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, ChromaText, Input } from '@matrimonial/ui';
+import { Button, Input } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../stores/useAppStore';
@@ -58,7 +58,6 @@ export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
-  const [chromaTrigger, setChromaTrigger] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sendCodeMutation = api.auth.sendCode.useMutation();
@@ -100,7 +99,6 @@ export default function LoginScreen() {
 
   const handleLogin = useCallback(() => {
     if (!phone || !code) return;
-    setChromaTrigger((v) => !v);
 
     verifyCodeMutation.mutate(
       { phone, code },
@@ -136,21 +134,39 @@ export default function LoginScreen() {
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View className="flex-1 px-6 pt-16">
-          {/* Logo */}
-          <View className="items-center mb-12">
-            <Animated.View style={[{ marginBottom: 8 }, iconStyle]}>
-              <Ionicons name="heart" size={48} color={colors.primary} />
+        <View className="flex-1 px-6 pt-12">
+          {/* Hero */}
+          <View className="items-center mb-10">
+            <Animated.View
+              style={[
+                {
+                  width: 88,
+                  height: 88,
+                  borderRadius: 44,
+                  backgroundColor: colors.primaryBg,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 20,
+                },
+                iconStyle,
+              ]}
+            >
+              <Ionicons name="heart" size={40} color={colors.primary} />
             </Animated.View>
-            <Animated.View style={titleStyle}>
-              <ChromaText
-                text="缘分"
-                style={{ fontSize: 26, fontWeight: '700', color: colors.primary }}
-                trigger={chromaTrigger}
-              />
-            </Animated.View>
-            <Animated.Text style={[titleStyle, { fontSize: 14, color: '#9ca3af', marginTop: 4 }]} accessibilityRole="header" aria-level={1}>
-              遇见对的人
+            <Animated.Text
+              style={[
+                titleStyle,
+                { fontSize: 28, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.4 },
+              ]}
+              accessibilityRole="header"
+              aria-level={1}
+            >
+              欢迎回来
+            </Animated.Text>
+            <Animated.Text
+              style={[titleStyle, { fontSize: 15, color: '#6b7280', marginTop: 8 }]}
+            >
+              用手机号继续，遇见对的人
             </Animated.Text>
           </View>
 
@@ -166,7 +182,7 @@ export default function LoginScreen() {
                 maxLength={11}
               />
             </View>
-            <View className="mb-6">
+            <View className="mb-8">
               <Input
                 aria-label="验证码"
                 label="验证码"
@@ -180,8 +196,8 @@ export default function LoginScreen() {
                     disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
                   >
                     <Text
-                      className={`text-sm font-medium ${
-                        countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
+                      className={`text-sm font-semibold ${
+                        countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-600'
                       }`}
                     >
                       {countdown > 0 ? `${countdown}s` : sendCodeMutation.isPending ? '发送中...' : '发送验证码'}
@@ -204,12 +220,19 @@ export default function LoginScreen() {
               onPress={handleLogin}
             />
             <View className="flex-row justify-center mt-6">
-              <Text className="text-gray-400 text-sm">还没有账号？</Text>
+              <Text className="text-gray-500 text-sm">还没有账号？</Text>
               <ScalePressable onPress={() => router.push('/(auth)/register/step1-phone')}>
-                <Text className="text-rose-500 text-sm font-medium">立即注册</Text>
+                <Text className="text-rose-600 text-sm font-semibold">立即注册</Text>
               </ScalePressable>
             </View>
           </Animated.View>
+        </View>
+
+        {/* Footer trust marks */}
+        <View className="items-center pb-6 px-6">
+          <Text className="text-xs text-gray-400 text-center leading-5">
+            登录即代表同意 <Text className="text-gray-600">服务协议</Text> 与 <Text className="text-gray-600">隐私政策</Text>
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

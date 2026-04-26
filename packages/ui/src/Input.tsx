@@ -47,23 +47,25 @@ export const Input = React.forwardRef<TextInput, InputProps>(
     const borderStyle = useAnimatedStyle(() => {
       const borderColor = error
         ? '#ef4444'
-        : interpolateColor(focusProgress.value, [0, 1], ['#e5e7eb', '#f43f5e']);
-      return { borderColor };
+        : interpolateColor(focusProgress.value, [0, 1], ['#eef0f3', '#e11d48']);
+      const backgroundColor = error
+        ? '#fef2f2'
+        : interpolateColor(focusProgress.value, [0, 1], ['#f7f8fa', '#ffffff']);
+      return { borderColor, backgroundColor };
     });
 
     return (
       <View className="w-full">
-        {label ? <Text className="text-sm text-gray-600 mb-1">{label}</Text> : null}
+        {label ? <Text className="text-[13px] font-medium text-gray-600 mb-2">{label}</Text> : null}
         <Animated.View
           style={[
             {
               flexDirection: 'row',
               alignItems: multiline ? 'flex-start' : 'center',
-              backgroundColor: '#f9fafb',
-              borderWidth: 1,
-              borderRadius: 12,
+              borderWidth: 1.5,
+              borderRadius: 14,
               paddingHorizontal: 16,
-              height: multiline ? undefined : 48,
+              height: multiline ? undefined : 52,
               minHeight: multiline ? 96 : undefined,
               paddingTop: multiline ? 12 : undefined,
             },
@@ -73,10 +75,10 @@ export const Input = React.forwardRef<TextInput, InputProps>(
           {leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
           <TextInput
             ref={ref}
-            className="flex-1 text-base text-gray-900"
+            className="flex-1 text-[15px] text-gray-900"
             style={Platform.OS === 'web' ? ({ outline: 'none' } as any) : undefined}
             placeholder={placeholder}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#b8bcc4"
             value={value}
             onChangeText={onChangeText}
             secureTextEntry={secureTextEntry}

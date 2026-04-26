@@ -417,29 +417,63 @@ export default function DiscoverTab() {
   return (
     <ChromaTransition>
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1 bg-gray-50">
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
         {/* Header */}
         <Animated.View
           style={{
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             justifyContent: 'space-between',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
+            paddingHorizontal: 24,
+            paddingTop: 12,
+            paddingBottom: 18,
             opacity: headerOpacity,
             transform: [{ translateY: headerTranslateY }],
           }}
         >
-          <Text className="text-2xl font-bold text-gray-900">发现</Text>
+          <View>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: '#e11d48',
+                letterSpacing: 1.6,
+                marginBottom: 8,
+              }}
+            >
+              发现 · TODAY
+            </Text>
+            <Text
+              style={{
+                fontSize: 28,
+                fontWeight: '700',
+                color: '#0b0b0f',
+                letterSpacing: -0.4,
+                lineHeight: 32,
+              }}
+              accessibilityRole="header"
+              aria-level={1}
+            >
+              为你精选
+            </Text>
+          </View>
           <ScalePressable
-            className="w-10 h-10 bg-white rounded-full items-center justify-center"
-            style={shadowStyle({ y: 1, blur: 3, opacity: 0.06, elevation: 1 })}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#ffffff',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: hasActiveFilters ? '#e11d48' : '#eef0f3',
+            }}
             onPress={toggleFilters}
           >
             <Ionicons
               name={showFilters ? 'close-outline' : 'options-outline'}
               size={20}
-              color={hasActiveFilters ? colors.primary : colors.gray600}
+              color={hasActiveFilters ? '#e11d48' : '#374151'}
             />
             {hasActiveFilters && (
               <View
@@ -447,10 +481,10 @@ export default function DiscoverTab() {
                   position: 'absolute',
                   top: 6,
                   right: 6,
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   borderRadius: 4,
-                  backgroundColor: colors.primary,
+                  backgroundColor: '#e11d48',
                 }}
               />
             )}
@@ -794,39 +828,88 @@ export default function DiscoverTab() {
         )}
 
         {/* Daily picks horizontal scroll */}
-        <View className="mb-4">
+        <View style={{ marginBottom: 16 }}>
           <ScalePressable
-            className="flex-row items-center justify-between px-4 mb-2"
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 24,
+              marginBottom: 12,
+            }}
             onPress={() => router.push('/discover/daily-picks')}
           >
-            <Text className="text-base font-semibold text-gray-900">今日精选</Text>
-            <View className="flex-row items-center" style={{ gap: 2 }}>
-              <Text className="text-sm text-rose-500">查看全部</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+            <View>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '600',
+                  color: '#9ca3af',
+                  letterSpacing: 1.6,
+                  marginBottom: 4,
+                }}
+              >
+                今日精选
+              </Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#0b0b0f' }}>
+                算法挑给你的几位
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#e11d48' }}>查看全部</Text>
+              <Ionicons name="arrow-forward" size={12} color="#e11d48" />
             </View>
           </ScalePressable>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ height: 120 }}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 10, alignItems: 'center' }}
+            contentContainerStyle={{ paddingHorizontal: 24, gap: 12, alignItems: 'center' }}
           >
             {dailyPicksQuery.isLoading ? (
-              <View style={{ width: 320, height: 120, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 12, color: colors.gray400 }}>加载中…</Text>
-              </View>
+              [0, 1, 2, 3].map((i) => (
+                <View
+                  key={i}
+                  style={{
+                    width: 84,
+                    height: 108,
+                    borderRadius: 16,
+                    backgroundColor: '#f1ece3',
+                  }}
+                />
+              ))
             ) : dailyPicks.length === 0 ? (
-              <View style={{ width: 320, height: 120, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 12, color: colors.gray400 }}>暂无精选</Text>
+              <View
+                style={{
+                  width: 320,
+                  height: 108,
+                  borderRadius: 16,
+                  backgroundColor: '#ffffff',
+                  borderWidth: 1,
+                  borderColor: '#eef0f3',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="sparkles-outline" size={20} color="#fb7185" />
+                <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>明日再来精选</Text>
               </View>
             ) : (
               dailyPicks.map((user) => (
                 <ScalePressable
                   key={user.id}
-                  style={{ width: 80, alignItems: 'center' }}
+                  style={{ width: 84, alignItems: 'center' }}
                   onPress={() => router.push(`/discover/${user.id}`)}
                 >
-                  <View className="w-20 h-24 rounded-2xl overflow-hidden bg-gray-200 relative">
+                  <View
+                    style={{
+                      width: 84,
+                      height: 108,
+                      borderRadius: 16,
+                      overflow: 'hidden',
+                      backgroundColor: '#e5e7eb',
+                      position: 'relative',
+                    }}
+                  >
                     {user.photos?.[0] ? (
                       <Image
                         source={{ uri: user.photos[0] }}
@@ -834,15 +917,43 @@ export default function DiscoverTab() {
                         resizeMode="cover"
                       />
                     ) : (
-                      <View className="w-full h-full items-center justify-center">
-                        <Ionicons name="person" size={32} color={colors.gray400} />
+                      <View
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Ionicons name="person" size={28} color={colors.gray400} />
                       </View>
                     )}
                     {user.isOnline && (
-                      <View className="absolute bottom-1 right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
+                      <View
+                        style={{
+                          position: 'absolute',
+                          bottom: 6,
+                          right: 6,
+                          width: 10,
+                          height: 10,
+                          backgroundColor: '#22c55e',
+                          borderRadius: 5,
+                          borderWidth: 2,
+                          borderColor: '#ffffff',
+                        }}
+                      />
                     )}
                   </View>
-                  <Text className="text-xs text-center text-gray-800 mt-1.5 font-medium" numberOfLines={1}>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      textAlign: 'center',
+                      color: '#374151',
+                      marginTop: 8,
+                      fontWeight: '500',
+                    }}
+                    numberOfLines={1}
+                  >
                     {user.nickname}
                   </Text>
                 </ScalePressable>
@@ -855,9 +966,25 @@ export default function DiscoverTab() {
         {hasError && (
           <ScalePressable
             onPress={() => recommendationsQuery.refetch()}
-            className="mx-4 mb-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
+            style={{
+              marginHorizontal: 24,
+              marginBottom: 12,
+              backgroundColor: '#ffffff',
+              borderWidth: 1,
+              borderColor: '#fde2e6',
+              borderRadius: 14,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+            }}
           >
-            <Text className="text-red-600 text-sm text-center">加载失败，点击重试</Text>
+            <Ionicons name="cloud-offline-outline" size={16} color="#dc2626" />
+            <Text style={{ flex: 1, color: '#374151', fontSize: 13 }}>
+              加载失败，点击重试
+            </Text>
+            <Ionicons name="refresh" size={14} color="#dc2626" />
           </ScalePressable>
         )}
 
@@ -936,23 +1063,30 @@ export default function DiscoverTab() {
         {/* Bottom action bar */}
         {!isLoading && !isEmpty && (
           <View
-            className="flex-row items-center justify-center pb-6 pt-3"
-            style={{ gap: 20 }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingBottom: 24,
+              paddingTop: 12,
+              gap: 22,
+            }}
           >
             <ScalePressable
               onPress={handleSwipeLeft}
-              containerStyle={{ width: 56, height: 56 }}
               style={{
                 width: 56,
                 height: 56,
                 borderRadius: 28,
-                backgroundColor: colors.white,
+                backgroundColor: '#ffffff',
                 alignItems: 'center',
                 justifyContent: 'center',
-                ...shadowStyle({ y: 4, blur: 8, opacity: 0.1, elevation: 3 }),
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+                ...shadowStyle({ y: 6, blur: 16, opacity: 0.06, elevation: 2 }),
               }}
             >
-              <Ionicons name="close" size={28} color={colors.error} />
+              <Ionicons name="close" size={24} color="#6b7280" />
             </ScalePressable>
 
             <HeartBurst onPress={handleSwipeRight} />
@@ -960,12 +1094,23 @@ export default function DiscoverTab() {
             <View style={{ position: 'relative', opacity: credits?.superLikes === 0 ? 0.4 : 1 }}>
               <StarBurst onPress={handleSuperLike} size={56} />
               {credits?.superLikes !== undefined && (
-                <View style={{
-                  position: 'absolute', top: -4, right: -4,
-                  backgroundColor: colors.primary, borderRadius: 8,
-                  minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    backgroundColor: '#0b0b0f',
+                    borderRadius: 9,
+                    minWidth: 18,
+                    height: 18,
+                    paddingHorizontal: 5,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 2,
+                    borderColor: '#fdfcfa',
+                  }}
+                >
+                  <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '700' }}>
                     {credits.superLikes}
                   </Text>
                 </View>

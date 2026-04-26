@@ -1,22 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Image, Text, View } from 'react-native';
 import { ScalePressable } from '../../../components/ScalePressable';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AnimatedProgressBar, Button, toast } from '@matrimonial/ui';
+import { Button, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useUpload } from '../../../hooks/useUpload';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { colors } from '../../../constants/colors';
-
+import { RegisterShell } from '../../../components/RegisterShell';
 
 const SLOTS = 6;
 
@@ -31,26 +23,6 @@ export default function RegisterStep3Photos() {
   const updatePhotosMut = api.user.updatePhotos.useMutation();
 
   const photoCount = photos.filter(Boolean).length;
-
-  const headingOpacity = useSharedValue(0);
-  const headingY = useSharedValue(-16);
-  const formOpacity = useSharedValue(0);
-  const formY = useSharedValue(24);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headingY.value = withTiming(0, { duration: 320, easing: e });
-    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
-    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
-  }, []);
-  const headingStyle = useAnimatedStyle(() => ({
-    opacity: headingOpacity.value,
-    transform: [{ translateY: headingY.value }],
-  }));
-  const formStyle = useAnimatedStyle(() => ({
-    opacity: formOpacity.value,
-    transform: [{ translateY: formY.value }],
-  }));
 
   const handleNext = async () => {
     if (photoCount < 2) return;
@@ -96,7 +68,7 @@ export default function RegisterStep3Photos() {
   const renderSlot = (index: number, variant: 'main' | 'small') => {
     const uri = photos[index];
     const isActive = activeSlot === index && uploading;
-    const borderRadius = variant === 'main' ? 16 : 12;
+    const borderRadius = variant === 'main' ? 18 : 14;
     return (
       <ScalePressable
         containerStyle={{ flex: 1, borderRadius, overflow: 'hidden' }}
@@ -105,29 +77,88 @@ export default function RegisterStep3Photos() {
         disabled={isActive}
       >
         {uri ? (
-          <View className="w-full h-full bg-gray-200">
+          <View style={{ flex: 1, backgroundColor: '#e5e7eb' }}>
             <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            {variant === 'main' ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  bottom: 10,
+                  backgroundColor: 'rgba(15,15,20,0.55)',
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 999,
+                }}
+              >
+                <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '600', letterSpacing: 0.4 }}>
+                  主照片
+                </Text>
+              </View>
+            ) : null}
             <ScalePressable
               onPress={() => handleRemovePhoto(index)}
-              containerStyle={{ position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' }}
+              containerStyle={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 26,
+                height: 26,
+                borderRadius: 13,
+                backgroundColor: 'rgba(15,15,20,0.65)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
               <Ionicons name="close" size={14} color={colors.white} />
             </ScalePressable>
           </View>
         ) : isActive ? (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff1f2', borderWidth: 1.5, borderColor: '#fda4af', borderRadius }}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#fff1f2',
+              borderWidth: 1.5,
+              borderColor: '#fda4af',
+              borderRadius,
+            }}
+          >
             <ActivityIndicator color={colors.primary} />
             <Text style={{ fontSize: 12, color: '#fb7185', marginTop: 4 }}>上传中...</Text>
           </View>
         ) : (
-          <View style={{ flex: 1, borderWidth: 1.5, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', borderRadius }}>
-            <Ionicons
-              name="add"
-              size={variant === 'main' ? 32 : 24}
-              color={colors.gray300}
-              style={{ marginBottom: 2 }}
-            />
-            {variant === 'main' ? <Text style={{ fontSize: 12, color: '#9ca3af' }}>主照片</Text> : null}
+          <View
+            style={{
+              flex: 1,
+              borderWidth: 1.5,
+              borderStyle: 'dashed',
+              borderColor: '#e5e2da',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#faf7f2',
+              borderRadius,
+            }}
+          >
+            <View
+              style={{
+                width: variant === 'main' ? 44 : 32,
+                height: variant === 'main' ? 44 : 32,
+                borderRadius: variant === 'main' ? 22 : 16,
+                backgroundColor: '#fff1f2',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: variant === 'main' ? 8 : 0,
+              }}
+            >
+              <Ionicons name="add" size={variant === 'main' ? 24 : 18} color={colors.primary} />
+            </View>
+            {variant === 'main' ? (
+              <Text style={{ fontSize: 12, fontWeight: '500', color: '#9ca3af', marginTop: 2 }}>
+                添加主照片
+              </Text>
+            ) : null}
           </View>
         )}
       </ScalePressable>
@@ -135,58 +166,55 @@ export default function RegisterStep3Photos() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <AnimatedProgressBar step={2} total={4} />
-
-        <Animated.View style={headingStyle}>
-          <Text className="text-2xl font-bold text-gray-900 mb-1">上传照片</Text>
-          <Text className="text-sm text-gray-400 mb-6">至少上传2张真人照片</Text>
-        </Animated.View>
-
-        <Animated.View style={formStyle}>
-        {/* Photo grid: first row has 1 large + 2 small, second row has 3 small */}
-        <View className="flex-row mb-3" style={{ gap: 8 }}>
-          {/* Main photo slot */}
-          <View style={{ flex: 2, aspectRatio: 3 / 4 }}>
-            {renderSlot(0, 'main')}
-          </View>
-
-          {/* Right column: 2 small slots */}
-          <View style={{ flex: 1, gap: 8 }}>
-            {[1, 2].map((idx) => (
-              <View key={idx} style={{ flex: 1 }}>
-                {renderSlot(idx, 'small')}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Bottom row: 3 small slots */}
-        <View className="flex-row mb-8" style={{ gap: 8 }}>
-          {[3, 4, 5].map((idx) => (
-            <View key={idx} className="flex-1" style={{ aspectRatio: 1 }}>
-              {renderSlot(idx, 'small')}
-            </View>
+    <RegisterShell
+      step={3}
+      title="放几张照片"
+      subtitle="真实照片更受欢迎，至少 2 张，最多 6 张"
+    >
+      <View style={{ flexDirection: 'row', marginBottom: 12, gap: 10 }}>
+        <View style={{ flex: 2, aspectRatio: 3 / 4 }}>{renderSlot(0, 'main')}</View>
+        <View style={{ flex: 1, gap: 10 }}>
+          {[1, 2].map((idx) => (
+            <View key={idx} style={{ flex: 1 }}>{renderSlot(idx, 'small')}</View>
           ))}
         </View>
+      </View>
 
-        <Text className="text-center text-sm text-gray-400 mb-6">
-          已添加 {photoCount}/6 张照片
+      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 24 }}>
+        {[3, 4, 5].map((idx) => (
+          <View key={idx} style={{ flex: 1, aspectRatio: 1 }}>{renderSlot(idx, 'small')}</View>
+        ))}
+      </View>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: '#faf7f2',
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          borderRadius: 14,
+          marginBottom: 24,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name="information-circle" size={16} color={colors.gray500} />
+          <Text style={{ fontSize: 12, color: '#6b7280' }}>已添加 {photoCount}/6 张</Text>
+        </View>
+        <Text style={{ fontSize: 12, color: photoCount >= 2 ? '#e11d48' : '#9ca3af', fontWeight: '600' }}>
+          {photoCount >= 2 ? '准备就绪' : `还差 ${2 - photoCount} 张`}
         </Text>
+      </View>
 
-        <Button
-          title={updatePhotosMut.isPending ? '保存中...' : '下一步'}
-          variant="primary"
-          size="lg"
-          fullWidth
-          disabled={photoCount < 2 || uploading || updatePhotosMut.isPending}
-          onPress={handleNext}
-        />
-        </Animated.View>
-
-        <View className="h-8" />
-      </ScrollView>
-    </SafeAreaView>
+      <Button
+        title={updatePhotosMut.isPending ? '保存中...' : '下一步'}
+        variant="primary"
+        size="lg"
+        fullWidth
+        disabled={photoCount < 2 || uploading || updatePhotosMut.isPending}
+        onPress={handleNext}
+      />
+    </RegisterShell>
   );
 }

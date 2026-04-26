@@ -107,30 +107,37 @@ export default function ActivitiesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="线下活动" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="线下活动" noBorder />
 
       {/* Category tabs */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, alignItems: 'center' }}
-        style={{ marginBottom: 12, maxHeight: 44 }}
+        contentContainerStyle={{ paddingHorizontal: 24, gap: 8, alignItems: 'center' }}
+        style={{ marginBottom: 16, maxHeight: 44 }}
       >
         {CATEGORY_TABS.map((cat) => {
           const active = category === cat.value;
           return (
             <ScalePressable
               key={cat.label}
-              className={`rounded-full px-4 py-1.5 ${
-                active ? 'bg-rose-500' : 'bg-white'
-              }`}
+              style={{
+                borderRadius: 999,
+                paddingHorizontal: 14,
+                paddingVertical: 7,
+                backgroundColor: active ? '#e11d48' : '#ffffff',
+                borderWidth: 1,
+                borderColor: active ? '#e11d48' : '#eef0f3',
+              }}
               onPress={() => setCategory(cat.value)}
             >
               <Text
-                className={`text-sm ${
-                  active ? 'text-white font-medium' : 'text-gray-600'
-                }`}
+                style={{
+                  fontSize: 13,
+                  fontWeight: '600',
+                  color: active ? '#ffffff' : '#4b5563',
+                }}
               >
                 {cat.label}
               </Text>

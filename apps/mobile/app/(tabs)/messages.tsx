@@ -22,6 +22,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { colors } from '../../constants/colors';
 import { ChromaTransition } from '../../components/ChromaTransition';
+import { TabHeader } from '../../components/TabHeader';
 
 const FALLBACK_AVATAR = 'https://picsum.photos/seed/avatar/100/100';
 
@@ -187,33 +188,61 @@ export default function MessagesTab() {
 
   return (
     <ChromaTransition>
-    <SafeAreaView className="flex-1 bg-white">
-      <Animated.View style={[{ paddingHorizontal: 16, paddingVertical: 12 }, headerStyle]}>
-        <Text className="text-2xl font-bold text-gray-900">消息</Text>
-      </Animated.View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <TabHeader
+        eyebrow="消息 · INBOX"
+        title="对话"
+        subtitle={
+          conversations.length > 0
+            ? `${conversations.length} 段在进行中的关系`
+            : '在这里继续每一段刚开始的连接'
+        }
+      />
 
       {/* New matches section */}
       {newMatches.length > 0 && (
-        <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-500 px-4 mb-2">新匹配</Text>
+        <View style={{ marginBottom: 18 }}>
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              paddingHorizontal: 24,
+              marginBottom: 12,
+            }}
+          >
+            新匹配 · {newMatches.length}
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ height: 90 }}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 16, alignItems: 'center' }}
+            contentContainerStyle={{ paddingHorizontal: 24, gap: 14, alignItems: 'center' }}
           >
             {newMatches.map((match, i) => (
-              <StaggeredListItem key={match.id} index={i} style={{ alignItems: 'center' }}>
+              <StaggeredListItem key={match.id} index={i}>
                 <ScalePressable
-                  className="items-center"
+                  style={{ alignItems: 'center', width: 64 }}
                   onPress={() => router.push(`/discover/${match.id}`)}
                 >
-                  <Avatar
-                    source={{ uri: match.avatarUrl }}
-                    size={64}
-                    online={isUserOnline(match.id) || match.isOnline}
-                  />
-                  <Text className="text-xs text-gray-700 mt-1" numberOfLines={1}>
+                  <View
+                    style={{
+                      padding: 2,
+                      borderRadius: 36,
+                      borderWidth: 1.5,
+                      borderColor: '#e11d48',
+                    }}
+                  >
+                    <Avatar
+                      source={{ uri: match.avatarUrl }}
+                      size={56}
+                      online={isUserOnline(match.id) || match.isOnline}
+                    />
+                  </View>
+                  <Text
+                    style={{ fontSize: 11, color: '#374151', marginTop: 6, fontWeight: '500' }}
+                    numberOfLines={1}
+                  >
                     {match.nickname}
                   </Text>
                 </ScalePressable>
@@ -225,40 +254,37 @@ export default function MessagesTab() {
 
       {/* Conversation list */}
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="text-sm text-gray-500 mt-2">正在加载...</Text>
+          <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 12 }}>正在加载...</Text>
         </View>
       ) : isError ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-base text-gray-700 mb-2">加载失败</Text>
-          <Text className="text-sm text-gray-400 mb-4 text-center">
-            网络出了点小问题，请稍后重试
-          </Text>
-          <ScalePressable
-            onPress={() => conversationsQuery.refetch()}
-            className="bg-rose-500 rounded-full px-6 py-2"
-          >
-            <Text className="text-white font-medium">重试</Text>
-          </ScalePressable>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+          <EmptyState
+            icon={<Ionicons name="cloud-offline-outline" size={36} color="#fb7185" />}
+            title="网络出了点小问题"
+            description="检查一下网络，再试一次"
+            action={{ label: '重试', onPress: () => conversationsQuery.refetch() }}
+          />
         </View>
       ) : conversations.length > 0 ? (
         <FlatList
           data={conversations}
           keyExtractor={(item) => item.id}
           renderItem={renderConversation}
-          className="flex-1"
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 24 }}
           refreshing={conversationsQuery.isFetching}
           onRefresh={() => conversationsQuery.refetch()}
         />
       ) : (
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState
-            icon={<Ionicons name="chatbubbles-outline" size={56} color={colors.gray400} />}
-            title="还没有消息"
-            description="去发现页匹配新朋友吧"
+            icon={<Ionicons name="chatbubbles-outline" size={36} color="#fb7185" />}
+            title="还没有对话"
+            description="去发现页认识新朋友，第一句话可以从一个 prompt 开始"
             action={{
-              label: '去匹配',
+              label: '去发现',
               onPress: () => router.push('/(tabs)'),
             }}
           />

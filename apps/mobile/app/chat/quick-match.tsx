@@ -209,33 +209,71 @@ export default function QuickMatchScreen() {
   }, [roomInfo, partnerName]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="视频速配" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="视频速配" noBorder />
 
-      <View className="flex-1 items-center justify-center px-8">
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
         {/* Idle state — start button */}
         {callState === 'idle' && (
           <>
-            <View style={{ width: 176, height: 176, alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-              <PulsingRing baseSize={176} color={colors.primary} delay={0} />
-              <PulsingRing baseSize={176} color={colors.primary} delay={700} />
-              <View className="w-44 h-44 rounded-full bg-rose-100 items-center justify-center">
-                <Ionicons name="flash-outline" size={80} color={colors.primary} />
+            <View style={{ width: 188, height: 188, alignItems: 'center', justifyContent: 'center', marginBottom: 28 }}>
+              <PulsingRing baseSize={188} color={colors.primary} delay={0} />
+              <PulsingRing baseSize={188} color={colors.primary} delay={700} />
+              <View
+                style={{
+                  width: 176,
+                  height: 176,
+                  borderRadius: 88,
+                  backgroundColor: '#ffffff',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: '#fde2e6',
+                  shadowColor: '#e11d48',
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.18,
+                  shadowRadius: 24,
+                }}
+              >
+                <Ionicons name="flash" size={72} color="#e11d48" />
               </View>
             </View>
-            <Text className="text-xl font-bold text-gray-900 mb-2">3分钟视频速配</Text>
-            <Text className="text-sm text-gray-500 text-center mb-2">
-              随机匹配异性，3分钟快速了解
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: '#e11d48',
+                letterSpacing: 1.6,
+                marginBottom: 10,
+              }}
+            >
+              LIVE · 即刻匹配
             </Text>
-            <Text className="text-xs text-gray-400 text-center mb-8">
-              需要完成L2+身份认证
+            <Text style={{ fontSize: 24, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.4, marginBottom: 8 }}>
+              3 分钟视频速配
+            </Text>
+            <Text style={{ fontSize: 13, color: '#6b7280', textAlign: 'center', marginBottom: 6 }}>
+              随机一位异性，3 分钟快速了解
+            </Text>
+            <Text style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginBottom: 32 }}>
+              需要完成 L2+ 身份认证
             </Text>
             <ScalePressable
               onPress={handleStartMatch}
               disabled={quickMatch.isPending}
-              className="bg-rose-500 rounded-full px-16 py-4 shadow-lg"
+              style={{
+                backgroundColor: '#e11d48',
+                borderRadius: 999,
+                paddingHorizontal: 56,
+                paddingVertical: 16,
+                shadowColor: '#e11d48',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.32,
+                shadowRadius: 16,
+                opacity: quickMatch.isPending ? 0.7 : 1,
+              }}
             >
-              <Text className="text-white text-lg font-bold">
+              <Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '700', letterSpacing: 0.6 }}>
                 {quickMatch.isPending ? '匹配中...' : '开始匹配'}
               </Text>
             </ScalePressable>

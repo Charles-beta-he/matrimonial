@@ -90,105 +90,250 @@ export default function DeleteAccountPage() {
   const canSubmit = phone.length === 11 && code.length >= 4 && !deleteMut.isPending;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="注销账号" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Warning */}
-        <View className="mx-6 mt-6 bg-red-50 rounded-xl p-4">
-          <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-            <Ionicons name="warning" size={18} color={colors.error} />
-            <Text className="text-base font-bold text-red-600">注销须知</Text>
-          </View>
-          <Text className="text-sm text-red-500 leading-5">
-            注销账号是不可恢复的操作。一旦注销成功，以下数据将被永久删除且无法找回。请仔细阅读后再做决定。
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="注销账号" noBorder />
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Warning hero */}
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 8,
+            backgroundColor: '#0b0b0f',
+            borderRadius: 22,
+            padding: 22,
+            overflow: 'hidden',
+          }}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: -50,
+              right: -40,
+              width: 160,
+              height: 160,
+              borderRadius: 80,
+              backgroundColor: 'rgba(220,38,38,0.18)',
+            }}
+          />
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#fb7185',
+              letterSpacing: 1.6,
+              marginBottom: 10,
+            }}
+          >
+            注销须知 · IRREVERSIBLE
+          </Text>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: '700',
+              color: '#ffffff',
+              letterSpacing: -0.4,
+              marginBottom: 10,
+              lineHeight: 28,
+            }}
+          >
+            这一步无法撤回
+          </Text>
+          <Text style={{ fontSize: 13, color: '#a1a1aa', lineHeight: 20 }}>
+            注销成功后，以下数据将被永久删除且无法找回
           </Text>
         </View>
 
         {/* What gets deleted */}
-        <View className="mx-6 mt-4 bg-white rounded-xl p-4">
-          <Text className="text-base font-bold text-gray-900 mb-3">以下内容将被删除：</Text>
-          {DELETION_ITEMS.map((item) => (
-            <View key={item} className="flex-row items-center mb-3">
-              <View className="w-5 h-5 rounded bg-red-100 items-center justify-center mr-3">
-                <Ionicons name="close" size={14} color={colors.error} />
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 14,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 14,
+            }}
+          >
+            将被删除
+          </Text>
+          {DELETION_ITEMS.map((item, i) => (
+            <View
+              key={item}
+              style={[
+                { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+                i < DELETION_ITEMS.length - 1
+                  ? { borderBottomWidth: 1, borderBottomColor: '#f4f0ea' }
+                  : undefined,
+              ]}
+            >
+              <View
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 6,
+                  backgroundColor: '#fee2e2',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: 12,
+                }}
+              >
+                <Ionicons name="close" size={12} color="#dc2626" />
               </View>
-              <Text className="text-sm text-gray-700">{item}</Text>
+              <Text style={{ fontSize: 14, color: '#0b0b0f', fontWeight: '500' }}>{item}</Text>
             </View>
           ))}
         </View>
 
         {/* Cooling period notice */}
-        <View className="mx-6 mt-4 bg-amber-50 rounded-xl p-4 flex-row" style={{ gap: 8 }}>
-          <Ionicons name="information-circle" size={18} color={colors.warningDark} />
-          <Text className="flex-1 text-sm text-amber-700 leading-5">
-            注销将在14天后生效。在此期间，您可以随时登录账号撤回注销申请。14天冷静期结束后，所有数据将被永久删除。
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 14,
+            backgroundColor: '#fff8e0',
+            borderRadius: 14,
+            padding: 14,
+            flexDirection: 'row',
+            gap: 10,
+            borderWidth: 1,
+            borderColor: '#fde68a',
+          }}
+        >
+          <Ionicons name="information-circle" size={18} color="#b45309" />
+          <Text style={{ flex: 1, fontSize: 12, color: '#92400e', lineHeight: 18 }}>
+            注销将在 <Text style={{ fontWeight: '700' }}>14 天</Text> 后生效。期间可登录账号撤回申请。
           </Text>
         </View>
 
         {/* Phone verification */}
-        <View className="mx-6 mt-6">
-          <Text className="text-base font-bold text-gray-900 mb-4">身份验证</Text>
-          <Text className="text-sm text-gray-500 mb-4">
-            为确认是您本人操作，请验证注册手机号
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 22,
+            backgroundColor: '#ffffff',
+            borderRadius: 18,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#9ca3af',
+              letterSpacing: 1.6,
+              marginBottom: 6,
+            }}
+          >
+            身份验证
+          </Text>
+          <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 16, lineHeight: 18 }}>
+            为确认是你本人操作，请验证注册手机号
           </Text>
 
-          <View className="bg-white rounded-xl p-4">
-            <Text className="text-sm text-gray-600 mb-2">手机号</Text>
-            <TextInput
-              aria-label="手机号"
-              className="border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 mb-4"
-              placeholder="请输入注册手机号"
-              placeholderTextColor={colors.gray400}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              maxLength={11}
-            />
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#4b5563', marginBottom: 8 }}>
+            手机号
+          </Text>
+          <TextInput
+            aria-label="手机号"
+            style={{
+              borderWidth: 1.5,
+              borderColor: '#eef0f3',
+              backgroundColor: '#fdfcfa',
+              borderRadius: 14,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              fontSize: 15,
+              color: '#0b0b0f',
+              marginBottom: 16,
+            }}
+            placeholder="输入注册手机号"
+            placeholderTextColor="#b8bcc4"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            maxLength={11}
+          />
 
-            <Text className="text-sm text-gray-600 mb-2">验证码</Text>
-            <View className="flex-row" style={{ gap: 12 }}>
-              <TextInput
-                aria-label="验证码"
-                className="flex-1 border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900"
-                placeholder="请输入验证码"
-                placeholderTextColor={colors.gray400}
-                value={code}
-                onChangeText={setCode}
-                keyboardType="number-pad"
-                maxLength={6}
-              />
-              <ScalePressable
-                className={`rounded-lg px-4 py-3 items-center justify-center ${
-                  countdown > 0 || !phone ? 'bg-gray-100' : 'bg-rose-50'
-                }`}
-                onPress={handleSendCode}
-                disabled={countdown > 0 || !phone}
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#4b5563', marginBottom: 8 }}>
+            验证码
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TextInput
+              aria-label="验证码"
+              style={{
+                flex: 1,
+                borderWidth: 1.5,
+                borderColor: '#eef0f3',
+                backgroundColor: '#fdfcfa',
+                borderRadius: 14,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                fontSize: 15,
+                color: '#0b0b0f',
+              }}
+              placeholder="6 位验证码"
+              placeholderTextColor="#b8bcc4"
+              value={code}
+              onChangeText={setCode}
+              keyboardType="number-pad"
+              maxLength={6}
+            />
+            <ScalePressable
+              style={{
+                borderRadius: 14,
+                paddingHorizontal: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: countdown > 0 || !phone ? '#f4f0ea' : '#fff1f2',
+              }}
+              onPress={handleSendCode}
+              disabled={countdown > 0 || !phone}
+            >
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: '600',
+                  color: countdown > 0 || !phone ? '#b8bcc4' : '#e11d48',
+                }}
               >
-                <Text
-                  className={`text-sm font-medium ${
-                    countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
-                  }`}
-                >
-                  {countdown > 0 ? `${countdown}s` : '发送验证码'}
-                </Text>
-              </ScalePressable>
-            </View>
+                {countdown > 0 ? `${countdown}s` : '发送验证码'}
+              </Text>
+            </ScalePressable>
           </View>
         </View>
 
         {/* Confirm button */}
-        <View className="mx-6 mt-8 mb-8">
+        <View style={{ marginHorizontal: 24, marginTop: 28 }}>
           <ScalePressable
-            className={`rounded-full py-4 items-center ${
-              canSubmit ? 'bg-red-500' : 'bg-gray-200'
-            }`}
+            style={{
+              borderRadius: 999,
+              paddingVertical: 16,
+              alignItems: 'center',
+              backgroundColor: canSubmit ? '#dc2626' : '#fce7e7',
+            }}
             onPress={handleConfirmDelete}
             disabled={!canSubmit}
           >
             <Text
-              className={`font-bold text-base ${canSubmit ? 'text-white' : 'text-gray-400'}`}
+              style={{
+                fontSize: 14,
+                fontWeight: '700',
+                color: canSubmit ? '#ffffff' : '#fda4af',
+                letterSpacing: 0.6,
+              }}
             >
-              {deleteMut.isPending ? '提交中...' : '确认注销'}
+              {deleteMut.isPending ? '提交中...' : '确认注销账号'}
             </Text>
           </ScalePressable>
         </View>

@@ -23,7 +23,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
-import { Avatar } from '@matrimonial/ui';
+import { Avatar, EmptyState } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { useChat } from '../../hooks/useChat';
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
@@ -414,30 +414,75 @@ export default function ChatConversationScreen() {
     : false;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
       {/* Header */}
-      <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }, chatHeaderStyle]}>
-        <ScalePressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="chevron-back" size={24} color={colors.gray700} />
+      <Animated.View
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: '#f1ece3',
+            backgroundColor: '#fdfcfa',
+          },
+          chatHeaderStyle,
+        ]}
+      >
+        <ScalePressable
+          onPress={() => router.back()}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: '#ffffff',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+            marginRight: 12,
+          }}
+        >
+          <Ionicons name="chevron-back" size={20} color={colors.gray700} />
         </ScalePressable>
         <Avatar
           source={{ uri: conversationMeta?.avatarUrl ?? FALLBACK_AVATAR }}
-          size={36}
+          size={40}
           online={showOnline}
         />
-        <View className="ml-3 flex-1">
-          <Text className="text-base font-semibold text-gray-900">
+        <View style={{ marginLeft: 12, flex: 1 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.2 }}>
             {conversationMeta?.nickname ?? '聊天'}
           </Text>
-          <Text className={`text-xs ${showOnline ? 'text-green-500' : 'text-gray-400'}`}>
-            {showOnline ? '在线' : '离线'}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: showOnline ? '#22c55e' : '#cbd5e1',
+              }}
+            />
+            <Text style={{ fontSize: 11, color: showOnline ? '#16a34a' : '#9ca3af', fontWeight: '500' }}>
+              {showOnline ? '在线' : '离线'}
+            </Text>
+          </View>
         </View>
         <ScalePressable
           onPress={handleStartVideoCall}
-          style={{ marginRight: 4 }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: '#ffffff',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
         >
-          <Ionicons name="videocam-outline" size={24} color={colors.gray700} />
+          <Ionicons name="videocam" size={18} color="#e11d48" />
         </ScalePressable>
       </Animated.View>
 
@@ -453,30 +498,65 @@ export default function ChatConversationScreen() {
             <SkeletonMessage />
           </View>
         ) : historyQuery.isError ? (
-          <View className="flex-1 items-center justify-center px-8">
-            <Text className="text-base text-gray-700 mb-2">加载失败</Text>
-            <ScalePressable
-              onPress={() => historyQuery.refetch()}
-              className="bg-rose-500 rounded-full px-6 py-2 mt-2"
-            >
-              <Text className="text-white font-medium">重试</Text>
-            </ScalePressable>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <EmptyState
+              icon={<Ionicons name="cloud-offline-outline" size={36} color="#fb7185" />}
+              title="对话加载失败"
+              description="网络出了点问题，再试一次"
+              action={{ label: '重试', onPress: () => historyQuery.refetch() }}
+            />
           </View>
         ) : allMessages.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-8">
-            <Ionicons name="chatbubbles-outline" size={48} color={colors.gray400} />
-            <Text className="text-base text-gray-700 mt-2">还没有消息</Text>
-            <Text className="text-sm text-gray-400 mt-1">发送第一条消息打个招呼吧</Text>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+            <View
+              style={{
+                width: 84,
+                height: 84,
+                borderRadius: 42,
+                backgroundColor: '#fff1f2',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+              }}
+            >
+              <Ionicons name="chatbubbles" size={32} color="#e11d48" />
+            </View>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b0b0f', marginBottom: 6 }}>
+              开启你们的第一句话
+            </Text>
+            <Text style={{ fontSize: 13, color: '#6b7280', textAlign: 'center', marginBottom: 20, maxWidth: 260 }}>
+              不知道说什么？试试下面 AI 帮你想的破冰话题
+            </Text>
             {icebreakers.length > 0 ? (
-              <View className="mt-6 w-full" style={{ gap: 8 }}>
-                <Text className="text-xs text-gray-400 text-center">✨ AI 破冰建议</Text>
+              <View style={{ width: '100%', gap: 8, maxWidth: 320 }}>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    fontWeight: '600',
+                    color: '#9ca3af',
+                    letterSpacing: 1.4,
+                    textAlign: 'center',
+                    marginBottom: 4,
+                  }}
+                >
+                  AI 破冰建议
+                </Text>
                 {icebreakers.slice(0, 3).map((s: string, i: number) => (
                   <ScalePressable
                     key={i}
-                    className="bg-rose-50 rounded-xl px-4 py-3"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: 14,
+                      paddingHorizontal: 16,
+                      paddingVertical: 12,
+                      borderWidth: 1,
+                      borderColor: '#fde2e6',
+                    }}
                     onPress={() => setInputText(s)}
                   >
-                    <Text className="text-sm text-rose-700 text-center">{s}</Text>
+                    <Text style={{ fontSize: 13, color: '#9f1239', textAlign: 'center', lineHeight: 18 }}>
+                      {s}
+                    </Text>
                   </ScalePressable>
                 ))}
               </View>
@@ -569,43 +649,96 @@ export default function ChatConversationScreen() {
               ))}
             </ScrollView>
           ) : null}
-          <View className="flex-row items-end px-4 py-3 border-t border-gray-100" style={{ gap: 8 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderTopWidth: 1,
+              borderTopColor: '#f1ece3',
+              gap: 8,
+              backgroundColor: '#fdfcfa',
+            }}
+          >
             <ScalePressable
-              className="w-10 h-10 items-center justify-center"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+              }}
               onPress={startRecording}
             >
-              <Ionicons name="mic-outline" size={22} color={colors.gray500} />
+              <Ionicons name="mic-outline" size={20} color="#6b7280" />
             </ScalePressable>
             <View
-              style={{ flex: 1, borderRadius: 22, maxHeight: 120, backgroundColor: colors.gray100 }}
+              style={{
+                flex: 1,
+                borderRadius: 20,
+                maxHeight: 120,
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+              }}
             >
               <TextInput
                 aria-label="消息输入"
-                className="text-base text-gray-900"
-                placeholder="输入消息..."
-                placeholderTextColor={colors.gray400}
+                placeholder="说点什么..."
+                placeholderTextColor="#b8bcc4"
                 value={inputText}
                 onChangeText={handleChangeText}
                 multiline
                 maxLength={500}
-                style={{ paddingVertical: 10, paddingHorizontal: 16, minHeight: 40, textAlignVertical: 'top', outlineStyle: 'none' } as any}
+                style={{
+                  fontSize: 15,
+                  color: '#0b0b0f',
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  minHeight: 40,
+                  textAlignVertical: 'top',
+                  outlineStyle: 'none',
+                } as any}
               />
             </View>
-            <ScalePressable className="w-10 h-10 items-center justify-center">
-              <Ionicons name="camera-outline" size={22} color={colors.gray500} />
-            </ScalePressable>
             {inputText.trim() ? (
               <AnimatedSendButton key="send-btn">
                 <PressScale onPress={handleSend}>
                   <View
-                    className="w-10 h-10 bg-rose-500 rounded-full items-center justify-center"
-                    style={sendMessageMutation.isPending ? { opacity: 0.5 } : undefined}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      backgroundColor: '#e11d48',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: sendMessageMutation.isPending ? 0.5 : 1,
+                    }}
                   >
                     <Ionicons name="arrow-up" size={18} color={colors.white} />
                   </View>
                 </PressScale>
               </AnimatedSendButton>
-            ) : null}
+            ) : (
+              <ScalePressable
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#ffffff',
+                  borderWidth: 1,
+                  borderColor: '#eef0f3',
+                }}
+              >
+                <Ionicons name="camera-outline" size={20} color="#6b7280" />
+              </ScalePressable>
+            )}
           </View>
           </>
         )}

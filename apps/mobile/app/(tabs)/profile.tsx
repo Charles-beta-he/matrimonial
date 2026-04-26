@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Alert, Platform, ScrollView, Text, View } from 'react-native';
 import { AnimatedCounter } from '../../components/AnimatedCounter';
-import { PressScale } from '../../components/PressScale';
 import { ScalePressable } from '../../components/ScalePressable';
 import { StaggeredListItem } from '../../components/StaggeredListItem';
 import Animated, {
@@ -16,7 +15,7 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Avatar, Badge, ListItem, toast } from '@matrimonial/ui';
+import { Avatar, Badge, toast } from '@matrimonial/ui';
 import { api } from '@matrimonial/api-client';
 import { calculateAge } from '@matrimonial/shared';
 import { useAppStore } from '../../stores/useAppStore';
@@ -28,22 +27,87 @@ type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface MenuItem {
   title: string;
+  description: string;
   icon: IoniconName;
   iconColor: string;
-  route: '/profile/verification' | '/profile/membership' | '/profile/privacy' | '/profile/safety' | '/profile/settings' | '/profile/checkin' | '/profile/invite' | '/profile/preferences';
+  iconBg: string;
+  route: string;
 }
 
-const MENU_ITEMS: MenuItem[] = [
-  { title: '认证中心', icon: 'shield-checkmark-outline', iconColor: colors.blue,     route: '/profile/verification' },
-  { title: '会员中心', icon: 'diamond-outline',          iconColor: colors.warning,  route: '/profile/membership' },
-  { title: '择偶偏好', icon: 'options-outline',          iconColor: colors.purple,   route: '/profile/preferences' },
-  { title: '隐私设置', icon: 'lock-closed-outline',      iconColor: colors.gray500,  route: '/profile/privacy' },
-  { title: '邀请好友', icon: 'gift-outline',              iconColor: colors.pink,     route: '/profile/invite' },
-  { title: '安全工具', icon: 'shield-outline',           iconColor: colors.error,    route: '/profile/safety' },
-  { title: '设置',     icon: 'settings-outline',         iconColor: colors.slate500, route: '/profile/settings' },
+const MENU_GROUPS: { label: string; items: MenuItem[] }[] = [
+  {
+    label: '账户',
+    items: [
+      {
+        title: '认证中心',
+        description: '提升真人可信度',
+        icon: 'shield-checkmark-outline',
+        iconColor: '#1d4ed8',
+        iconBg: '#e6efff',
+        route: '/profile/verification',
+      },
+      {
+        title: '会员中心',
+        description: '解锁更多匹配权益',
+        icon: 'diamond-outline',
+        iconColor: '#b45309',
+        iconBg: '#fff8e0',
+        route: '/profile/membership',
+      },
+      {
+        title: '择偶偏好',
+        description: '调整推荐范围',
+        icon: 'options-outline',
+        iconColor: '#6d28d9',
+        iconBg: '#f4eeff',
+        route: '/profile/preferences',
+      },
+    ],
+  },
+  {
+    label: '互动',
+    items: [
+      {
+        title: '邀请好友',
+        description: '一起寻找',
+        icon: 'gift-outline',
+        iconColor: '#db2777',
+        iconBg: '#fce7f3',
+        route: '/profile/invite',
+      },
+      {
+        title: '安全工具',
+        description: 'SOS、约会报备',
+        icon: 'shield-outline',
+        iconColor: '#dc2626',
+        iconBg: '#ffe4e6',
+        route: '/profile/safety',
+      },
+    ],
+  },
+  {
+    label: '设置',
+    items: [
+      {
+        title: '隐私设置',
+        description: '可见范围与拦截',
+        icon: 'lock-closed-outline',
+        iconColor: '#475569',
+        iconBg: '#eef0f3',
+        route: '/profile/privacy',
+      },
+      {
+        title: '通用设置',
+        description: '通知、缓存、版本',
+        icon: 'settings-outline',
+        iconColor: '#475569',
+        iconBg: '#eef0f3',
+        route: '/profile/settings',
+      },
+    ],
+  },
 ];
 
-/** My profile tab */
 export default function ProfileTab() {
   const router = useRouter();
   const storeUser = useAppStore((s) => s.user);
@@ -56,9 +120,9 @@ export default function ProfileTab() {
   }));
 
   const headerOpacity = useSharedValue(0);
-  const headerTranslateY = useSharedValue(-20);
+  const headerTranslateY = useSharedValue(-12);
   const statsOpacity = useSharedValue(0);
-  const statsY = useSharedValue(20);
+  const statsY = useSharedValue(16);
   const headerStyle = useAnimatedStyle(() => ({
     opacity: headerOpacity.value,
     transform: [{ translateY: headerTranslateY.value }],
@@ -81,13 +145,11 @@ export default function ProfileTab() {
     const cfg = { duration: 400, easing: e };
     headerOpacity.value = withTiming(1, cfg);
     headerTranslateY.value = withTiming(0, cfg);
-    statsOpacity.value = withDelay(200, withTiming(1, { duration: 380, easing: e }));
-    statsY.value = withDelay(200, withTiming(0, { duration: 360, easing: e }));
+    statsOpacity.value = withDelay(180, withTiming(1, { duration: 360, easing: e }));
+    statsY.value = withDelay(180, withTiming(0, { duration: 360, easing: e }));
   }, [breathe, headerOpacity, headerTranslateY]);
 
-  const meQuery = api.user.me.useQuery(undefined, {
-    staleTime: 30_000,
-  });
+  const meQuery = api.user.me.useQuery(undefined, { staleTime: 30_000 });
   const likedMeQuery = api.match.likedMe.useQuery();
   const matchesQuery = api.match.matches.useQuery();
   const visitorsQuery = api.user.visitors.useQuery({ limit: 100 });
@@ -140,7 +202,7 @@ export default function ProfileTab() {
     try {
       await logoutMut.mutateAsync();
     } catch (_err) {
-      void _err; // ignore network failure — user is logged out locally regardless
+      void _err;
     }
     clearUser();
     clearAuth();
@@ -148,8 +210,6 @@ export default function ProfileTab() {
   };
 
   const handleLogout = () => {
-    // Alert.alert's 3-button pattern is unreliable on react-native-web
-    // (destructive button onPress often doesn't fire). Fall back to window.confirm.
     if (Platform.OS === 'web') {
       const g = globalThis as unknown as { confirm?: (msg: string) => boolean };
       if (g.confirm?.('确定要退出登录吗？')) {
@@ -171,158 +231,301 @@ export default function ProfileTab() {
 
   return (
     <ChromaTransition>
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Pending deletion banner */}
-        {user?.status === 'PENDING_DELETION' && (
-          <View className="mx-4 mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-              <Ionicons name="warning" size={16} color={colors.warningDark} />
-              <Text className="text-sm font-bold text-amber-700">账号注销申请中</Text>
-            </View>
-            <Text className="text-xs text-amber-600 leading-5 mb-3">
-              {deletionDeadline
-                ? `您的账号将于 ${deletionDeadline} 正式注销。在此之前，您可以随时撤回申请，恢复正常使用。`
-                : '您的账号注销申请正在处理中，14天内可随时撤回。'}
-            </Text>
-            <ScalePressable
-              className={`rounded-full py-2.5 items-center ${cancelDeletionMut.isPending ? 'bg-amber-200' : 'bg-amber-500'}`}
-              onPress={() => cancelDeletionMut.mutate()}
-              disabled={cancelDeletionMut.isPending}
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+          {/* Pending deletion banner */}
+          {user?.status === 'PENDING_DELETION' && (
+            <View
+              style={{
+                marginHorizontal: 24,
+                marginTop: 16,
+                backgroundColor: '#fff8e0',
+                borderWidth: 1,
+                borderColor: '#fbe098',
+                borderRadius: 16,
+                padding: 16,
+              }}
             >
-              <Text className="text-white text-sm font-bold">
-                {cancelDeletionMut.isPending ? '处理中...' : '取消注销'}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <Ionicons name="warning" size={16} color="#b45309" />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#b45309' }}>
+                  账号注销申请中
+                </Text>
+              </View>
+              <Text style={{ fontSize: 12, color: '#92400e', lineHeight: 20, marginBottom: 12 }}>
+                {deletionDeadline
+                  ? `账号将于 ${deletionDeadline} 正式注销，可随时撤回。`
+                  : '注销申请处理中，14 天内可撤回。'}
+              </Text>
+              <ScalePressable
+                style={{
+                  backgroundColor: cancelDeletionMut.isPending ? '#fde68a' : '#b45309',
+                  borderRadius: 999,
+                  paddingVertical: 10,
+                  alignItems: 'center',
+                }}
+                onPress={() => cancelDeletionMut.mutate()}
+                disabled={cancelDeletionMut.isPending}
+              >
+                <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: '700' }}>
+                  {cancelDeletionMut.isPending ? '处理中...' : '取消注销'}
+                </Text>
+              </ScalePressable>
+            </View>
+          )}
+
+          {/* Hero card */}
+          <Animated.View
+            style={[
+              headerStyle,
+              {
+                marginHorizontal: 24,
+                marginTop: 16,
+                backgroundColor: '#ffffff',
+                borderRadius: 22,
+                padding: 22,
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+              },
+            ]}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <Animated.View style={breatheStyle}>
+                <Avatar
+                  source={{ uri: avatarUrl }}
+                  size={72}
+                  verified={!!verificationLevel}
+                  verificationLevel={verificationLevel ?? 'L1'}
+                  online
+                />
+              </Animated.View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 19, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.2 }}>
+                  {user?.nickname ?? '用户'}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                  {age != null && user?.city
+                    ? `${age} · ${user.city}`
+                    : age != null
+                      ? `${age} 岁`
+                      : user?.city ?? '完善你的资料'}
+                </Text>
+                {verificationLevel ? (
+                  <View style={{ marginTop: 8, flexDirection: 'row' }}>
+                    <Badge label={verificationLevel} variant="verification" level={verificationLevel} />
+                  </View>
+                ) : null}
+              </View>
+            </View>
+
+            <ScalePressable
+              onPress={() => router.push('/profile/edit')}
+              style={{
+                marginTop: 18,
+                backgroundColor: '#0b0b0f',
+                borderRadius: 999,
+                paddingVertical: 12,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 14, letterSpacing: 0.4 }}>
+                编辑资料
               </Text>
             </ScalePressable>
-          </View>
-        )}
-
-        {/* Header profile area */}
-        <Animated.View style={[headerStyle, { backgroundColor: colors.white, alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }]}>
-          <Animated.View style={breatheStyle}>
-            <Avatar
-              source={{ uri: avatarUrl }}
-              size={80}
-              verified={!!verificationLevel}
-              verificationLevel={verificationLevel ?? 'L1'}
-              online
-            />
           </Animated.View>
-          <Text className="text-xl font-bold text-gray-900 mt-3">
-            {user?.nickname ?? '用户'}
-          </Text>
-          <View className="flex-row items-center mt-1" style={{ gap: 6 }}>
-            <Text className="text-sm text-gray-500">
-              {age != null && user?.city ? `${age}岁 · ${user.city}` : age != null ? `${age}岁` : user?.city ?? ''}
-            </Text>
-            {verificationLevel && (
-              <Badge
-                label={verificationLevel}
-                variant="verification"
-                level={verificationLevel}
-              />
-            )}
-          </View>
 
-          <PressScale onPress={() => router.push('/profile/edit')} style={{ marginTop: 16 }}>
-            <View style={{ backgroundColor: '#f43f5e', borderRadius: 999, paddingHorizontal: 24, paddingVertical: 8 }}>
-              <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>编辑资料</Text>
-            </View>
-          </PressScale>
-        </Animated.View>
-
-        {/* Daily check-in card */}
-        <ScalePressable
-          className="bg-white mt-2 mx-4 rounded-2xl p-4 flex-row items-center"
-          style={{ shadowColor: colors.black, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}
-          onPress={() => router.push('/profile/checkin' as any)}
-        >
-          <View className="w-11 h-11 rounded-xl bg-orange-50 items-center justify-center">
-            <Ionicons name="flame" size={24} color={colors.orange} />
-          </View>
-          <View className="flex-1 ml-3">
-            <Text className="text-base font-bold text-gray-900">每日签到</Text>
-            <Text className="text-xs text-gray-500 mt-0.5">
-              {checkinQuery.data?.checkedInToday
-                ? `已签到 · 连续${checkinQuery.data.currentStreak}天`
-                : '今日未签到，点击领取奖励'}
-            </Text>
-          </View>
-          <View className="flex-row items-center" style={{ gap: 4 }}>
-            {!checkinQuery.data?.checkedInToday && (
-              <View className="bg-rose-500 rounded-full px-2.5 py-1">
-                <Text className="text-white text-xs font-bold">签到</Text>
-              </View>
-            )}
-            <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
-          </View>
-        </ScalePressable>
-
-        {/* Stats row */}
-        <Animated.View style={[statsStyle, { backgroundColor: colors.white, marginTop: 8, flexDirection: 'row', paddingVertical: 16 }]}>
-          {stats.map((stat, i) => (
-            stat.route ? (
-              <ScalePressable
-                key={stat.label}
-                containerStyle={{ flex: 1, alignItems: 'center' }}
-                onPress={() => router.push(stat.route as any)}
-              >
-                {i > 0 && (
-                  <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
-                )}
-                <AnimatedCounter value={stat.value} className="text-xl font-bold text-gray-900" />
-                <Text className="text-xs text-rose-500 mt-0.5">{stat.label}</Text>
-              </ScalePressable>
-            ) : (
-              <View key={stat.label} className="flex-1 items-center">
-                {i > 0 && (
-                  <View className="absolute left-0 top-1 bottom-1 w-px bg-gray-100" />
-                )}
-                <AnimatedCounter value={stat.value} className="text-xl font-bold text-gray-900" />
-                <Text className="text-xs text-gray-500 mt-0.5">{stat.label}</Text>
-              </View>
-            )
-          ))}
-        </Animated.View>
-
-        {/* Menu items */}
-        <View className="bg-white mt-2">
-          {MENU_ITEMS.map((item, i) => (
-            <StaggeredListItem key={item.title} index={i}>
-              <ListItem
-                left={
-                  <View
-                    className="w-9 h-9 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: item.iconColor + '15' }}
+          {/* Stats */}
+          <Animated.View
+            style={[
+              statsStyle,
+              {
+                marginHorizontal: 24,
+                marginTop: 12,
+                backgroundColor: '#ffffff',
+                borderRadius: 18,
+                paddingVertical: 18,
+                flexDirection: 'row',
+                borderWidth: 1,
+                borderColor: '#eef0f3',
+              },
+            ]}
+          >
+            {stats.map((stat, i) => {
+              const cellStyle = {
+                flex: 1,
+                alignItems: 'center' as const,
+                justifyContent: 'center' as const,
+                borderLeftWidth: i > 0 ? 1 : 0,
+                borderLeftColor: '#f1ece3',
+              };
+              const inner = (
+                <>
+                  <AnimatedCounter
+                    value={stat.value}
+                    style={{ fontSize: 22, fontWeight: '700', color: '#0b0b0f' }}
+                  />
+                  <Text style={{ fontSize: 11, color: '#6b7280', marginTop: 4, letterSpacing: 0.4 }}>
+                    {stat.label}
+                  </Text>
+                </>
+              );
+              if (stat.route) {
+                return (
+                  <ScalePressable
+                    key={stat.label}
+                    containerStyle={cellStyle}
+                    style={{ alignItems: 'center', justifyContent: 'center', width: '100%' }}
+                    onPress={() => router.push(stat.route as any)}
                   >
-                    <Ionicons name={item.icon} size={20} color={item.iconColor} />
-                  </View>
-                }
-                title={item.title}
-                right={<Ionicons name="chevron-forward" size={18} color={colors.gray300} />}
-                onPress={() => router.push(item.route as any)}
-              />
-            </StaggeredListItem>
-          ))}
-        </View>
+                    {inner}
+                  </ScalePressable>
+                );
+              }
+              return (
+                <View key={stat.label} style={cellStyle}>
+                  {inner}
+                </View>
+              );
+            })}
+          </Animated.View>
 
-        {/* Logout */}
-        <View className="mt-2 bg-white">
-          <ListItem
-            left={
-              <View className="w-9 h-9 rounded-xl items-center justify-center" style={{ backgroundColor: colors.errorBg }}>
-                <Ionicons name="log-out-outline" size={20} color={colors.error} />
+          {/* Daily check-in */}
+          <ScalePressable
+            style={{
+              marginHorizontal: 24,
+              marginTop: 12,
+              backgroundColor: '#ffffff',
+              borderRadius: 18,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#eef0f3',
+            }}
+            onPress={() => router.push('/profile/checkin' as any)}
+          >
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                backgroundColor: '#fff5e6',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="flame" size={22} color="#ea580c" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <Text style={{ fontSize: 15, fontWeight: '600', color: '#0b0b0f' }}>每日签到</Text>
+              <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                {checkinQuery.data?.checkedInToday
+                  ? `已签到 · 连续 ${checkinQuery.data.currentStreak} 天`
+                  : '今日未签到，点击领取奖励'}
+              </Text>
+            </View>
+            {!checkinQuery.data?.checkedInToday ? (
+              <View
+                style={{
+                  backgroundColor: '#e11d48',
+                  borderRadius: 999,
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  marginRight: 6,
+                }}
+              >
+                <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '700', letterSpacing: 0.4 }}>
+                  签到
+                </Text>
               </View>
-            }
-            title="退出登录"
-            showDivider={false}
-            onPress={handleLogout}
-          />
-        </View>
+            ) : null}
+            <Ionicons name="chevron-forward" size={18} color={colors.gray300} />
+          </ScalePressable>
 
-        <View className="h-8" />
-      </ScrollView>
-    </SafeAreaView>
+          {/* Menu groups */}
+          {MENU_GROUPS.map((group) => (
+            <View key={group.label} style={{ marginTop: 24 }}>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '600',
+                  color: '#9ca3af',
+                  letterSpacing: 1.6,
+                  paddingHorizontal: 24,
+                  marginBottom: 10,
+                }}
+              >
+                {group.label.toUpperCase()}
+              </Text>
+              <View
+                style={{
+                  marginHorizontal: 24,
+                  backgroundColor: '#ffffff',
+                  borderRadius: 18,
+                  borderWidth: 1,
+                  borderColor: '#eef0f3',
+                  overflow: 'hidden',
+                }}
+              >
+                {group.items.map((item, i) => (
+                  <StaggeredListItem key={item.title} index={i}>
+                    <ScalePressable
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 14,
+                        paddingVertical: 12,
+                        borderTopWidth: i === 0 ? 0 : 1,
+                        borderTopColor: '#f4f0ea',
+                      }}
+                      onPress={() => router.push(item.route as any)}
+                    >
+                      <View
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          backgroundColor: item.iconBg,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Ionicons name={item.icon} size={18} color={item.iconColor} />
+                      </View>
+                      <View style={{ flex: 1, marginLeft: 12 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>
+                          {item.title}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                          {item.description}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={16} color={colors.gray300} />
+                    </ScalePressable>
+                  </StaggeredListItem>
+                ))}
+              </View>
+            </View>
+          ))}
+
+          {/* Logout */}
+          <ScalePressable
+            style={{
+              marginHorizontal: 24,
+              marginTop: 28,
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              paddingVertical: 14,
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#fde2e6',
+            }}
+            onPress={handleLogout}
+          >
+            <Text style={{ color: '#dc2626', fontSize: 14, fontWeight: '600' }}>退出登录</Text>
+          </ScalePressable>
+        </ScrollView>
+      </SafeAreaView>
     </ChromaTransition>
   );
 }

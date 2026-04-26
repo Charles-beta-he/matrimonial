@@ -127,57 +127,83 @@ export default function SafetyScreen() {
     (c) => c.status === 'ACTIVE',
   );
 
-  return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="安全工具" />
+  const sectionCard = {
+    marginHorizontal: 24,
+    marginTop: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  };
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="安全工具" noBorder />
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
         {/* Emergency contact */}
-        <View className="bg-white mt-2 p-4">
-          <View className="flex-row items-center mb-3" style={{ gap: 8 }}>
-            <Ionicons name="call" size={18} color={colors.blue} />
-            <Text className="text-base font-semibold text-gray-900">
-              紧急联系人
-            </Text>
+        <View style={[sectionCard, { marginTop: 8 }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                backgroundColor: '#e6efff',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="call" size={14} color="#1d4ed8" />
+            </View>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0b0b0f' }}>紧急联系人</Text>
           </View>
-          <Text className="text-sm text-gray-500 mb-3">
-            设置紧急联系人，在遇到危险时可以一键发送求助信息
+          <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 18, marginBottom: 14, marginTop: 4 }}>
+            设置后即可一键发送求助信息
           </Text>
           <Input
             aria-label="紧急联系人手机号"
-            label="紧急联系人手机号"
-            placeholder="输入手机号"
+            label="手机号"
+            placeholder="输入 11 位手机号"
             value={emergencyContact}
             onChangeText={setEmergencyContact}
             maxLength={11}
           />
-          <View className="mt-3">
+          <View style={{ marginTop: 14 }}>
             <Button
               title="保存联系人"
               variant="primary"
               size="sm"
               loading={setContactMut.isPending}
-              onPress={() =>
-                setContactMut.mutate({ phone: emergencyContact })
-              }
+              onPress={() => setContactMut.mutate({ phone: emergencyContact })}
               disabled={!emergencyContact || emergencyContact.length !== 11}
             />
           </View>
         </View>
 
         {/* Date check-in */}
-        <Card className="mx-4 mt-4 p-4">
-          <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
-            <Ionicons name="location" size={18} color={colors.warning} />
-            <Text className="text-base font-semibold text-gray-900">
-              约会报备
-            </Text>
+        <View style={sectionCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                backgroundColor: '#fff8e0',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="location" size={14} color="#b45309" />
+            </View>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0b0b0f' }}>约会报备</Text>
           </View>
-          <Text className="text-sm text-gray-500 mb-2">
-            约会前向紧急联系人分享你的约会信息（时间、地点、对方资料），系统会自动在约会结束后询问你是否安全。
+          <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 18, marginTop: 4, marginBottom: 4 }}>
+            约会前同步行程，结束后系统自动询问安全
           </Text>
-          <Text className="text-xs text-gray-400 mb-3">
-            如果在约定时间内没有回复，系统将自动通知紧急联系人。
+          <Text style={{ fontSize: 11, color: '#9ca3af', lineHeight: 16, marginBottom: 14 }}>
+            若约定时间内未回复，系统将通知紧急联系人。
           </Text>
           <Button
             title="创建报备"
@@ -185,24 +211,42 @@ export default function SafetyScreen() {
             size="sm"
             onPress={() => setShowCheckinModal(true)}
           />
-        </Card>
+        </View>
 
         {/* Active checkins */}
         {activeCheckins.length > 0 && (
-          <View className="mx-4 mt-4">
-            <Text className="text-sm font-semibold text-gray-700 mb-2">
+          <View style={{ marginHorizontal: 24, marginTop: 16 }}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: '#9ca3af',
+                letterSpacing: 1.6,
+                marginBottom: 10,
+              }}
+            >
               进行中的报备
             </Text>
             {activeCheckins.map((c) => (
-              <Card key={c.id} className="p-3 mb-2">
-                <Text className="text-sm font-medium text-gray-900">
+              <View
+                key={c.id}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 16,
+                  padding: 14,
+                  marginBottom: 8,
+                  borderWidth: 1,
+                  borderColor: '#eef0f3',
+                }}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#0b0b0f' }}>
                   {c.partnerName} · {c.location}
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">
+                <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
                   {new Date(c.scheduledAt).toLocaleString('zh-CN')} ~{' '}
                   {new Date(c.expectedEndAt).toLocaleString('zh-CN')}
                 </Text>
-                <View className="mt-2">
+                <View style={{ marginTop: 12 }}>
                   <Button
                     title="确认安全"
                     variant="secondary"
@@ -211,56 +255,106 @@ export default function SafetyScreen() {
                     onPress={() => confirmSafeMut.mutate({ checkinId: c.id })}
                   />
                 </View>
-              </Card>
+              </View>
             ))}
           </View>
         )}
 
         {/* SOS Button */}
-        <View className="items-center mt-6 px-4">
-          <Text className="text-base font-semibold text-gray-900 mb-2">
-            SOS 紧急按钮
+        <View
+          style={{
+            marginHorizontal: 24,
+            marginTop: 22,
+            backgroundColor: '#0b0b0f',
+            borderRadius: 22,
+            paddingVertical: 28,
+            paddingHorizontal: 22,
+            alignItems: 'center',
+            overflow: 'hidden',
+          }}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: -50,
+              left: '50%',
+              marginLeft: -90,
+              width: 180,
+              height: 180,
+              borderRadius: 90,
+              backgroundColor: 'rgba(220,38,38,0.18)',
+            }}
+          />
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: '#fb7185',
+              letterSpacing: 1.6,
+              marginBottom: 8,
+            }}
+          >
+            紧急 · SOS
           </Text>
-          <Text className="text-sm text-gray-500 text-center mb-4">
-            遇到紧急情况时按下此按钮，系统将向紧急联系人发送你的位置信息
+          <Text style={{ fontSize: 17, fontWeight: '700', color: '#ffffff', marginBottom: 8 }}>
+            一键求助
+          </Text>
+          <Text style={{ fontSize: 12, color: '#a1a1aa', textAlign: 'center', marginBottom: 24, maxWidth: 240 }}>
+            按下后立即向紧急联系人发送位置信息
           </Text>
           <ScalePressable
-            className="w-32 h-32 rounded-full bg-red-500 items-center justify-center"
-            style={
-              Platform.OS === 'web'
-                ? { boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
+            style={{
+              width: 132,
+              height: 132,
+              borderRadius: 66,
+              backgroundColor: '#dc2626',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 8,
+              borderColor: 'rgba(220,38,38,0.18)',
+              ...(Platform.OS === 'web'
+                ? ({ boxShadow: '0 8px 28px rgba(220,38,38,0.45)' } as any)
                 : {
-                    shadowColor: colors.error,
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation: 4,
-                  }
-            }
+                    shadowColor: '#dc2626',
+                    shadowOffset: { width: 0, height: 6 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 14,
+                    elevation: 8,
+                  }),
+            }}
             disabled={sosMut.isPending}
             onPress={handleSOS}
           >
-            <Text className="text-white text-3xl font-bold">SOS</Text>
+            <Text style={{ color: '#ffffff', fontSize: 30, fontWeight: '700', letterSpacing: 1 }}>SOS</Text>
           </ScalePressable>
-          {!contactQuery.data?.phone && (
-            <Text className="text-xs text-red-400 mt-2">
+          {!contactQuery.data?.phone ? (
+            <Text style={{ fontSize: 11, color: '#fb7185', marginTop: 14, fontWeight: '500' }}>
               请先设置紧急联系人
             </Text>
-          )}
+          ) : null}
         </View>
 
         {/* Post-date feedback */}
-        <Card className="mx-4 mt-6 p-4 mb-8">
-          <View className="flex-row items-center mb-2" style={{ gap: 8 }}>
-            <Ionicons name="chatbubbles" size={18} color={colors.green} />
-            <Text className="text-base font-semibold text-gray-900">
-              约后反馈
-            </Text>
+        <View style={sectionCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                backgroundColor: '#e6f6f3',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="chatbubbles" size={14} color="#0d9488" />
+            </View>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0b0b0f' }}>约后反馈</Text>
           </View>
-          <Text className="text-sm text-gray-500">
-            约会结束后，你可以对约会体验进行匿名反馈。如果遇到不当行为，平台会进行调查处理，保护其他用户的安全。
+          <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 18, marginTop: 4 }}>
+            匿名反馈约会体验，平台会调查不当行为
           </Text>
-        </Card>
+        </View>
       </ScrollView>
 
       {/* Check-in creation modal */}

@@ -11,17 +11,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { AnimatedProgressBar, Button, ChromaText } from '@matrimonial/ui';
+import { Button } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { colors } from '../../../constants/colors';
-
 
 export default function RegisterComplete() {
   const router = useRouter();
   const { track } = useAnalytics();
 
-  // Celebration animations
   const iconScale = useSharedValue(0);
   const iconOpacity = useSharedValue(0);
   const ringScale = useSharedValue(1);
@@ -38,14 +36,12 @@ export default function RegisterComplete() {
 
     const e = Easing.out(Easing.cubic);
 
-    // Checkmark: dramatic bounce overshoot
     iconOpacity.value = withTiming(1, { duration: 200 });
     iconScale.value = withSequence(
       withSpring(1.35, { damping: 6, stiffness: 200 }),
       withSpring(1.0, { damping: 12, stiffness: 200 }),
     );
 
-    // Two expanding rings on icon appearance
     ringScale.value = withSequence(
       withTiming(1, { duration: 0 }),
       withTiming(2.8, { duration: 700, easing: e }),
@@ -66,7 +62,6 @@ export default function RegisterComplete() {
       )),
     );
 
-    // Title + subtitle stagger
     titleOpacity.value = withDelay(280, withTiming(1, { duration: 350, easing: e }));
     subtitleOpacity.value = withDelay(420, withTiming(1, { duration: 350, easing: e }));
     ctaOpacity.value = withDelay(560, withTiming(1, { duration: 300, easing: e }));
@@ -93,20 +88,32 @@ export default function RegisterComplete() {
   }));
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-6 pt-4">
-        <AnimatedProgressBar step={4} total={4} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 8 }}>
+        {/* Step segments — all filled */}
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 56, marginBottom: 24 }}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <View
+              key={i}
+              style={{
+                flex: 1,
+                height: 3,
+                borderRadius: 2,
+                backgroundColor: '#e11d48',
+              }}
+            />
+          ))}
+        </View>
 
-        <View className="flex-1 items-center justify-center" style={{ gap: 16 }}>
-          {/* Icon with ring pulses */}
-          <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 32 }}>
             <Animated.View
               pointerEvents="none"
               style={[{
                 position: 'absolute',
-                width: 80,
-                height: 80,
-                borderRadius: 40,
+                width: 96,
+                height: 96,
+                borderRadius: 48,
                 borderWidth: 2,
                 borderColor: colors.primary,
               }, ringStyle]}
@@ -115,36 +122,62 @@ export default function RegisterComplete() {
               pointerEvents="none"
               style={[{
                 position: 'absolute',
-                width: 80,
-                height: 80,
-                borderRadius: 40,
+                width: 96,
+                height: 96,
+                borderRadius: 48,
                 borderWidth: 1.5,
                 borderColor: colors.primaryLight,
               }, ring2Style]}
             />
             <Animated.View
-              style={[{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#fff1f2', alignItems: 'center', justifyContent: 'center' }, iconStyle]}
+              style={[
+                {
+                  width: 96,
+                  height: 96,
+                  borderRadius: 48,
+                  backgroundColor: '#fff1f2',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                },
+                iconStyle,
+              ]}
             >
-              <Ionicons name="checkmark-circle" size={56} color={colors.primary} />
+              <Ionicons name="checkmark" size={52} color={colors.primary} />
             </Animated.View>
           </View>
 
-          <Animated.View style={titleStyle}>
-            <ChromaText
-              text="注册成功！"
-              style={{ fontSize: 30, fontWeight: '700', color: colors.gray900, textAlign: 'center' }}
-            />
-          </Animated.View>
-
           <Animated.Text
-            className="text-base text-gray-400 text-center leading-6"
-            style={subtitleStyle}
+            style={[
+              titleStyle,
+              {
+                fontSize: 32,
+                fontWeight: '700',
+                color: '#0b0b0f',
+                letterSpacing: -0.5,
+                textAlign: 'center',
+                marginBottom: 12,
+              },
+            ]}
           >
-            欢迎加入缘分，你的缘分之旅{'\n'}从这里开始
+            欢迎你，新缘分
+          </Animated.Text>
+          <Animated.Text
+            style={[
+              subtitleStyle,
+              {
+                fontSize: 15,
+                color: '#6b7280',
+                lineHeight: 24,
+                textAlign: 'center',
+                paddingHorizontal: 16,
+              },
+            ]}
+          >
+            资料已就绪。{'\n'}对的人，可能正在下一次推荐里。
           </Animated.Text>
         </View>
 
-        <Animated.View style={ctaStyle}>
+        <Animated.View style={[ctaStyle, { paddingBottom: 16 }]}>
           <Button
             title="开始探索"
             variant="primary"
@@ -152,7 +185,6 @@ export default function RegisterComplete() {
             fullWidth
             onPress={() => router.replace('/(tabs)')}
           />
-          <View className="h-4" />
         </Animated.View>
       </View>
     </SafeAreaView>

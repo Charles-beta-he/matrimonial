@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import { ScalePressable } from '../../../components/ScalePressable';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button, Input, toast } from '@matrimonial/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +8,7 @@ import { api } from '@matrimonial/api-client';
 import { useAppStore } from '../../../stores/useAppStore';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { colors } from '../../../constants/colors';
+import { RegisterShell } from '../../../components/RegisterShell';
 
 function Checkbox({
   checked,
@@ -27,43 +20,26 @@ function Checkbox({
   return (
     <ScalePressable
       onPress={onToggle}
-      className={`w-5 h-5 rounded border-2 items-center justify-center ${
-        checked ? 'bg-rose-500 border-rose-500' : 'border-gray-300 bg-white'
-      }`}
+      containerStyle={{
+        width: 22,
+        height: 22,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: checked ? '#e11d48' : '#d1d5db',
+        backgroundColor: checked ? '#e11d48' : '#ffffff',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       {checked && <Ionicons name="checkmark" size={14} color={colors.white} />}
     </ScalePressable>
   );
 }
 
-
 export default function RegisterStep1Phone() {
   const router = useRouter();
   const setAuth = useAppStore((s) => s.setAuth);
 
-  // Entrance
-  const headingOpacity = useSharedValue(0);
-  const headingY = useSharedValue(-20);
-  const formOpacity = useSharedValue(0);
-  const formY = useSharedValue(24);
-  const ctaOpacity = useSharedValue(0);
-  useEffect(() => {
-    const e = Easing.out(Easing.cubic);
-    headingOpacity.value = withTiming(1, { duration: 320, easing: e });
-    headingY.value = withTiming(0, { duration: 320, easing: e });
-    formOpacity.value = withDelay(160, withTiming(1, { duration: 320, easing: e }));
-    formY.value = withDelay(160, withTiming(0, { duration: 320, easing: e }));
-    ctaOpacity.value = withDelay(300, withTiming(1, { duration: 280, easing: e }));
-  }, []);
-  const headingStyle = useAnimatedStyle(() => ({
-    opacity: headingOpacity.value,
-    transform: [{ translateY: headingY.value }],
-  }));
-  const formStyle = useAnimatedStyle(() => ({
-    opacity: formOpacity.value,
-    transform: [{ translateY: formY.value }],
-  }));
-  const ctaStyle = useAnimatedStyle(() => ({ opacity: ctaOpacity.value }));
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
@@ -135,7 +111,6 @@ export default function RegisterStep1Phone() {
           if (data.isNewUser) {
             router.replace('/(auth)/register/step2-basic-info');
           } else {
-            // Existing account — 平滑登录，跳到主页
             const message = '该手机号已注册，已为您登录';
             if (Platform.OS === 'web') {
               toast.info(message);
@@ -154,86 +129,71 @@ export default function RegisterStep1Phone() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <View className="flex-1 px-6 pt-4">
-          <Animated.View style={headingStyle}>
-            <Text className="text-2xl font-bold text-gray-900 mb-2">输入手机号</Text>
-            <Text className="text-sm text-gray-500 mb-8">我们将发送验证码到您的手机</Text>
-          </Animated.View>
+    <RegisterShell
+      step={1}
+      title="先验证手机"
+      subtitle="我们会给你发送一条 6 位验证码，几秒就到"
+    >
+      <View style={{ gap: 16 }}>
+        <Input
+          aria-label="手机号"
+          label="手机号"
+          placeholder="请输入手机号"
+          value={phone}
+          onChangeText={setPhone}
+          maxLength={11}
+        />
 
-          <Animated.View style={formStyle}>
-            <View className="mb-4">
-              <Input
-                aria-label="手机号"
-                label="手机号"
-                placeholder="请输入手机号"
-                value={phone}
-                onChangeText={setPhone}
-                maxLength={11}
-              />
-            </View>
-
-            <View className="mb-8">
-              <Input
-                aria-label="验证码"
-                label="验证码"
-                placeholder="请输入验证码"
-                value={code}
-                onChangeText={setCode}
-                maxLength={6}
-                rightIcon={
-                  <ScalePressable
-                    onPress={handleSendCode}
-                    disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${
-                        countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-500'
-                      }`}
-                    >
-                      {countdown > 0
-                        ? `${countdown}s`
-                        : sendCodeMutation.isPending
-                          ? '发送中...'
-                          : '发送验证码'}
-                    </Text>
-                  </ScalePressable>
-                }
-              />
-            </View>
-
-            {/* Legal agreement checkbox */}
-            <View className="flex-row items-start mb-6" style={{ gap: 8 }}>
-              <Checkbox checked={agreed} onToggle={() => setAgreed(!agreed)} />
-              <Text className="flex-1 text-xs text-gray-500 leading-5">
-                我已阅读并同意
-                <Text className="text-rose-500" onPress={() => router.push('/legal/terms')}>
-                  《用户服务协议》
-                </Text>
-                和
-                <Text className="text-rose-500" onPress={() => router.push('/legal/privacy')}>
-                  《隐私保护政策》
-                </Text>
+        <Input
+          aria-label="验证码"
+          label="验证码"
+          placeholder="6 位数字"
+          value={code}
+          onChangeText={setCode}
+          maxLength={6}
+          rightIcon={
+            <ScalePressable
+              onPress={handleSendCode}
+              disabled={countdown > 0 || !phone || sendCodeMutation.isPending}
+            >
+              <Text
+                className={`text-sm font-semibold ${
+                  countdown > 0 || !phone ? 'text-gray-300' : 'text-rose-600'
+                }`}
+              >
+                {countdown > 0
+                  ? `${countdown}s`
+                  : sendCodeMutation.isPending
+                    ? '发送中...'
+                    : '获取验证码'}
               </Text>
-            </View>
-          </Animated.View>
+            </ScalePressable>
+          }
+        />
+      </View>
 
-          <Animated.View style={ctaStyle}>
-            <Button
-              title={verifyCodeMutation.isPending ? '验证中...' : '下一步'}
-              variant="primary"
-              size="lg"
-              fullWidth
-              disabled={!phone || !code || !agreed || verifyCodeMutation.isPending}
-              onPress={handleNext}
-            />
-          </Animated.View>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 24, marginBottom: 28 }}>
+        <Checkbox checked={agreed} onToggle={() => setAgreed(!agreed)} />
+        <Text style={{ flex: 1, fontSize: 12, lineHeight: 18, color: '#6b7280' }}>
+          我已阅读并同意
+          <Text style={{ color: '#e11d48' }} onPress={() => router.push('/legal/terms')}>
+            《用户服务协议》
+          </Text>
+          和
+          <Text style={{ color: '#e11d48' }} onPress={() => router.push('/legal/privacy')}>
+            《隐私保护政策》
+          </Text>
+        </Text>
+      </View>
+
+      <Button
+        title={verifyCodeMutation.isPending ? '验证中...' : '下一步'}
+        variant="primary"
+        size="lg"
+        fullWidth
+        disabled={!phone || !code || !agreed || verifyCodeMutation.isPending}
+        onPress={handleNext}
+      />
+    </RegisterShell>
   );
 }

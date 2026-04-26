@@ -147,17 +147,17 @@ export default function PreferencesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <ScreenHeader title="择偶偏好" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      <ScreenHeader title="择偶偏好" noBorder />
 
       {meQuery.isLoading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
-          <View className="bg-white rounded-2xl p-4 mb-4">
-            <Text className="text-base font-semibold text-gray-900 mb-4">年龄范围</Text>
+        <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 32 }}>
+          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#eef0f3' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#9ca3af', letterSpacing: 1.6, marginBottom: 14 }}>年龄范围</Text>
 
             {/* Age min */}
             <Text className="text-sm text-gray-600 mb-2">最小年龄：{ageMin}岁</Text>
@@ -165,7 +165,7 @@ export default function PreferencesScreen() {
               {AGE_OPTIONS.filter((v) => v <= ageMax).map((v) => (
                 <ScalePressable
                   key={v}
-                  className={`rounded-full px-3 py-1.5 border ${v === ageMin ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
+                  style={{ borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: v === ageMin ? '#e11d48' : '#eef0f3', backgroundColor: v === ageMin ? '#fff1f2' : '#ffffff' }}
                   onPress={() => setAgeMin(v)}
                 >
                   <Text className={`text-xs ${v === ageMin ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
@@ -179,7 +179,7 @@ export default function PreferencesScreen() {
               {AGE_OPTIONS.filter((v) => v >= ageMin).map((v) => (
                 <ScalePressable
                   key={v}
-                  className={`rounded-full px-3 py-1.5 border ${v === ageMax ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
+                  style={{ borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: v === ageMax ? '#e11d48' : '#eef0f3', backgroundColor: v === ageMax ? '#fff1f2' : '#ffffff' }}
                   onPress={() => setAgeMax(v)}
                 >
                   <Text className={`text-xs ${v === ageMax ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
@@ -188,15 +188,15 @@ export default function PreferencesScreen() {
             </ScrollView>
           </View>
 
-          <View className="bg-white rounded-2xl p-4 mb-4">
-            <Text className="text-base font-semibold text-gray-900 mb-4">身高范围</Text>
+          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#eef0f3' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#9ca3af', letterSpacing: 1.6, marginBottom: 14 }}>身高范围</Text>
 
             <Text className="text-sm text-gray-600 mb-2">最低身高：{heightMin}cm</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40 }} contentContainerStyle={{ gap: 6, alignItems: 'center', paddingHorizontal: 2 }}>
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v <= heightMax).map((v) => (
                 <ScalePressable
                   key={v}
-                  className={`rounded-full px-3 py-1.5 border ${v === heightMin ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
+                  style={{ borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: v === heightMin ? '#e11d48' : '#eef0f3', backgroundColor: v === heightMin ? '#fff1f2' : '#ffffff' }}
                   onPress={() => setHeightMin(v)}
                 >
                   <Text className={`text-xs ${v === heightMin ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
@@ -209,7 +209,7 @@ export default function PreferencesScreen() {
               {Array.from({ length: 81 }, (_, i) => i + 140).filter((v) => v >= heightMin).map((v) => (
                 <ScalePressable
                   key={v}
-                  className={`rounded-full px-3 py-1.5 border ${v === heightMax ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'}`}
+                  style={{ borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: v === heightMax ? '#e11d48' : '#eef0f3', backgroundColor: v === heightMax ? '#fff1f2' : '#ffffff' }}
                   onPress={() => setHeightMax(v)}
                 >
                   <Text className={`text-xs ${v === heightMax ? 'text-rose-500 font-medium' : 'text-gray-500'}`}>{v}</Text>
@@ -218,15 +218,13 @@ export default function PreferencesScreen() {
             </ScrollView>
           </View>
 
-          <View className="bg-white rounded-2xl p-4 mb-4">
-            <Text className="text-base font-semibold text-gray-900 mb-3">最低学历要求</Text>
+          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#eef0f3' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#9ca3af', letterSpacing: 1.6, marginBottom: 14 }}>最低学历要求</Text>
             <View className="flex-row flex-wrap" style={{ gap: 8 }}>
               {EDUCATION_OPTIONS.map((opt) => (
                 <ScalePressable
                   key={opt.value}
-                  className={`rounded-full px-4 py-2 border ${
-                    educationMin === opt.value ? 'border-rose-500 bg-rose-50' : 'border-gray-200 bg-white'
-                  }`}
+                  style={{ borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: educationMin === opt.value ? '#e11d48' : '#eef0f3', backgroundColor: educationMin === opt.value ? '#fff1f2' : '#ffffff' }}
                   onPress={() => setEducationMin(opt.value)}
                 >
                   <Text className={`text-sm ${educationMin === opt.value ? 'text-rose-500 font-medium' : 'text-gray-600'}`}>

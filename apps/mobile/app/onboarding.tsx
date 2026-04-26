@@ -171,16 +171,55 @@ export default function OnboardingScreen() {
 
   const page = PAGES[currentPage];
 
+  const eyebrows = ['初识 · 01', '认证 · 02', '同行 · 03'];
+  const currentEyebrow = eyebrows[currentPage] ?? '';
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Skip button */}
-      <View className="flex-row justify-end px-6 pt-2">
-        <ScalePressable onPress={handleSkip}>
-          <Text className="text-sm text-gray-600">跳过</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fdfcfa' }}>
+      {/* Top bar: brand mark + skip */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 24,
+          paddingTop: 8,
+          paddingBottom: 4,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 14,
+              backgroundColor: '#fff1f2',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="heart" size={14} color={colors.primary} />
+          </View>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.2 }}>
+            缘分
+          </Text>
+        </View>
+        <ScalePressable
+          onPress={handleSkip}
+          containerStyle={{
+            paddingHorizontal: 14,
+            paddingVertical: 7,
+            borderRadius: 999,
+            backgroundColor: '#ffffff',
+            borderWidth: 1,
+            borderColor: '#eef0f3',
+          }}
+        >
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#6b7280' }}>跳过</Text>
         </ScalePressable>
       </View>
 
-      {/* Swipeable pages — native scroll handles left/right transition */}
+      {/* Swipeable pages */}
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -192,31 +231,89 @@ export default function OnboardingScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ alignItems: 'stretch' }}
       >
-        {PAGES.map((p) => (
+        {PAGES.map((p, idx) => (
           <View
             key={p.title}
-            style={{ width: SCREEN_WIDTH, flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}
+            style={{
+              width: SCREEN_WIDTH,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 40,
+            }}
           >
-            {/* Illustration placeholder */}
             <Animated.View
-              style={[heroStyle, {
-                width: 192, height: 192, borderRadius: 96,
-                backgroundColor: p.iconColor + '18',
-                alignItems: 'center', justifyContent: 'center', marginBottom: 40,
-              }]}
+              style={[
+                heroStyle,
+                {
+                  width: 200,
+                  height: 200,
+                  borderRadius: 100,
+                  backgroundColor: p.iconColor + '14',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 44,
+                  borderWidth: 1,
+                  borderColor: p.iconColor + '22',
+                },
+              ]}
             >
-              <Ionicons name={p.icon} size={88} color={p.iconColor} />
+              <View
+                style={{
+                  width: 132,
+                  height: 132,
+                  borderRadius: 66,
+                  backgroundColor: '#ffffff',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  shadowColor: p.iconColor,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.18,
+                  shadowRadius: 20,
+                }}
+              >
+                <Ionicons name={p.icon} size={64} color={p.iconColor} />
+              </View>
             </Animated.View>
 
             <Animated.Text
-              style={[titleStyle, { fontSize: 24, fontWeight: '700', color: '#111827', marginBottom: 16, textAlign: 'center' }]}
+              style={[
+                titleStyle,
+                {
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: p.iconColor,
+                  letterSpacing: 1.6,
+                  marginBottom: 14,
+                  textAlign: 'center',
+                },
+              ]}
+            >
+              {eyebrows[idx]}
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                titleStyle,
+                {
+                  fontSize: 28,
+                  fontWeight: '700',
+                  color: '#0b0b0f',
+                  letterSpacing: -0.4,
+                  lineHeight: 34,
+                  marginBottom: 14,
+                  textAlign: 'center',
+                },
+              ]}
               accessibilityRole="header"
               aria-level={1}
             >
               {p.title}
             </Animated.Text>
             <Animated.Text
-              style={[descStyle, { fontSize: 14, color: '#6b7280', lineHeight: 24, textAlign: 'center' }]}
+              style={[
+                descStyle,
+                { fontSize: 15, color: '#6b7280', lineHeight: 24, textAlign: 'center' },
+              ]}
             >
               {p.description}
             </Animated.Text>
@@ -224,28 +321,35 @@ export default function OnboardingScreen() {
         ))}
       </ScrollView>
 
-      {/* Bottom: dot indicators + button */}
-      <View className="px-6 pb-6">
-        {/* Dot indicators */}
-        <View className="flex-row justify-center mb-8" style={{ gap: 8 }}>
+      {/* Footer */}
+      <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 28 }}>
           {PAGES.map((_, index) => (
             <View
               key={index}
-              className={`h-2 rounded-full ${
-                index === currentPage ? 'w-6 bg-rose-500' : 'w-2 bg-gray-200'
-              }`}
+              style={{
+                height: 6,
+                width: index === currentPage ? 28 : 6,
+                borderRadius: 3,
+                backgroundColor: index === currentPage ? '#e11d48' : '#e5e2da',
+              }}
             />
           ))}
         </View>
 
-        {/* Action button */}
         <Animated.View style={btnStyle}>
           <ScalePressable
-            className="bg-rose-700 rounded-full py-4 items-center"
+            containerStyle={{
+              backgroundColor: '#e11d48',
+              borderRadius: 999,
+              height: 56,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             onPress={handleNext}
           >
-            <Text className="text-white font-bold text-base">
-              {currentPage === PAGES.length - 1 ? '开始使用' : '下一步'}
+            <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 15, letterSpacing: 0.4 }}>
+              {currentPage === PAGES.length - 1 ? '开始使用' : '继续'}
             </Text>
           </ScalePressable>
         </Animated.View>
