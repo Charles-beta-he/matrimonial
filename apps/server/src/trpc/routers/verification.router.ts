@@ -67,7 +67,7 @@ export const verificationRouter = router({
       });
     }),
 
-  /** Submit face verification — mock verify, upgrade to L3 */
+  /** Submit face verification — creates a PENDING review row, does NOT grant L3 immediately */
   submitFaceVerify: protectedProcedure
     .input(
       z.object({
@@ -92,31 +92,26 @@ export const verificationRouter = router({
         });
       }
 
-      // Call verify adapter (mock in dev, Aliyun in prod)
-      const result = await verify.verifyFace(input.faceImageUrl, '');
-      if (!result.passed) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `人脸认证失败: ${result.reason ?? 'unknown'}`,
-        });
+      // Check for an existing pending request to avoid duplicates
+      const existing = await ctx.prisma.verificationRequest.findFirst({
+        where: { userId: ctx.user.id, level: 'L3', status: 'PENDING' },
+      });
+      if (existing) {
+        return { status: 'PENDING', message: '已提交，1-3 个工作日审核' } as const;
       }
 
-      return ctx.prisma.user.update({
-        where: { id: ctx.user.id },
+      await ctx.prisma.verificationRequest.create({
         data: {
-          faceVerified: true,
-          verificationLevel: 'L3',
-        },
-        select: {
-          verificationLevel: true,
-          realNameVerified: true,
-          faceVerified: true,
-          eduVerified: true,
+          userId: ctx.user.id,
+          level: 'L3',
+          payload: { faceImageUrl: input.faceImageUrl },
         },
       });
+
+      return { status: 'PENDING', message: '已提交，1-3 个工作日审核' } as const;
     }),
 
-  /** Submit education verification — mock verify, upgrade to L4 */
+  /** Submit education verification — creates a PENDING review row, does NOT grant L4 immediately */
   submitEduVerify: protectedProcedure
     .input(
       z.object({
@@ -153,20 +148,59 @@ export const verificationRouter = router({
         });
       }
 
-      // Mock education verification — in production, call edu verification API
-      return ctx.prisma.user.update({
-        where: { id: ctx.user.id },
+      // Check for an existing pending request to avoid duplicates
+      const existing = await ctx.prisma.verificationRequest.findFirst({
+        where: { userId: ctx.user.id, level: 'L4', status: 'PENDING' },
+      });
+      if (existing) {
+        return { status: 'PENDING', message: '已提交，1-3 个工作日审核' } as const;
+      }
+
+      await ctx.prisma.verificationRequest.create({
         data: {
-          eduVerified: true,
-          verificationLevel: 'L4',
-          education: input.degree,
-        },
-        select: {
-          verificationLevel: true,
-          realNameVerified: true,
-          faceVerified: true,
-          eduVerified: true,
+          userId: ctx.user.id,
+          level: 'L4',
+          payload: { school: input.schoolName, degree: input.degree, year: input.graduationYear },
         },
       });
+
+      return { status: 'PENDING', message: '已提交，1-3 个工作日审核' } as const;
+    }),
+
+  /**
+   * Approve a pending VerificationRequest.
+   * Flips both VerificationRequest.status → APPROVED and the corresponding User flag.
+   * TODO: wire this up to the admin UI once it exists.
+   */
+  approve: protectedProcedure
+    .input(z.object({ requestId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const request = await ctx.prisma.verificationRequest.findUnique({
+        where: { id: input.requestId },
+      });
+      if (!request) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Request not found' });
+      }
+      if (request.status !== 'PENDING') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Request is not pending' });
+      }
+
+      const userUpdate =
+        request.level === 'L3'
+          ? { faceVerified: true, verificationLevel: 'L3' as const }
+          : { eduVerified: true, verificationLevel: 'L4' as const };
+
+      await ctx.prisma.$transaction([
+        ctx.prisma.verificationRequest.update({
+          where: { id: input.requestId },
+          data: { status: 'APPROVED', reviewedAt: new Date(), reviewerId: ctx.user.id },
+        }),
+        ctx.prisma.user.update({
+          where: { id: request.userId },
+          data: userUpdate,
+        }),
+      ]);
+
+      return { success: true };
     }),
 });

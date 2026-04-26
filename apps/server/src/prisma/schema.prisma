@@ -93,6 +93,7 @@ model User {
   privacyBlurLocation    Boolean  @default(true)
   privacyDisableVisitors Boolean  @default(false)
   blockedPhoneHashes     String[]
+  verificationRequests   VerificationRequest[]
 
   // 通知偏好
   notifNewMessage    Boolean  @default(true)
@@ -564,6 +565,35 @@ model Achievement {
 
   @@unique([userId, type])
   @@index([userId])
+}
+
+// ========== 认证审核请求 ==========
+
+enum VerificationRequestLevel {
+  L3
+  L4
+}
+
+enum VerificationRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model VerificationRequest {
+  id              String                     @id @default(cuid())
+  userId          String
+  user            User                       @relation(fields: [userId], references: [id])
+  level           VerificationRequestLevel
+  status          VerificationRequestStatus  @default(PENDING)
+  payload         Json                       // { faceImageUrl } for L3, { school, degree, year } for L4
+  submittedAt     DateTime                   @default(now())
+  reviewedAt      DateTime?
+  reviewerId      String?
+  rejectionReason String?
+
+  @@index([userId, level, status])
+  @@index([status, submittedAt])
 }
 
 // ========== 反馈信号 ==========

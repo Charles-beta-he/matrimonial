@@ -87,8 +87,8 @@ export default function VerificationScreen() {
     try {
       const uploaded = await uploadFile(faceImageUri, 'verify');
       if (!uploaded) return;
-      await submitFaceMut.mutateAsync({ faceImageUrl: uploaded.publicUrl });
-      toast.success('真人认证已提交');
+      const res = await submitFaceMut.mutateAsync({ faceImageUrl: uploaded.publicUrl });
+      toast.success(res.message ?? '已提交，等待审核');
       setModal(null);
       setFaceImageUri(null);
       await utils.verification.getStatus.invalidate();
@@ -104,8 +104,8 @@ export default function VerificationScreen() {
       return;
     }
     try {
-      await submitEduMut.mutateAsync({ schoolName: school, degree, graduationYear: year });
-      toast.success('学历认证已提交');
+      const res = await submitEduMut.mutateAsync({ schoolName: school, degree, graduationYear: year });
+      toast.success(res.message ?? '已提交，等待审核');
       setModal(null);
       setSchool('');
       await utils.verification.getStatus.invalidate();
