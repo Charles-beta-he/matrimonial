@@ -89,8 +89,9 @@ export default function SettingsPage() {
   };
 
   const performLogout = async () => {
+    const refreshToken = useAppStore.getState().refreshToken ?? undefined;
     try {
-      await logoutMut.mutateAsync();
+      await logoutMut.mutateAsync({ refreshToken });
     } catch (_err) {
       void _err; // ignore network failures — user is logged out locally regardless
     }

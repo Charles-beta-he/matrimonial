@@ -2,13 +2,16 @@ import * as jose from 'jose';
 import { prisma } from '../../lib/prisma';
 import { env } from '../../lib/env';
 import { sms } from '../../adapters/sms.adapter';
+import { getRedis } from '../../lib/redis';
 
 const JWT_SECRET = new TextEncoder().encode(env.JWT_SECRET);
 const ACCESS_TOKEN_TTL = '15m';
 const REFRESH_TOKEN_TTL = '30d';
+const REFRESH_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days in seconds
+const VERIFY_CODE_TTL_SECONDS = 300; // 5 minutes
 
-// In-memory verification code store (use Redis in production)
-const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
+// Fallback in-memory verification code store (used when Redis is unavailable)
+const verificationCodesFallback = new Map<string, { code: string; expiresAt: number }>();
 
 // Bypass list: specific phones always accept a fixed code regardless of NODE_ENV.
 // Used for the seeded default ADMIN account so operators can log into the
@@ -29,10 +32,24 @@ export const AuthService = {
       ? String(Math.floor(100000 + Math.random() * 900000))
       : '123456';
 
-    verificationCodes.set(phone, {
-      code,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-    });
+    const redis = getRedis();
+    if (redis) {
+      try {
+        await redis.set(`verify:code:${phone}`, code, 'EX', VERIFY_CODE_TTL_SECONDS);
+      } catch {
+        console.warn('[auth] Redis set verify code failed, falling back to in-memory');
+        verificationCodesFallback.set(phone, {
+          code,
+          expiresAt: Date.now() + VERIFY_CODE_TTL_SECONDS * 1000,
+        });
+      }
+    } else {
+      console.warn('[auth] Redis unavailable, storing verify code in-memory');
+      verificationCodesFallback.set(phone, {
+        code,
+        expiresAt: Date.now() + VERIFY_CODE_TTL_SECONDS * 1000,
+      });
+    }
 
     await sms.sendVerificationCode(phone, code);
 
@@ -40,18 +57,32 @@ export const AuthService = {
   },
 
   /** Verify the code. Returns true if valid */
-  verifyCode(phone: string, code: string): boolean {
+  async verifyCode(phone: string, code: string): Promise<boolean> {
     const bypassCode = BYPASS_PHONES[phone];
     if (bypassCode) return code === bypassCode;
 
-    const stored = verificationCodes.get(phone);
+    const redis = getRedis();
+    if (redis) {
+      try {
+        const stored = await redis.get(`verify:code:${phone}`);
+        if (!stored) return false;
+        if (stored !== code) return false;
+        await redis.del(`verify:code:${phone}`);
+        return true;
+      } catch {
+        console.warn('[auth] Redis get verify code failed, falling back to in-memory');
+      }
+    }
+
+    // Fallback: in-memory
+    const stored = verificationCodesFallback.get(phone);
     if (!stored) return false;
     if (Date.now() > stored.expiresAt) {
-      verificationCodes.delete(phone);
+      verificationCodesFallback.delete(phone);
       return false;
     }
     if (stored.code !== code) return false;
-    verificationCodes.delete(phone);
+    verificationCodesFallback.delete(phone);
     return true;
   },
 
@@ -64,9 +95,10 @@ export const AuthService = {
       .sign(JWT_SECRET);
   },
 
-  /** Sign a refresh token */
+  /** Sign a refresh token (includes jti for revocation support) */
   async signRefreshToken(userId: string): Promise<string> {
-    return new jose.SignJWT({ sub: userId, type: 'refresh' })
+    const jti = crypto.randomUUID();
+    return new jose.SignJWT({ sub: userId, type: 'refresh', jti })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(REFRESH_TOKEN_TTL)
@@ -80,6 +112,54 @@ export const AuthService = {
       return { sub: payload.sub as string, role: (payload.role as string) ?? 'USER' };
     } catch {
       return null;
+    }
+  },
+
+  /** Decode a refresh token without full verification (for blacklist/revoke use) */
+  async decodeRefreshToken(token: string): Promise<{ sub: string; jti?: string; exp?: number } | null> {
+    try {
+      const { payload } = await jose.jwtVerify(token, JWT_SECRET);
+      if ((payload as any).type !== 'refresh') return null;
+      return {
+        sub: payload.sub as string,
+        jti: (payload as any).jti as string | undefined,
+        exp: payload.exp,
+      };
+    } catch {
+      return null;
+    }
+  },
+
+  /** Check if a refresh token's jti is blacklisted */
+  async isRefreshTokenRevoked(jti: string): Promise<boolean> {
+    const redis = getRedis();
+    if (!redis) {
+      console.warn('[auth] Redis unavailable, skipping blacklist check');
+      return false;
+    }
+    try {
+      const val = await redis.get(`refresh:revoked:${jti}`);
+      return val !== null;
+    } catch {
+      console.warn('[auth] Redis blacklist check failed, allowing token');
+      return false;
+    }
+  },
+
+  /** Add a refresh token jti to the blacklist */
+  async revokeRefreshToken(jti: string, tokenExp?: number): Promise<void> {
+    const redis = getRedis();
+    if (!redis) {
+      console.warn('[auth] Redis unavailable, logout blacklist skipped (no-op)');
+      return;
+    }
+    const remainingTtl = tokenExp
+      ? Math.max(1, tokenExp - Math.floor(Date.now() / 1000))
+      : REFRESH_TOKEN_TTL_SECONDS;
+    try {
+      await redis.set(`refresh:revoked:${jti}`, '1', 'EX', remainingTtl);
+    } catch {
+      console.warn('[auth] Redis revoke failed');
     }
   },
 
@@ -121,6 +201,16 @@ export const AuthService = {
 
   /** Refresh access token using refresh token */
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string } | null> {
+    const decoded = await this.decodeRefreshToken(refreshToken);
+    if (!decoded) return null;
+
+    // Check blacklist
+    if (decoded.jti) {
+      const revoked = await this.isRefreshTokenRevoked(decoded.jti);
+      if (revoked) return null;
+    }
+
+    // Get full payload for role
     const payload = await this.verifyToken(refreshToken);
     if (!payload) return null;
 

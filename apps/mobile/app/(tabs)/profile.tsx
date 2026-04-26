@@ -199,8 +199,9 @@ export default function ProfileTab() {
 
   const performLogout = async () => {
     track('auth_logout', {});
+    const refreshToken = useAppStore.getState().refreshToken ?? undefined;
     try {
-      await logoutMut.mutateAsync();
+      await logoutMut.mutateAsync({ refreshToken });
     } catch (_err) {
       void _err;
     }

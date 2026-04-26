@@ -18,7 +18,7 @@ export const authRouter = router({
       code: z.string().length(6),
     }))
     .mutation(async ({ input }) => {
-      const isValid = AuthService.verifyCode(input.phone, input.code);
+      const isValid = await AuthService.verifyCode(input.phone, input.code);
       if (!isValid) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: '验证码错误或已过期' });
       }
@@ -36,12 +36,22 @@ export const authRouter = router({
       return result;
     }),
 
-  /** Logout — mark user offline */
-  logout: protectedProcedure.mutation(async ({ ctx }) => {
-    await ctx.prisma.user.update({
-      where: { id: ctx.user.id },
-      data: { isOnline: false },
-    });
-    return { success: true };
-  }),
+  /** Logout — mark user offline and revoke refresh token */
+  logout: protectedProcedure
+    .input(z.object({ refreshToken: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { isOnline: false },
+      });
+
+      if (input?.refreshToken) {
+        const decoded = await AuthService.decodeRefreshToken(input.refreshToken);
+        if (decoded?.jti) {
+          await AuthService.revokeRefreshToken(decoded.jti, decoded.exp);
+        }
+      }
+
+      return { success: true };
+    }),
 });

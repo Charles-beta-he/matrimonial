@@ -25,6 +25,11 @@ vi.mock('../../lib/env', () => ({
   isConfigured: () => false,
 }));
 
+// Mock Redis — return null so tests use the in-memory fallback path
+vi.mock('../../lib/redis', () => ({
+  getRedis: () => null,
+}));
+
 describe('AuthService', () => {
   let AuthService: any;
 
@@ -45,23 +50,23 @@ describe('AuthService', () => {
     it('returns true for correct code after sending', async () => {
       await AuthService.sendVerificationCode('13800000001');
       // Dev mode always sends '123456'
-      expect(AuthService.verifyCode('13800000001', '123456')).toBe(true);
+      expect(await AuthService.verifyCode('13800000001', '123456')).toBe(true);
     });
 
     it('returns false for wrong code', async () => {
       await AuthService.sendVerificationCode('13800000001');
-      expect(AuthService.verifyCode('13800000001', '000000')).toBe(false);
+      expect(await AuthService.verifyCode('13800000001', '000000')).toBe(false);
     });
 
-    it('returns false if code not sent', () => {
-      expect(AuthService.verifyCode('13899999999', '123456')).toBe(false);
+    it('returns false if code not sent', async () => {
+      expect(await AuthService.verifyCode('13899999999', '123456')).toBe(false);
     });
 
     it('code can only be used once', async () => {
       // Use non-bypass phone so code is stored in verificationCodes map (one-time-use)
       await AuthService.sendVerificationCode('13900000001');
-      AuthService.verifyCode('13900000001', '123456');
-      expect(AuthService.verifyCode('13900000001', '123456')).toBe(false);
+      await AuthService.verifyCode('13900000001', '123456');
+      expect(await AuthService.verifyCode('13900000001', '123456')).toBe(false);
     });
   });
 

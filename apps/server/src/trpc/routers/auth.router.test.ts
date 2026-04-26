@@ -15,6 +15,11 @@ vi.mock('../../adapters/sms.adapter', () => ({
   sms: { sendVerificationCode: vi.fn().mockResolvedValue(undefined) },
 }));
 
+// Mock Redis — return null so router tests use in-memory fallback
+vi.mock('../../lib/redis', () => ({
+  getRedis: () => null,
+}));
+
 describe('auth router', () => {
   beforeEach(() => {
     vi.clearAllMocks();
