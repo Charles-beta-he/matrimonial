@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 import { config } from '../env';
+import { useMatchStore } from './useMatchStore';
 
 interface SocketState {
   socket: Socket | null;
@@ -70,6 +71,15 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           else updated.delete(s.userId);
         }
         return { onlineUsers: updated };
+      });
+    });
+
+    // Match event — show match animation for the matched user
+    socket.on('match:success', (payload: { matchedUser: { id: string; nickname: string; avatar: string | null }; conversationId: string; matchedAt: string }) => {
+      useMatchStore.getState().setMatchAnimation(true, {
+        id: payload.matchedUser.id,
+        nickname: payload.matchedUser.nickname,
+        photo: payload.matchedUser.avatar ?? undefined,
       });
     });
 

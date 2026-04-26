@@ -3,6 +3,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -12,6 +13,7 @@ import * as jwt from 'jsonwebtoken';
 import { prisma } from '../../lib/prisma';
 import { env } from '../../lib/env';
 import { logger } from '../../lib/logger';
+import { setIo } from '../../lib/ws';
 
 interface AuthSocket extends Socket {
   userId?: string;
@@ -24,12 +26,16 @@ interface AuthSocket extends Socket {
   },
   transports: ['websocket', 'polling'],
 })
-export class ConversationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ConversationGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
   /** userId → Set of socket IDs */
   private userSockets = new Map<string, Set<string>>();
+
+  afterInit(server: Server) {
+    setIo(server);
+  }
 
   async handleConnection(client: AuthSocket) {
     try {
@@ -42,6 +48,9 @@ export class ConversationGateway implements OnGatewayConnection, OnGatewayDiscon
       const set = this.userSockets.get(payload.sub) ?? new Set<string>();
       set.add(client.id);
       this.userSockets.set(payload.sub, set);
+
+      // Per-user room so server can push targeted events (e.g. match:success)
+      client.join(`user:${payload.sub}`);
 
       client.broadcast.emit('presence:online', { userId: payload.sub });
     } catch {

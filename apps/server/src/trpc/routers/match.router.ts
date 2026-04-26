@@ -8,6 +8,7 @@ import { CreditsService } from '../../modules/credits/credits.service';
 import { NotificationService } from '../../modules/notification/notification.module';
 import { logger } from '../../lib/logger';
 import { getRedis } from '../../lib/redis';
+import { getIo } from '../../lib/ws';
 
 /** Get today's date string in YYYY-MM-DD */
 function todayKey(): string {
@@ -528,16 +529,70 @@ export const matchRouter = router({
         }
         conversationId = conversation.id;
 
-        // Notify the other user about the match
-        const fromUser = await ctx.prisma.user.findUnique({
-          where: { id: userId },
-          select: { nickname: true },
-        });
+        // Fetch both users for notifications and Socket.io payloads
+        const [fromUser, toUser] = await Promise.all([
+          ctx.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              id: true,
+              nickname: true,
+              photos: {
+                where: { auditStatus: 'APPROVED' },
+                orderBy: { order: 'asc' },
+                take: 1,
+                select: { url: true },
+              },
+            },
+          }),
+          ctx.prisma.user.findUnique({
+            where: { id: input.toUserId },
+            select: {
+              id: true,
+              nickname: true,
+              photos: {
+                where: { auditStatus: 'APPROVED' },
+                orderBy: { order: 'asc' },
+                take: 1,
+                select: { url: true },
+              },
+            },
+          }),
+        ]);
+
+        // Push notification to the liked user
         NotificationService.notifyMatch(
           input.toUserId,
           fromUser?.nickname ?? '某人',
           conversation.id,
         ).catch((err) => logger.error('push notification failed', { err }));
+
+        // Real-time Socket.io broadcast to both users
+        const io = getIo();
+        if (io) {
+          const matchedAt = new Date().toISOString();
+
+          // Notify liker (userId) — they see toUser's info
+          io.to(`user:${userId}`).emit('match:success', {
+            matchedUser: {
+              id: toUser?.id ?? input.toUserId,
+              nickname: toUser?.nickname ?? '',
+              avatar: toUser?.photos[0]?.url ?? null,
+            },
+            conversationId: conversation.id,
+            matchedAt,
+          });
+
+          // Notify liked user (toUserId) — they see fromUser's info
+          io.to(`user:${input.toUserId}`).emit('match:success', {
+            matchedUser: {
+              id: fromUser?.id ?? userId,
+              nickname: fromUser?.nickname ?? '',
+              avatar: fromUser?.photos[0]?.url ?? null,
+            },
+            conversationId: conversation.id,
+            matchedAt,
+          });
+        }
       }
 
       // Notify about the like if no match yet
