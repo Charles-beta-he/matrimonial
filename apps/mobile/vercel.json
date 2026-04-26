@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd ../.. && pnpm install --no-frozen-lockfile && pnpm --filter @matrimonial/shared build && cd apps/mobile && pnpm expo export --platform web",
+  "buildCommand": "cd ../.. && pnpm install --filter @matrimonial/mobile... --no-frozen-lockfile && pnpm --filter @matrimonial/shared build && cd apps/mobile && NODE_OPTIONS='--max-old-space-size=6144' pnpm expo export --platform web",
   "outputDirectory": "dist",
   "installCommand": "echo 'install handled in buildCommand'",
   "framework": null,
