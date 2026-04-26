@@ -26,6 +26,87 @@ function secondsUntilMidnight(): number {
 // ── Free user daily swipe quota ──
 const FREE_DAILY_SWIPES = 30;
 
+// ── Daily picks: weighted scoring ────────────────────────────────────────────
+
+export type ScoringCandidate = {
+  id: string;
+  birthday: Date;
+  city: string;
+  verificationLevel: string;
+  bio: string | null;
+  lastActiveAt: Date;
+  photos: { id: string }[];
+  tags: { tag: string }[];
+  prompts: { id: string }[];
+};
+
+export type ViewerContext = {
+  city: string;
+  tags: { tag: string }[];
+  preference: {
+    ageMin: number | null;
+    ageMax: number | null;
+    acceptLongDistance: boolean;
+  } | null;
+};
+
+/**
+ * Score a candidate 0–100 based on six signals.
+ * Higher score = better daily pick.
+ * Exported for unit testing only.
+ */
+export function scoreDailyPick(
+  candidate: ScoringCandidate,
+  viewer: ViewerContext,
+): number {
+  let score = 0;
+
+  // 1. Age proximity (max 20 pts)
+  if (viewer.preference?.ageMin != null && viewer.preference?.ageMax != null) {
+    const ageMid = (viewer.preference.ageMin + viewer.preference.ageMax) / 2;
+    const nowMs = Date.now();
+    const candidateAgeYears =
+      (nowMs - candidate.birthday.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+    const diff = Math.abs(candidateAgeYears - ageMid);
+    // Within 1 year → 20, within 5 → 10, within 10 → 5, else 0
+    if (diff <= 1) score += 20;
+    else if (diff <= 5) score += 10;
+    else if (diff <= 10) score += 5;
+  }
+
+  // 2. City match (max 15 pts)
+  if (candidate.city === viewer.city) {
+    score += 15;
+  } else if (!viewer.preference?.acceptLongDistance) {
+    score -= 5;
+  }
+
+  // 3. Verification level (max 15 pts)
+  if (candidate.verificationLevel === 'L4') score += 15;
+  else if (candidate.verificationLevel === 'L3') score += 10;
+  else if (candidate.verificationLevel === 'L2') score += 5;
+
+  // 4. Profile completeness (max 25 pts, 5 pts each component)
+  if (candidate.photos.length >= 1) score += 5; // has avatar (first photo)
+  if (candidate.photos.length >= 3) score += 5; // ≥3 photos
+  if (candidate.bio && candidate.bio.trim().length > 0) score += 5;
+  if (candidate.tags.length >= 3) score += 5;
+  if (candidate.prompts.length >= 1) score += 5;
+
+  // 5. Activity recency (max 10 pts)
+  const msSinceActive = Date.now() - candidate.lastActiveAt.getTime();
+  const msPerDay = 24 * 60 * 60 * 1000;
+  if (msSinceActive <= msPerDay) score += 10;
+  else if (msSinceActive <= 7 * msPerDay) score += 5;
+
+  // 6. Mutual interests (max 15 pts, 3 pts per overlap, capped)
+  const viewerTagSet = new Set(viewer.tags.map((t) => t.tag));
+  const overlap = candidate.tags.filter((t) => viewerTagSet.has(t.tag)).length;
+  score += Math.min(overlap * 3, 15);
+
+  return score;
+}
+
 export const matchRouter = router({
   /**
    * Get recommendation list — users matching preferences,
@@ -592,7 +673,18 @@ export const matchRouter = router({
 
       const currentUser = await ctx.prisma.user.findUnique({
         where: { id: userId },
-        select: { gender: true },
+        select: {
+          gender: true,
+          city: true,
+          tags: { select: { tag: true } },
+          preferences: {
+            select: {
+              ageMin: true,
+              ageMax: true,
+              acceptLongDistance: true,
+            },
+          },
+        },
       });
 
       // Get existing interactions to exclude
@@ -625,9 +717,17 @@ export const matchRouter = router({
         take: 50,
       });
 
-      // Shuffle and pick top 5
-      const shuffled = candidates.sort(() => Math.random() - 0.5);
-      const picks = shuffled.slice(0, 5);
+      // Weighted ranking: score each candidate, pick top 5
+      const viewerCtx: ViewerContext = {
+        city: currentUser?.city ?? '',
+        tags: currentUser?.tags ?? [],
+        preference: currentUser?.preferences ?? null,
+      };
+      const picks = candidates
+        .map((c) => ({ candidate: c, score: scoreDailyPick(c, viewerCtx) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+        .map((s) => s.candidate);
 
       if (redis) {
         try {

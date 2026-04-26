@@ -100,6 +100,8 @@ vi.mock('../../lib/logger', () => ({
 import { prisma } from '../../lib/prisma';
 import { RecommendAdapter } from '../../adapters/recommend.adapter';
 import { CreditsService } from '../../modules/credits/credits.service';
+import { scoreDailyPick } from './match.router';
+import type { ScoringCandidate, ViewerContext } from './match.router';
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -411,6 +413,128 @@ describe('matchRouter', () => {
       const balance = await CreditsService.getBalance('user-1');
       expect(CreditsService.getBalance).toHaveBeenCalledWith('user-1');
       expect(balance).toEqual({ superLike: 3, boost: 1 });
+    });
+  });
+
+  // ── scoreDailyPick ────────────────────────────────────────────────────────
+
+  describe('scoreDailyPick', () => {
+    const nowMs = Date.now();
+    const msPerYear = 365.25 * 24 * 60 * 60 * 1000;
+
+    const baseCandidate: ScoringCandidate = {
+      id: 'c1',
+      // 27 years old
+      birthday: new Date(nowMs - 27 * msPerYear),
+      city: 'Beijing',
+      verificationLevel: 'L2',
+      bio: null,
+      lastActiveAt: new Date(nowMs - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      photos: [],
+      tags: [],
+      prompts: [],
+    };
+
+    const baseViewer: ViewerContext = {
+      city: 'Beijing',
+      tags: [],
+      preference: { ageMin: 25, ageMax: 30, acceptLongDistance: false },
+    };
+
+    it('scores higher for same city than different city', () => {
+      const sameCityScore = scoreDailyPick(baseCandidate, baseViewer);
+      const diffCityScore = scoreDailyPick(
+        { ...baseCandidate, city: 'Shanghai' },
+        baseViewer,
+      );
+      expect(sameCityScore).toBeGreaterThan(diffCityScore);
+    });
+
+    it('scores higher for L4 verification than L2', () => {
+      const l4Score = scoreDailyPick(
+        { ...baseCandidate, verificationLevel: 'L4' },
+        baseViewer,
+      );
+      const l2Score = scoreDailyPick(
+        { ...baseCandidate, verificationLevel: 'L2' },
+        baseViewer,
+      );
+      expect(l4Score).toBeGreaterThan(l2Score);
+    });
+
+    it('scores higher for complete profile', () => {
+      const completeScore = scoreDailyPick(
+        {
+          ...baseCandidate,
+          photos: [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }],
+          bio: 'loves hiking',
+          tags: [{ tag: 'hiking' }, { tag: 'coffee' }, { tag: 'travel' }],
+          prompts: [{ id: 'pr1' }],
+        },
+        baseViewer,
+      );
+      const emptyScore = scoreDailyPick(baseCandidate, baseViewer);
+      expect(completeScore).toBeGreaterThan(emptyScore);
+    });
+
+    it('awards 10 pts for activity within 24h, 5 pts within 7d', () => {
+      const activeRecently = scoreDailyPick(
+        { ...baseCandidate, lastActiveAt: new Date(nowMs - 1 * 60 * 60 * 1000) },
+        baseViewer,
+      );
+      const activeWeek = scoreDailyPick(
+        { ...baseCandidate, lastActiveAt: new Date(nowMs - 3 * 24 * 60 * 60 * 1000) },
+        baseViewer,
+      );
+      const activeOld = scoreDailyPick(baseCandidate, baseViewer); // 10 days ago
+      expect(activeRecently).toBeGreaterThan(activeWeek);
+      expect(activeWeek).toBeGreaterThan(activeOld);
+    });
+
+    it('awards extra pts for mutual tag overlap, capped at 15', () => {
+      const viewerWithTags: ViewerContext = {
+        ...baseViewer,
+        tags: [{ tag: 'hiking' }, { tag: 'coffee' }, { tag: 'travel' }, { tag: 'art' }, { tag: 'music' }, { tag: 'yoga' }],
+      };
+      const noOverlap = scoreDailyPick(baseCandidate, viewerWithTags);
+      const someOverlap = scoreDailyPick(
+        { ...baseCandidate, tags: [{ tag: 'hiking' }, { tag: 'coffee' }] },
+        viewerWithTags,
+      );
+      const fullOverlap = scoreDailyPick(
+        {
+          ...baseCandidate,
+          tags: [
+            { tag: 'hiking' }, { tag: 'coffee' }, { tag: 'travel' },
+            { tag: 'art' }, { tag: 'music' }, { tag: 'yoga' },
+          ],
+        },
+        viewerWithTags,
+      );
+      expect(someOverlap).toBeGreaterThan(noOverlap);
+      // 6 overlaps * 3 = 18 but capped at 15; plus +5 from ≥3-tag completeness bonus = delta 20
+      expect(fullOverlap - noOverlap).toBe(20);
+    });
+
+    it('gives no age penalty when preference is not set', () => {
+      const noPreferenceViewer: ViewerContext = { ...baseViewer, preference: null };
+      const score = scoreDailyPick(baseCandidate, noPreferenceViewer);
+      // Should not throw and should still score city/verification/etc
+      expect(score).toBeGreaterThanOrEqual(0);
+    });
+
+    it('does not penalise different city when acceptLongDistance=true', () => {
+      const longDistanceViewer: ViewerContext = {
+        ...baseViewer,
+        preference: { ageMin: 25, ageMax: 30, acceptLongDistance: true },
+      };
+      const diffCity = scoreDailyPick(
+        { ...baseCandidate, city: 'Shanghai' },
+        longDistanceViewer,
+      );
+      const sameCity = scoreDailyPick(baseCandidate, longDistanceViewer);
+      // Different city gets 0 bonus (no penalty), same city gets +15
+      expect(sameCity - diffCity).toBe(15);
     });
   });
 });
