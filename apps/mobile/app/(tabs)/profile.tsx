@@ -294,45 +294,60 @@ export default function ProfileTab() {
               <Animated.View style={breatheStyle}>
                 <Avatar
                   source={{ uri: avatarUrl }}
-                  size={72}
-                  verified={!!verificationLevel}
-                  verificationLevel={verificationLevel ?? 'L1'}
+                  size={80}
                   online
                 />
               </Animated.View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 19, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.2 }}>
-                  {user?.nickname ?? '用户'}
-                </Text>
-                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <Text style={{ fontSize: 19, fontWeight: '700', color: '#0b0b0f', letterSpacing: -0.2 }}>
+                    {user?.nickname ?? '用户'}
+                  </Text>
+                  {verificationLevel ? (
+                    <View
+                      style={{
+                        backgroundColor: '#fff1f2',
+                        borderRadius: 6,
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          fontWeight: '700',
+                          color: '#e11d48',
+                          letterSpacing: 0.6,
+                        }}
+                      >
+                        {verificationLevel}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
                   {age != null && user?.city
                     ? `${age} · ${user.city}`
                     : age != null
                       ? `${age} 岁`
                       : user?.city ?? '完善你的资料'}
                 </Text>
-                {verificationLevel ? (
-                  <View style={{ marginTop: 8, flexDirection: 'row' }}>
-                    <Badge label={verificationLevel} variant="verification" level={verificationLevel} />
-                  </View>
-                ) : null}
               </View>
+              <ScalePressable
+                onPress={() => router.push('/profile/edit')}
+                style={{
+                  borderRadius: 999,
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderWidth: 1,
+                  borderColor: '#e11d48',
+                }}
+              >
+                <Text style={{ color: '#e11d48', fontWeight: '600', fontSize: 12, letterSpacing: 0.4 }}>
+                  编辑资料
+                </Text>
+              </ScalePressable>
             </View>
-
-            <ScalePressable
-              onPress={() => router.push('/profile/edit')}
-              style={{
-                marginTop: 18,
-                backgroundColor: '#0b0b0f',
-                borderRadius: 999,
-                paddingVertical: 12,
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 14, letterSpacing: 0.4 }}>
-                编辑资料
-              </Text>
-            </ScalePressable>
           </Animated.View>
 
           {/* Stats */}
