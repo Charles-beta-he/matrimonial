@@ -6,9 +6,33 @@ import {
 } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
 import type { Membership } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { requireMembership } from '../middlewares/requireMembership';
+
+/** SHA-256 hex digest of a string */
+function sha256Hex(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+/**
+ * Returns true if either side has blocked the other.
+ * viewerPhone / viewerBlocked: viewer's phone and their blocked-hash list.
+ * targetPhone / targetBlocked: target's phone and their blocked-hash list.
+ */
+function isBlocked(
+  viewerPhone: string,
+  viewerBlocked: string[],
+  targetPhone: string,
+  targetBlocked: string[],
+): boolean {
+  // viewer has blocked target
+  if (viewerBlocked.includes(sha256Hex(targetPhone))) return true;
+  // target has blocked viewer
+  if (targetBlocked.includes(sha256Hex(viewerPhone))) return true;
+  return false;
+}
 
 export const userRouter = router({
   /** Register or update push token for push notifications */
@@ -71,6 +95,27 @@ export const userRouter = router({
     });
     if (!user) {
       throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+    }
+
+    // Bidirectional block check — masquerade blocked profiles as not found
+    if (ctx.user.id !== input) {
+      const [viewer, target] = await Promise.all([
+        ctx.prisma.user.findUnique({
+          where: { id: ctx.user.id },
+          select: { phone: true, blockedPhoneHashes: true },
+        }),
+        ctx.prisma.user.findUnique({
+          where: { id: input },
+          select: { phone: true, blockedPhoneHashes: true },
+        }),
+      ]);
+      if (
+        viewer &&
+        target &&
+        isBlocked(viewer.phone, viewer.blockedPhoneHashes, target.phone, target.blockedPhoneHashes)
+      ) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
     }
 
     // If target has blurPhotos enabled, check if viewer is matched
@@ -328,9 +373,22 @@ export const userRouter = router({
       // If the viewer has incognito mode enabled, skip recording the view
       const viewer = await ctx.prisma.user.findUnique({
         where: { id: ctx.user.id },
-        select: { privacyIncognito: true },
+        select: { privacyIncognito: true, phone: true, blockedPhoneHashes: true },
       });
       if (viewer?.privacyIncognito) return { skipped: true };
+
+      // Bidirectional block check — silently no-op if either side blocks
+      const target = await ctx.prisma.user.findUnique({
+        where: { id: input.viewedId },
+        select: { phone: true, blockedPhoneHashes: true },
+      });
+      if (
+        viewer &&
+        target &&
+        isBlocked(viewer.phone, viewer.blockedPhoneHashes, target.phone, target.blockedPhoneHashes)
+      ) {
+        return { skipped: true };
+      }
 
       await ctx.prisma.profileView.upsert({
         where: {

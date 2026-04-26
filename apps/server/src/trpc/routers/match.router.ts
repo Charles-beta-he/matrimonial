@@ -1,5 +1,6 @@
 import { feedbackSignalSchema, likeSchema, skipSchema } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
 import { requireMembership } from '../middlewares/requireMembership';
@@ -9,6 +10,27 @@ import { NotificationService } from '../../modules/notification/notification.mod
 import { logger } from '../../lib/logger';
 import { getRedis } from '../../lib/redis';
 import { getIo } from '../../lib/ws';
+
+/** SHA-256 hex digest of a string */
+function sha256Hex(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+/** Returns true if either user has blocked the other via phone-hash lists */
+async function isBlockedPair(
+  prisma: { user: { findUnique(args: { where: { id: string }; select: { phone: true; blockedPhoneHashes: true } }): Promise<{ phone: string; blockedPhoneHashes: string[] } | null> } },
+  viewerId: string,
+  targetId: string,
+): Promise<boolean> {
+  const [viewer, target] = await Promise.all([
+    prisma.user.findUnique({ where: { id: viewerId }, select: { phone: true, blockedPhoneHashes: true } }),
+    prisma.user.findUnique({ where: { id: targetId }, select: { phone: true, blockedPhoneHashes: true } }),
+  ]);
+  if (!viewer || !target) return false;
+  if (viewer.blockedPhoneHashes.includes(sha256Hex(target.phone))) return true;
+  if (target.blockedPhoneHashes.includes(sha256Hex(viewer.phone))) return true;
+  return false;
+}
 
 /** Get today's date string in YYYY-MM-DD */
 function todayKey(): string {
@@ -451,6 +473,11 @@ export const matchRouter = router({
         });
       }
 
+      // Bidirectional block check
+      if (await isBlockedPair(ctx.prisma, userId, input.toUserId)) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '用户不可用' });
+      }
+
       // Check if the other person already liked us
       const reciprocalLike = await ctx.prisma.like.findUnique({
         where: {
@@ -615,6 +642,11 @@ export const matchRouter = router({
     .input(skipSchema)
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
+
+      // Bidirectional block check
+      if (await isBlockedPair(ctx.prisma, userId, input.toUserId)) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '用户不可用' });
+      }
 
       // Create a SKIP like record — skips are excluded from the exclusion query
       // so skipped users can reappear in future recommendations
