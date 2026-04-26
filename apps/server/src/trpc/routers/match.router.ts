@@ -2,6 +2,7 @@ import { feedbackSignalSchema, likeSchema, skipSchema } from '@matrimonial/share
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
+import { requireMembership } from '../middlewares/requireMembership';
 import { RecommendAdapter } from '../../adapters/recommend.adapter';
 import { CreditsService } from '../../modules/credits/credits.service';
 import { NotificationService } from '../../modules/notification/notification.module';
@@ -498,8 +499,8 @@ export const matchRouter = router({
       });
     }),
 
-  /** Get users who liked me but I haven't acted on */
-  likedMe: protectedProcedure.query(async ({ ctx }) => {
+  /** Get users who liked me but I haven't acted on — requires MONTHLY membership */
+  likedMe: requireMembership('MONTHLY').query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
     // Get IDs I have already interacted with
@@ -567,8 +568,9 @@ export const matchRouter = router({
   /**
    * Task 2: Daily picks — 5 high-quality users with day-level caching + dedup.
    * Accepts optional excludeIds to avoid overlap with main recommendation list.
+   * Requires MONTHLY membership.
    */
-  dailyPicks: protectedProcedure
+  dailyPicks: requireMembership('MONTHLY')
     .input(
       z
         .object({

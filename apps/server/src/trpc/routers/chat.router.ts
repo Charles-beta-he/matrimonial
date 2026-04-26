@@ -2,6 +2,7 @@ import { sendMessageSchema } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
+import { requireMembership } from '../middlewares/requireMembership';
 import { audit } from '../../adapters/audit.adapter';
 import { NotificationService } from '../../modules/notification/notification.module';
 import { logger } from '../../lib/logger';
@@ -205,8 +206,8 @@ export const chatRouter = router({
       return message;
     }),
 
-  /** Mark a conversation as read */
-  markRead: protectedProcedure
+  /** Mark a conversation as read — requires QUARTERLY membership */
+  markRead: requireMembership('QUARTERLY')
     .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;

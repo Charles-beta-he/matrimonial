@@ -5,8 +5,10 @@ import {
   updatePromptSchema,
 } from '@matrimonial/shared';
 import { TRPCError } from '@trpc/server';
+import type { Membership } from '@prisma/client';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../base';
+import { requireMembership } from '../middlewares/requireMembership';
 
 export const userRouter = router({
   /** Register or update push token for push notifications */
@@ -182,7 +184,7 @@ export const userRouter = router({
     });
   }),
 
-  /** Update privacy settings */
+  /** Update privacy settings — incognito field requires QUARTERLY membership */
   updatePrivacy: protectedProcedure
     .input(
       z.object({
@@ -195,6 +197,31 @@ export const userRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      // Incognito mode is a QUARTERLY+ feature — gate server-side
+      if (input.incognito !== undefined) {
+        const memberUser = await ctx.prisma.user.findUnique({
+          where: { id: ctx.user.id },
+          select: { membership: true, membershipExpiry: true },
+        });
+        const QUARTERLY_RANK = 2;
+        const PLAN_RANK: Record<Membership, number> = {
+          FREE: 0,
+          MONTHLY: 1,
+          QUARTERLY: 2,
+          YEARLY: 3,
+        };
+        const plan: Membership = memberUser?.membership ?? 'FREE';
+        const expiry = memberUser?.membershipExpiry;
+        const isExpired = expiry !== null && expiry !== undefined && expiry < new Date();
+        const effectiveRank = isExpired ? 0 : PLAN_RANK[plan];
+        if (effectiveRank < QUARTERLY_RANK) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: '会员功能 · 升级解锁',
+          });
+        }
+      }
+
       const data: Record<string, unknown> = {};
       if (input.blurPhotos !== undefined) data.privacyBlurPhotos = input.blurPhotos;
       if (input.incognito !== undefined) data.privacyIncognito = input.incognito;
